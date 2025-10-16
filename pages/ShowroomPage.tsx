@@ -1,8 +1,20 @@
-
-
 import React, { useState, useRef } from 'react';
 import { Genre, PortfolioItem } from '../App';
 import PortfolioModal from '../components/PortfolioModal';
+
+const getMimeType = (url: string): string => {
+    if (url.startsWith('data:')) {
+        const mime = url.substring(5, url.indexOf(';'));
+        return mime || 'video/mp4';
+    }
+    const extension = url.split(/[#?]/)[0].split('.').pop()?.trim().toLowerCase();
+    switch (extension) {
+        case 'mp4': return 'video/mp4';
+        case 'webm': return 'video/webm';
+        case 'ogg': return 'video/ogg';
+        default: return 'video/mp4';
+    }
+};
 
 interface ShowroomProps {
   showroomData: Genre[];
@@ -15,7 +27,15 @@ const ShowroomGridItem: React.FC<{ item: PortfolioItem, onClick: () => void }> =
 
   const handleMouseEnter = () => {
     if (videoRef.current) {
-      videoRef.current.play().catch(error => console.error("Video play failed:", error));
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          // Ignore AbortError which is expected if hover is quickly removed
+          if (error.name !== 'AbortError') {
+            console.error("Video play failed:", error);
+          }
+        });
+      }
     }
   };
 
@@ -45,12 +65,14 @@ const ShowroomGridItem: React.FC<{ item: PortfolioItem, onClick: () => void }> =
           {item.videoData && (
             <video
               ref={videoRef}
-              src={item.videoData}
               className="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               muted
               loop
               playsInline
-            />
+              preload="metadata"
+            >
+              <source src={item.videoData} type={getMimeType(item.videoData)} />
+            </video>
           )}
         </div>
       </button>

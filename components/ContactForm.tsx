@@ -134,11 +134,11 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAddBooking }) => {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                               <div>
                                   <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-2">Name</label>
-                                  <input type="text" id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Full Name" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green" required/>
+                                  <input type="text" id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Full Name" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 text-white focus:ring-brand-green focus:border-brand-green" required/>
                               </div>
                               <div>
                                   <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">Email</label>
-                                  <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email Address" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green" required/>
+                                  <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email Address" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 text-white focus:ring-brand-green focus:border-brand-green" required/>
                               </div>
                           </div>
 
@@ -153,21 +153,21 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAddBooking }) => {
                           {contactMethod === 'whatsapp' && (
                               <div className="animate-fade-in">
                                   <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-400 mb-2">WhatsApp Number</label>
-                                  <input type="tel" id="whatsapp" value={whatsappNumber} onChange={e => setWhatsappNumber(e.target.value)} placeholder="e.g. 27795904162" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green" required/>
+                                  <input type="tel" id="whatsapp" value={whatsappNumber} onChange={e => setWhatsappNumber(e.target.value)} placeholder="e.g. 27795904162" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 text-white focus:ring-brand-green focus:border-brand-green" required/>
                               </div>
                           )}
 
                           <div>
                               <label htmlFor="bookingDate" className="block text-sm font-medium text-gray-400 mb-2">Preferred Date</label>
-                              <input type="date" id="bookingDate" value={bookingDate} onChange={e => setBookingDate(e.target.value)} min={today} className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green" required style={{ colorScheme: 'dark' }} />
+                              <input type="date" id="bookingDate" value={bookingDate} onChange={e => setBookingDate(e.target.value)} min={today} className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 text-white focus:ring-brand-green focus:border-brand-green" required style={{ colorScheme: 'dark' }} />
                           </div>
                           <div>
                           <label htmlFor="message" className="block text-sm font-medium text-gray-400 mb-2">Message</label>
-                          <textarea id="message" rows={4} value={message} onChange={e => setMessage(e.target.value)} placeholder="Tell us about the tattoo you have in mind..." className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green" required></textarea>
+                          <textarea id="message" rows={4} value={message} onChange={e => setMessage(e.target.value)} placeholder="Tell us about the tattoo you have in mind..." className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 text-white focus:ring-brand-green focus:border-brand-green" required></textarea>
                           </div>
                           <div>
                               <label htmlFor="referenceImage" className="block text-sm font-medium text-gray-400 mb-2">Reference Images (Optional, up to 5)</label>
-                              <input type="file" id="referenceImage" multiple accept="image/*" onChange={handleImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20"/>
+                              <input type="file" id="referenceImage" multiple accept="image/*" onChange={handleImageChange} className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20"/>
                               {referenceImagePreviews.length > 0 && (
                                   <div className="mt-4 flex flex-wrap gap-2">
                                       {referenceImagePreviews.map((src, index) => (

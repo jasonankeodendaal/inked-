@@ -12,6 +12,18 @@
     {
       "src": "https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png",
       "type": "image/png",
+      "sizes": "256x256",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png",
+      "type": "image/png",
+      "sizes": "384x384",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png",
+      "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
@@ -22,7 +34,10 @@
   "theme_color": "#0a0a0a",
   "background_color": "#0a0a0a",
   "orientation": "portrait-primary",
-  "categories": ["lifestyle", "personalization"],
+  "categories": [
+    "lifestyle",
+    "personalization"
+  ],
   "screenshots": [
     {
       "src": "https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png",
@@ -41,6 +56,20 @@
       "type": "image/png",
       "sizes": "1080x1080",
       "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Book Appointment",
+      "short_name": "Book Now",
+      "description": "Open the booking request form",
+      "url": "/#contact-form"
+    },
+    {
+      "name": "View Showroom",
+      "short_name": "Showroom",
+      "description": "Browse our portfolio of work",
+      "url": "/#showroom"
     }
   ],
   "prefer_related_applications": true,

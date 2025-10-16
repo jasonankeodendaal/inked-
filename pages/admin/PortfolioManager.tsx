@@ -13,6 +13,20 @@ const fileToDataUrl = (file: File): Promise<string> => {
     });
 };
 
+const getMimeType = (url: string): string => {
+    if (url.startsWith('data:')) {
+        const mime = url.substring(5, url.indexOf(';'));
+        return mime || 'video/mp4';
+    }
+    const extension = url.split(/[#?]/)[0].split('.').pop()?.trim().toLowerCase();
+    switch (extension) {
+        case 'mp4': return 'video/mp4';
+        case 'webm': return 'video/webm';
+        case 'ogg': return 'video/ogg';
+        default: return 'video/mp4';
+    }
+};
+
 const PortfolioItemEditForm = ({
   initialItem,
   onSave,
@@ -112,7 +126,9 @@ const PortfolioItemEditForm = ({
                 <label className="block text-sm font-semibold text-admin-dark-text-secondary">Video (Optional)</label>
                 {videoData ? (
                     <div className="relative">
-                        <video src={videoData} className="w-full rounded-lg bg-black" controls />
+                        <video className="w-full rounded-lg bg-black" controls>
+                           <source src={videoData} type={getMimeType(videoData)} />
+                        </video>
                         <button type="button" onClick={() => setVideoData(null)} className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full hover:bg-red-500/80 transition-colors" aria-label="Remove video">
                             <TrashIcon className="w-4 h-4" />
                         </button>

@@ -1,6 +1,21 @@
 
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { PortfolioItem } from '../App';
+
+const getMimeType = (url: string): string => {
+    if (url.startsWith('data:')) {
+        const mime = url.substring(5, url.indexOf(';'));
+        return mime || 'video/mp4';
+    }
+    const extension = url.split(/[#?]/)[0].split('.').pop()?.trim().toLowerCase();
+    switch (extension) {
+        case 'mp4': return 'video/mp4';
+        case 'webm': return 'video/webm';
+        case 'ogg': return 'video/ogg';
+        default: return 'video/mp4';
+    }
+};
 
 const CarouselMediaItem: React.FC<{ item: PortfolioItem }> = ({ item }) => {
   const [media, setMedia] = useState<(string)[]>([]);
@@ -54,15 +69,17 @@ const CarouselMediaItem: React.FC<{ item: PortfolioItem }> = ({ item }) => {
             {isVideo(url) ? (
               <video
                 ref={active ? videoRef : null}
-                src={url}
                 className="w-full h-full object-cover"
                 autoPlay={active}
                 muted
                 loop={media.length === 1}
                 onEnded={media.length > 1 ? handleVideoEnd : undefined}
                 playsInline
+                preload="metadata"
                 key={url} // Add key to force re-render on src change
-              />
+              >
+                <source src={url} type={getMimeType(url)} />
+              </video>
             ) : (
               <img
                 src={url}
