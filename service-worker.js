@@ -7,18 +7,21 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox
 const offlineFallbackPage = "offline.html";
 const offlineFallbackImage = 'https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png';
 
-self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
-});
-
-self.addEventListener('install', async (event) => {
+// On install, precache the offline fallback page and image, then activate immediately.
+self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_OFFLINE)
       .then((cache) => cache.addAll([offlineFallbackPage, offlineFallbackImage]))
   );
+  // Force the waiting service worker to become the active service worker.
+  self.skipWaiting();
 });
+
+// After activation, take control of all open clients.
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 
 if (workbox.navigationPreload.isSupported()) {
   workbox.navigationPreload.enable();
