@@ -5,10 +5,13 @@ import XIcon from './icons/XIcon';
 interface HeaderProps {
   onNavigate: (view: 'home' | 'admin') => void;
   logoUrl: string;
+  companyName: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ onNavigate, logoUrl }) => {
+const Header: React.FC<HeaderProps> = ({ onNavigate, logoUrl, companyName }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const scrollingTextContent = (`${companyName} • `).repeat(5);
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, view?: 'home' | 'admin') => {
     e.preventDefault();
@@ -31,6 +34,15 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, logoUrl }) => {
             <img src={logoUrl} alt="Beautively Inked Logo" className="h-16 w-16 md:h-20 md:w-20 object-contain" />
           </a>
           
+          {/* Scrolling Ticker */}
+          <div className="flex-1 mx-4 sm:mx-8 overflow-hidden hidden md:block">
+            <div className="w-max flex animate-text-scroll transform-gpu">
+                <p className="font-script text-white/70 whitespace-nowrap tracking-widest">
+                    {scrollingTextContent} {scrollingTextContent}
+                </p>
+            </div>
+          </div>
+
           <div className="flex items-center gap-4">
              <a href="#" onClick={(e) => handleLinkClick(e, 'admin')} className="hidden md:block text-xs text-gray-500 hover:text-brand-light transition-colors">
                 Admin

@@ -6,10 +6,9 @@ import SearchIcon from './icons/SearchIcon';
 interface HeroProps {
   portfolioData: PortfolioItem[];
   onNavigate: (view: 'home' | 'admin') => void;
-  companyName: string;
 }
 
-const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) => {
+const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
 
@@ -39,24 +38,11 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) =
   const itemsForCarousel = featuredItems.length > 0 ? featuredItems : portfolioData.slice(0, 6);
   // Duplicate the array for a seamless infinite scroll effect
   const allPortfolioItems = itemsForCarousel.length > 0 ? [...itemsForCarousel, ...itemsForCarousel] : [];
-  // Repeat text to create a long string for a seamless scroll
-  const scrollingTextContent = (`${companyName} • `).repeat(5);
 
 
   return (
     <>
       <section className="relative h-screen bg-brand-dark text-brand-light overflow-hidden">
-        
-        <div className="absolute top-12 sm:top-20 left-0 w-full z-0 overflow-hidden pointer-events-none">
-            <div className="w-max flex animate-text-scroll transform-gpu">
-                <h2 className="text-[12vw] lg:text-[9vw] font-script text-white/10 whitespace-nowrap py-4 tracking-widest [text-shadow:1px_-1px_1px_rgba(224,224,224,0.15),-1px_1px_1px_rgba(10,10,10,0.5)]">
-                    {scrollingTextContent}
-                </h2>
-                <h2 className="text-[12vw] lg:text-[9vw] font-script text-white/10 whitespace-nowrap py-4 tracking-widest [text-shadow:1px_-1px_1px_rgba(224,224,224,0.15),-1px_1px_1px_rgba(10,10,10,0.5)]">
-                    {scrollingTextContent}
-                </h2>
-            </div>
-        </div>
         
         <div className="absolute top-0 left-0 w-full h-full z-0 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-transparent"></div>
         
@@ -69,9 +55,13 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) =
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[25rem] sm:w-[35rem] md:w-[40rem] lg:w-[50rem] max-w-none h-auto opacity-30 lg:opacity-40 transform rotate-[5deg] pointer-events-none [filter:brightness(1.2)_contrast(1.2)_saturate(1.1)_drop_shadow(0_35px_30px_rgba(0,0,0,0.9))]"
             />
             <h1 
-              className="relative z-10 font-script text-5xl sm:text-7xl md:text-8xl lg:text-9xl leading-tight tracking-wide text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400"
+              className="relative z-10 font-script text-5xl sm:text-7xl md:text-8xl lg:text-9xl leading-tight tracking-wide text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-100"
               style={{
-                  textShadow: '0 2px 2px rgba(0,0,0,0.5), 0 4px 6px rgba(0,0,0,0.3), 0 8px 12px rgba(0,0,0,0.2)'
+                  textShadow: `
+                    0px 2px 2px rgba(0,0,0,0.7),
+                    0px 4px 4px rgba(0,0,0,0.5),
+                    0px 8px 12px rgba(0,0,0,0.4)
+                  `
               }}
             >
               Where your story becomes art.
@@ -87,6 +77,17 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) =
                 Visit the Showroom
               </a>
             </div>
+            <div className="relative z-10 mt-16 sm:mt-24">
+              <div className="flex items-center justify-center gap-4 text-white/50">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 animate-bounce-horizontal-reverse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                </svg>
+                <span className="text-xs font-semibold tracking-widest">EXPLORE OUR WORK</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 animate-bounce-horizontal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </div>
+          </div>
           </div>
         </div>
         

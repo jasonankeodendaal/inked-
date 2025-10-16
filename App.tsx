@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -327,6 +329,17 @@ const App: React.FC = () => {
       // We don't clear site settings like company name, logo, billing, etc.
       alert('All mock data has been cleared!');
   };
+  
+  const handleLogout = () => {
+    // This function will be passed down to the AdminPage
+    // For now, it simply navigates home, but in a real app
+    // you might clear session storage, etc.
+    navigate('home');
+  };
+
+  if (isIntroVisible) {
+    return <WelcomeIntro isVisible={isIntroVisible} onEnter={handleEnter} logoUrl={logoUrl} />;
+  }
 
   if (currentView === 'admin') {
     return (
@@ -378,30 +391,28 @@ const App: React.FC = () => {
         onAccountTypeUpdate={setAccountType}
         vatNumber={vatNumber}
         onVatNumberUpdate={setVatNumber}
+        onLogout={handleLogout}
       />
     );
   }
 
   return (
     <>
-      <WelcomeIntro isVisible={isIntroVisible} onEnter={handleEnter} />
-      <div className={`bg-brand-dark text-white font-sans transition-opacity duration-1000 ${isIntroVisible ? 'opacity-0' : 'opacity-100'}`}>
-        <Header onNavigate={navigate} logoUrl={logoUrl}/>
-        <main>
-          <Hero portfolioData={portfolioData} onNavigate={navigate} companyName={companyName} />
-          <SpecialsCollage specials={specialsData} whatsAppNumber={whatsAppNumber} />
-          <AboutUs aboutUsImageUrl={aboutUsImageUrl} />
-          <Showroom showroomData={showroomData} />
-          <ContactForm onAddBooking={handleAddBooking} />
-        </main>
-        <Footer 
-          companyName={companyName} 
-          address={address}
-          phone={phone}
-          email={email}
-          socialLinks={socialLinks}
-        />
-      </div>
+      <Header onNavigate={navigate} logoUrl={logoUrl} companyName={companyName} />
+      <main>
+        <Hero portfolioData={portfolioData} onNavigate={navigate} />
+        <SpecialsCollage specials={specialsData} whatsAppNumber={whatsAppNumber} />
+        <Showroom showroomData={showroomData} />
+        <AboutUs aboutUsImageUrl={aboutUsImageUrl} />
+        <ContactForm onAddBooking={handleAddBooking} />
+      </main>
+      <Footer
+        companyName={companyName}
+        address={address}
+        phone={phone}
+        email={email}
+        socialLinks={socialLinks}
+      />
     </>
   );
 };
