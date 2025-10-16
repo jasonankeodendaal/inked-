@@ -23,10 +23,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- This meta-data tag contains the URL that will be launched by the TWA -->
+            <!--
+                [!!-CRITICAL-!!] THIS IS WHY YOU ARE GETTING A 404 ERROR.
+                You MUST replace "https://example.com" with the URL of your live website.
+                For example: android:value="https://beautively-inked.com"
+            -->
             <meta-data
                 android:name="android.support.customtabs.trusted.DEFAULT_URL"
-                android:value="https://YOUR_WEBSITE_URL_HERE" />
+                android:value="https://example.com" />
 
             <!--
                  This meta-data tag is used to specify a list of additional trusted origins.
