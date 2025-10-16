@@ -45,7 +45,7 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) =
 
   return (
     <>
-      <section className="relative h-screen bg-brand-dark text-brand-light flex flex-col items-center pt-32 sm:pt-0 sm:justify-center overflow-hidden">
+      <section className="relative h-screen bg-brand-dark text-brand-light overflow-hidden">
         
         <div className="absolute top-12 sm:top-20 left-0 w-full z-0 overflow-hidden pointer-events-none">
             <div className="w-max flex animate-text-scroll transform-gpu">
@@ -60,7 +60,7 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) =
         
         <div className="absolute top-0 left-0 w-full h-full z-0 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-transparent"></div>
         
-        <div className="relative z-20 text-center px-4 sm:-mt-16 [filter:drop-shadow(0_5px_8px_rgba(0,0,0,1))]">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] z-20 w-full text-center px-4 [filter:drop-shadow(0_5px_8px_rgba(0,0,0,1))]">
           <div className="relative">
             <img 
                 src="https://i.ibb.co/Mkfdy286/image-removebg-preview.png"
@@ -68,7 +68,12 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) =
                 aria-hidden="true"
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[25rem] sm:w-[35rem] md:w-[40rem] lg:w-[50rem] max-w-none h-auto opacity-30 lg:opacity-40 transform rotate-[5deg] pointer-events-none [filter:brightness(1.2)_contrast(1.2)_saturate(1.1)_drop_shadow(0_35px_30px_rgba(0,0,0,0.9))]"
             />
-            <h1 className="relative z-10 font-script text-4xl sm:text-6xl md:text-8xl lg:text-9xl leading-tight tracking-wide">
+            <h1 
+              className="relative z-10 font-script text-5xl sm:text-7xl md:text-8xl lg:text-9xl leading-tight tracking-wide text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400"
+              style={{
+                  textShadow: '0 2px 2px rgba(0,0,0,0.5), 0 4px 6px rgba(0,0,0,0.3), 0 8px 12px rgba(0,0,0,0.2)'
+              }}
+            >
               Where your story becomes art.
             </h1>
             <p className="relative z-10 mt-6 max-w-lg mx-auto text-gray-400 text-sm sm:text-base">

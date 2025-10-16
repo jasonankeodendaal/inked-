@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PortfolioItem } from '../App';
+import FullScreenImageViewer from './FullScreenImageViewer';
 
 interface PortfolioModalProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isClosing, setIsClosing] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
 
   const allImages = [item.primaryImage, ...item.galleryImages].filter(Boolean);
 
@@ -54,7 +56,13 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleClose();
+      if (e.key === 'Escape') {
+        if (fullScreenImage) {
+          setFullScreenImage(null);
+        } else {
+          handleClose();
+        }
+      }
       if (allImages.length > 1) {
         if (e.key === 'ArrowRight') nextImage();
         if (e.key === 'ArrowLeft') prevImage();
@@ -62,7 +70,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleClose, nextImage, prevImage, allImages.length]);
+  }, [handleClose, nextImage, prevImage, allImages.length, fullScreenImage]);
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -100,12 +108,18 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
           >
             <div className="relative w-full h-full">
               {allImages.map((src, index) => (
-                <img 
-                    key={`${item.id}-${index}`}
-                    src={src} 
-                    alt={`${item.title} - image ${index + 1}`} 
-                    className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-700 ease-in-out ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
-                />
+                <button
+                  key={`${item.id}-${index}`}
+                  onClick={() => setFullScreenImage(src)}
+                  className={`absolute inset-0 w-full h-full p-0 border-0 bg-transparent transition-opacity duration-700 ease-in-out cursor-zoom-in ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
+                  aria-label={`View image ${index + 1} in full screen`}
+                >
+                  <img 
+                      src={src} 
+                      alt={`${item.title} - image ${index + 1}`} 
+                      className="w-full h-full object-contain"
+                  />
+                </button>
               ))}
             </div>
             
@@ -142,6 +156,13 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
           </div>
         </div>
       </div>
+      {fullScreenImage && (
+        <FullScreenImageViewer
+          src={fullScreenImage}
+          alt="Full screen view"
+          onClose={() => setFullScreenImage(null)}
+        />
+      )}
     </div>
   );
 };

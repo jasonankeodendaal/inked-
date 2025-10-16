@@ -51,6 +51,8 @@ export interface AdminPageProps {
   onAccountTypeUpdate: (type: string) => void;
   vatNumber: string;
   onVatNumberUpdate: (num: string) => void;
+  // FIX: Add onLogout to the props interface
+  onLogout: () => void;
 }
 
 const AdminPage: React.FC<AdminPageProps> = (props) => {

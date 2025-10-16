@@ -41,6 +41,8 @@ export interface Booking {
   id: string;
   name: string;
   email: string;
+  whatsappNumber?: string;
+  contactMethod?: 'email' | 'whatsapp';
   message: string;
   bookingDate: string; // ISO string
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
@@ -48,6 +50,7 @@ export interface Booking {
   totalCost?: number;
   amountPaid?: number;
   paymentMethod?: 'cash' | 'card' | 'transfer' | 'other';
+  referenceImages?: string[]; // array of base64 data URLs
 }
 
 export interface Genre {
@@ -76,8 +79,8 @@ export interface InventoryItem {
 
 
 const initialBookingsData: Booking[] = [
-  { id: 'b1', name: 'Alice Johnson', email: 'alice@example.com', message: 'Interested in a floral sleeve for the preferred date.', bookingDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], status: 'pending', bookingType: 'online' },
-  { id: 'b2', name: 'Bob Williams', email: 'bob@example.com', message: 'Consultation for a large back piece.', bookingDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], status: 'pending', bookingType: 'online' },
+  { id: 'b1', name: 'Alice Johnson', email: 'alice@example.com', message: 'Interested in a floral sleeve for the preferred date.', bookingDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], status: 'pending', bookingType: 'online', contactMethod: 'email' },
+  { id: 'b2', name: 'Bob Williams', email: 'bob@example.com', message: 'Consultation for a large back piece.', bookingDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], status: 'pending', bookingType: 'online', contactMethod: 'whatsapp', whatsappNumber: '1234567890' },
   { id: 'b3', name: 'Charlie Brown', email: 'charlie@example.com', message: 'Looking to get a small wrist tattoo.', bookingDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], status: 'confirmed', bookingType: 'online', totalCost: 1200, amountPaid: 1200, paymentMethod: 'card' },
   { id: 'b4', name: 'Diana Miller', email: 'diana@example.com', message: 'Follow-up session for my sleeve.', bookingDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], status: 'completed', bookingType: 'manual', totalCost: 3500, amountPaid: 3500, paymentMethod: 'transfer' },
   { id: 'b5', name: 'Ethan Hunt', email: 'ethan@example.com', message: 'Cancelled due to scheduling conflict.', bookingDate: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], status: 'cancelled', bookingType: 'online' },
@@ -266,18 +269,17 @@ const App: React.FC = () => {
     setCurrentView(view);
   };
 
-  const handleAddBooking = (newBookingData: Omit<Booking, 'id' | 'status' | 'bookingType'> & { referenceImage?: string }) => {
-    const { referenceImage, ...bookingCoreData } = newBookingData;
+  const handleAddBooking = (newBookingData: Omit<Booking, 'id' | 'status' | 'bookingType'>) => {
     const newBooking: Booking = {
-      ...bookingCoreData,
+      ...newBookingData,
       id: Date.now().toString(),
       status: 'pending',
       bookingType: 'online',
     };
 
-    // In a real app with a backend, you would upload the referenceImage here.
-    if (referenceImage) {
-        console.log("Booking request includes a reference image.");
+    // In a real app with a backend, you would upload the referenceImages here.
+    if (newBooking.referenceImages && newBooking.referenceImages.length > 0) {
+        console.log(`Booking request includes ${newBooking.referenceImages.length} reference images.`);
     }
 
     setBookings(prevBookings => [newBooking, ...prevBookings]);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SpecialItem } from '../App';
+import FullScreenImageViewer from './FullScreenImageViewer';
 
 interface SpecialModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface SpecialModalProps {
 
 const SpecialModal: React.FC<SpecialModalProps> = ({ isOpen, onClose, item, createWhatsAppLink }) => {
   const [isClosing, setIsClosing] = useState(false);
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
 
   const handleClose = useCallback(() => {
     setIsClosing(true);
@@ -21,11 +23,17 @@ const SpecialModal: React.FC<SpecialModalProps> = ({ isOpen, onClose, item, crea
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleClose();
+      if (e.key === 'Escape') {
+        if (fullScreenImage) {
+          setFullScreenImage(null);
+        } else {
+          handleClose();
+        }
+      }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleClose]);
+  }, [handleClose, fullScreenImage]);
 
   if (!isOpen && !isClosing) return null;
 
@@ -65,7 +73,9 @@ const SpecialModal: React.FC<SpecialModalProps> = ({ isOpen, onClose, item, crea
       >
         <div className="max-h-[85vh] flex flex-col">
           <div className="relative flex-shrink-0">
-            <img src={item.imageUrl} alt={item.title} className="w-full h-48 object-cover"/>
+            <button onClick={() => setFullScreenImage(item.imageUrl)} className="w-full h-48 block cursor-zoom-in" aria-label="View image in full screen">
+              <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover pointer-events-none"/>
+            </button>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             <div className="absolute bottom-0 left-0 p-6">
               <h2 id="special-title" className="font-script text-4xl text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.5)]">{item.title}</h2>
@@ -117,6 +127,13 @@ const SpecialModal: React.FC<SpecialModalProps> = ({ isOpen, onClose, item, crea
           </div>
         </div>
       </div>
+      {fullScreenImage && (
+        <FullScreenImageViewer
+          src={fullScreenImage}
+          alt={item.title}
+          onClose={() => setFullScreenImage(null)}
+        />
+      )}
     </div>
   );
 };

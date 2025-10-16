@@ -7,7 +7,9 @@ const ExpenseForm: React.FC<{
     onSave: (expense: Omit<Expense, 'id'> | Expense) => void;
     onCancel: () => void;
 }> = ({ expense, onSave, onCancel }) => {
-    const [formData, setFormData] = useState(expense || { date: new Date().toISOString().split('T')[0], category: 'Supplies' });
+    // FIX: Explicitly type the state to ensure formData always conforms to Partial<Expense>.
+    // This prevents type errors when accessing properties that might not be in the initial object for a new expense.
+    const [formData, setFormData] = useState<Partial<Expense>>(expense || { date: new Date().toISOString().split('T')[0], category: 'Supplies' });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;

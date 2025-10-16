@@ -120,11 +120,13 @@ const SpecialsManager: React.FC<{
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
         
+        // FIX: Cast currentItem.details to 'any' to resolve the 'never' type issue
+        // caused by the form input being a string while the model type is string[].
         const processedItem: Partial<SpecialItem> = {
             ...currentItem,
             priceValue: currentItem.priceValue ? parseFloat(String(currentItem.priceValue)) : undefined,
-            details: typeof currentItem.details === 'string' 
-                ? currentItem.details.split('\n').map(s => s.trim()).filter(Boolean) 
+            details: typeof (currentItem.details as any) === 'string'
+                ? (currentItem.details as any).split('\n').map((s: string) => s.trim()).filter(Boolean)
                 : currentItem.details,
         };
         

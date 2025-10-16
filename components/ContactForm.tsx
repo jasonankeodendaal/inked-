@@ -11,63 +11,76 @@ const fileToDataUrl = (file: File): Promise<string> => {
 };
 
 interface ContactFormProps {
-    onAddBooking: (booking: Omit<Booking, 'id' | 'status' | 'bookingType'> & { referenceImage?: string }) => void;
+    onAddBooking: (booking: Omit<Booking, 'id' | 'status' | 'bookingType'>) => void;
 }
 
 const ContactForm: React.FC<ContactFormProps> = ({ onAddBooking }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [contactMethod, setContactMethod] = useState<'email' | 'whatsapp'>('email');
   const [message, setMessage] = useState('');
   const [bookingDate, setBookingDate] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [referenceImage, setReferenceImage] = useState<File | null>(null);
-  const [referenceImagePreview, setReferenceImagePreview] = useState<string>('');
+  const [referenceImages, setReferenceImages] = useState<File[]>([]);
+  const [referenceImagePreviews, setReferenceImagePreviews] = useState<string[]>([]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        setReferenceImage(file);
+    if (e.target.files && e.target.files.length > 0) {
+        const files = Array.from(e.target.files);
+        if (files.length > 5) {
+            setErrorMessage("You can only upload a maximum of 5 images.");
+            e.target.value = ''; // Clear the input
+            return;
+        }
+        setReferenceImages(files);
         try {
-            const dataUrl = await fileToDataUrl(file);
-            setReferenceImagePreview(dataUrl);
+            const dataUrls = await Promise.all(files.map(fileToDataUrl));
+            setReferenceImagePreviews(dataUrls);
         } catch (error) {
-            console.error("Error creating image preview:", error);
-            setReferenceImagePreview('');
+            console.error("Error creating image previews:", error);
+            setReferenceImagePreviews([]);
         }
     } else {
-        setReferenceImage(null);
-        setReferenceImagePreview('');
+        setReferenceImages([]);
+        setReferenceImagePreviews([]);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !message || !bookingDate) {
-      setErrorMessage('Please fill out all fields to request a booking.');
+      setErrorMessage('Please fill out all required fields to request a booking.');
+      return;
+    }
+    if (contactMethod === 'whatsapp' && !whatsappNumber) {
+      setErrorMessage('Please provide your WhatsApp number if you prefer to be contacted that way.');
       return;
     }
     
-    let referenceImageDataUrl: string | undefined = undefined;
-    if (referenceImage) {
+    let referenceImageDataUrls: string[] = [];
+    if (referenceImages.length > 0) {
         try {
-            referenceImageDataUrl = await fileToDataUrl(referenceImage);
+            referenceImageDataUrls = await Promise.all(referenceImages.map(fileToDataUrl));
         } catch (error) {
-            console.error("Error processing image:", error);
-            setErrorMessage('There was an error processing your image. Please try again.');
+            console.error("Error processing images:", error);
+            setErrorMessage('There was an error processing your images. Please try again.');
             return;
         }
     }
 
-    onAddBooking({ name, email, message, bookingDate, referenceImage: referenceImageDataUrl });
+    onAddBooking({ name, email, message, bookingDate, whatsappNumber, contactMethod, referenceImages: referenceImageDataUrls });
     
     // Reset form and show success message
     setName('');
     setEmail('');
+    setWhatsappNumber('');
+    setContactMethod('email');
     setMessage('');
     setBookingDate('');
-    setReferenceImage(null);
-    setReferenceImagePreview('');
+    setReferenceImages([]);
+    setReferenceImagePreviews([]);
     setErrorMessage('');
     setSuccessMessage('Your booking request has been sent! We will contact you shortly to confirm.');
     setTimeout(() => setSuccessMessage(''), 5000);
@@ -112,28 +125,50 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAddBooking }) => {
                 <div className="bg-black/20 border border-white/10 rounded-2xl p-8 shadow-2xl shadow-black/50">
                     <h3 className="font-bold text-2xl mb-6 text-white text-center">Request a Booking</h3>
                     <form onSubmit={handleSubmit} className="space-y-6 text-left">
-                        <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-2">Name</label>
-                        <input type="text" id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Full Name" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green"/>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-2">Name</label>
+                                <input type="text" id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Full Name" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green" required/>
+                            </div>
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">Email</label>
+                                <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email Address" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green" required/>
+                            </div>
                         </div>
+
                         <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">Email</label>
-                        <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email Address" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green"/>
+                            <label className="block text-sm font-medium text-gray-400 mb-2">Preferred Contact Method</label>
+                            <div className="flex gap-1 rounded-md bg-brand-dark border border-gray-700 p-1">
+                                <button type="button" onClick={() => setContactMethod('email')} className={`w-1/2 p-2 rounded text-sm font-semibold transition-colors ${contactMethod === 'email' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5'}`}>Email</button>
+                                <button type="button" onClick={() => setContactMethod('whatsapp')} className={`w-1/2 p-2 rounded text-sm font-semibold transition-colors ${contactMethod === 'whatsapp' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5'}`}>WhatsApp</button>
+                            </div>
                         </div>
+
+                        {contactMethod === 'whatsapp' && (
+                            <div className="animate-fade-in">
+                                <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-400 mb-2">WhatsApp Number</label>
+                                <input type="tel" id="whatsapp" value={whatsappNumber} onChange={e => setWhatsappNumber(e.target.value)} placeholder="e.g. 27795904162" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green" required/>
+                            </div>
+                        )}
+
                         <div>
                             <label htmlFor="bookingDate" className="block text-sm font-medium text-gray-400 mb-2">Preferred Date</label>
-                            <input type="date" id="bookingDate" value={bookingDate} onChange={e => setBookingDate(e.target.value)} min={today} className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green" style={{ colorScheme: 'dark' }} />
+                            <input type="date" id="bookingDate" value={bookingDate} onChange={e => setBookingDate(e.target.value)} min={today} className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green" required style={{ colorScheme: 'dark' }} />
                         </div>
                         <div>
                         <label htmlFor="message" className="block text-sm font-medium text-gray-400 mb-2">Message</label>
-                        <textarea id="message" rows={4} value={message} onChange={e => setMessage(e.target.value)} placeholder="Tell us about the tattoo you have in mind..." className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green"></textarea>
+                        <textarea id="message" rows={4} value={message} onChange={e => setMessage(e.target.value)} placeholder="Tell us about the tattoo you have in mind..." className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-green focus:border-brand-green" required></textarea>
                         </div>
                         <div>
-                            <label htmlFor="referenceImage" className="block text-sm font-medium text-gray-400 mb-2">Reference Image (Optional)</label>
-                            <div className="flex items-center gap-4">
-                                {referenceImagePreview && <img src={referenceImagePreview} alt="Preview" className="w-16 h-16 object-cover rounded-md flex-shrink-0" />}
-                                <input type="file" id="referenceImage" accept="image/*" onChange={handleImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20"/>
-                            </div>
+                            <label htmlFor="referenceImage" className="block text-sm font-medium text-gray-400 mb-2">Reference Images (Optional, up to 5)</label>
+                            <input type="file" id="referenceImage" multiple accept="image/*" onChange={handleImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20"/>
+                            {referenceImagePreviews.length > 0 && (
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    {referenceImagePreviews.map((src, index) => (
+                                        <img key={index} src={src} alt={`Preview ${index + 1}`} className="w-16 h-16 object-cover rounded-md" />
+                                    ))}
+                                </div>
+                            )}
                         </div>
                         
                         {errorMessage && <p className="text-center text-red-400 text-sm">{errorMessage}</p>}
