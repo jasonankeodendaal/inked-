@@ -1,8 +1,9 @@
-// FIX: Add missing React import
+
 import React, { useState, MouseEvent } from 'react';
 import { PortfolioItem } from '../App';
 import PortfolioModal from './PortfolioModal';
 import SearchIcon from './icons/SearchIcon';
+import CarouselMediaItem from './CarouselMediaItem';
 
 interface HeroProps {
   portfolioData: PortfolioItem[];
@@ -96,24 +97,13 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate }) => {
           <div className="absolute top-0 w-full h-full [transform-style:preserve-3d] [transform:rotateX(55deg)] md:[transform:rotateX(50deg)]">
             <div className="absolute h-full w-max flex animate-infinite-scroll group">
               {allPortfolioItems.map((item, index) => (
-                <div key={`${item.id}-${index}`} className="w-[140px] h-[210px] sm:w-[180px] h-[270px] md:w-[250px] md:h-[350px] m-1 sm:m-3 md:m-4 rounded-2xl overflow-hidden shadow-2xl shadow-black/80 flex-shrink-0 transition-all duration-300 hover:!scale-110 relative hover:shadow-white/10">
+                <div key={`${item.id}-${index}`} className="w-[140px] h-[210px] sm:w-[180px] sm:h-[270px] md:w-[250px] md:h-[350px] m-1 sm:m-3 md:m-4 rounded-2xl overflow-hidden shadow-2xl shadow-black/80 flex-shrink-0 transition-all duration-300 hover:!scale-110 relative hover:shadow-white/10">
+                  <CarouselMediaItem item={item} />
                   <button 
                     onClick={() => handleImageClick(item)} 
-                    className="w-full h-full block"
+                    className="w-full h-full block absolute inset-0"
                     aria-label={`View details for ${item.title}`}
                   >
-                    {item.videoData ? (
-                      <video 
-                        src={item.videoData} 
-                        className="w-full h-full object-cover" 
-                        autoPlay 
-                        loop 
-                        muted 
-                        playsInline
-                      />
-                    ) : (
-                      <img src={item.primaryImage} alt={item.title} className="w-full h-full object-cover" />
-                    )}
                     <div className="absolute inset-0 bg-black/20 opacity-100 group-hover:opacity-0 transition-opacity duration-300"></div>
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <SearchIcon className="w-12 h-12 text-white/80" />

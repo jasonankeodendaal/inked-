@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { SocialLink, PortfolioItem, SpecialItem, Genre, Booking, Expense, InventoryItem } from '../../App';
 
@@ -30,6 +31,12 @@ interface SettingsManagerProps {
   vatNumber: string;
   onVatNumberUpdate: (num: string) => void;
   
+  // Page Content
+  showroomTitle: string;
+  onShowroomTitleUpdate: (title: string) => void;
+  showroomDescription: string;
+  onShowroomDescriptionUpdate: (description: string) => void;
+
   // Data Arrays (for backup)
   portfolioData: PortfolioItem[];
   specialsData: SpecialItem[];
@@ -69,6 +76,10 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
   const [localEmail, setLocalEmail] = useState(props.email);
   const [localSocialLinks, setLocalSocialLinks] = useState<SocialLink[]>(props.socialLinks);
   
+  // Page Content state
+  const [localShowroomTitle, setLocalShowroomTitle] = useState(props.showroomTitle);
+  const [localShowroomDescription, setLocalShowroomDescription] = useState(props.showroomDescription);
+
   // New billing state
   const [localBankName, setLocalBankName] = useState(props.bankName);
   const [localAccountNumber, setLocalAccountNumber] = useState(props.accountNumber);
@@ -94,6 +105,10 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
     props.onBranchCodeUpdate(localBranchCode);
     props.onAccountTypeUpdate(localAccountType);
     props.onVatNumberUpdate(localVatNumber);
+    // Save page content
+    props.onShowroomTitleUpdate(localShowroomTitle);
+    props.onShowroomDescriptionUpdate(localShowroomDescription);
+
 
     setSavedMessage('Settings saved successfully!');
     setTimeout(() => setSavedMessage(''), 3000);
@@ -153,6 +168,8 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
                 branchCode: props.branchCode,
                 accountType: props.accountType,
                 vatNumber: props.vatNumber,
+                showroomTitle: props.showroomTitle,
+                showroomDescription: props.showroomDescription,
             },
             portfolioData: props.portfolioData,
             specialsData: props.specialsData,
@@ -217,6 +234,8 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
                   props.onBranchCodeUpdate(data.settings.branchCode);
                   props.onAccountTypeUpdate(data.settings.accountType);
                   props.onVatNumberUpdate(data.settings.vatNumber);
+                  props.onShowroomTitleUpdate(data.settings.showroomTitle || 'The Flash Wall');
+                  props.onShowroomDescriptionUpdate(data.settings.showroomDescription || "A curated collection of our work, showcasing the skill, diversity, and passion we bring to every piece.");
 
                   // Restore data arrays
                   props.onPortfolioUpdate(data.portfolioData);
@@ -272,6 +291,21 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
                 {localAboutUsImageUrl && <img src={localAboutUsImageUrl} alt="Artist portrait preview" className="w-16 h-16 rounded-full bg-white/10 p-1 object-cover"/>}
                 <input type="file" id="aboutUsImage" accept="image/png, image/jpeg" onChange={handleAboutUsImageUpload} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40" />
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Page Content Section */}
+        <section>
+          <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">📄 Page Content</h3>
+          <div className="space-y-6">
+            <div>
+              <label htmlFor="showroomTitle" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Showroom Title </label>
+              <input type="text" id="showroomTitle" value={localShowroomTitle} onChange={(e) => setLocalShowroomTitle(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+            </div>
+            <div>
+              <label htmlFor="showroomDescription" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Showroom Description </label>
+              <textarea id="showroomDescription" value={localShowroomDescription} onChange={(e) => setLocalShowroomDescription(e.target.value)} rows={3} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
             </div>
           </div>
         </section>

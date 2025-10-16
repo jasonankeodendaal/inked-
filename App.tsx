@@ -125,6 +125,7 @@ const initialPortfolioData: PortfolioItem[] = [
       'https://picsum.photos/id/1018/1200/800',
       'https://picsum.photos/seed/forest-lines/1200/800',
     ],
+    videoData: 'https://assets.mixkit.co/videos/preview/mixkit-black-and-white-video-of-a-man-with-a-beard-34441-large.mp4',
     featured: false,
   },
   {
@@ -155,7 +156,9 @@ const initialPortfolioData: PortfolioItem[] = [
     primaryImage: 'https://picsum.photos/id/1022/400/600',
     galleryImages: [
         'https://picsum.photos/id/1022/1200/800',
+        'https://picsum.photos/seed/mech-heart/1200/800'
     ],
+    videoData: 'https://assets.mixkit.co/videos/preview/mixkit-futuristic-long-corridor-42419-large.mp4',
     featured: true,
   },
 ];
@@ -247,6 +250,10 @@ const App: React.FC = () => {
   const [email, setEmail] = useState('contact@beautivelyinked.com');
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   
+  // Page content settings
+  const [showroomTitle, setShowroomTitle] = useState('The Flash Wall');
+  const [showroomDescription, setShowroomDescription] = useState("A curated collection of our work, showcasing the skill, diversity, and passion we bring to every piece.");
+
   // New billing settings state
   const [bankName, setBankName] = useState('FNB');
   const [accountNumber, setAccountNumber] = useState('1234567890');
@@ -395,6 +402,10 @@ const App: React.FC = () => {
         vatNumber={vatNumber}
         onVatNumberUpdate={setVatNumber}
         onLogout={handleLogout}
+        showroomTitle={showroomTitle}
+        onShowroomTitleUpdate={setShowroomTitle}
+        showroomDescription={showroomDescription}
+        onShowroomDescriptionUpdate={setShowroomDescription}
       />
     );
   }
@@ -405,7 +416,11 @@ const App: React.FC = () => {
       <main>
         <Hero portfolioData={portfolioData} onNavigate={navigate} />
         <SpecialsCollage specials={specialsData} whatsAppNumber={whatsAppNumber} />
-        <Showroom showroomData={showroomData} />
+        <Showroom 
+          showroomData={showroomData} 
+          showroomTitle={showroomTitle} 
+          showroomDescription={showroomDescription} 
+        />
         <AboutUs aboutUsImageUrl={aboutUsImageUrl} />
         <ContactForm onAddBooking={handleAddBooking} />
       </main>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import AdminLoginPage from './AdminLoginPage';
 import AdminDashboard from './admin/AdminDashboard';
@@ -51,8 +52,11 @@ export interface AdminPageProps {
   onAccountTypeUpdate: (type: string) => void;
   vatNumber: string;
   onVatNumberUpdate: (num: string) => void;
-  // FIX: Add onLogout to the props interface
   onLogout: () => void;
+  showroomTitle: string;
+  onShowroomTitleUpdate: (title: string) => void;
+  showroomDescription: string;
+  onShowroomDescriptionUpdate: (description: string) => void;
 }
 
 const AdminPage: React.FC<AdminPageProps> = (props) => {
