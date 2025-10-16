@@ -1,91 +1,59 @@
-const CACHE_NAME = 'beautively-inked-cache-v2';
-const URLS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/index.tsx',
-  '/manifest.json',
-  // Critical CSS & Fonts
-  'https://cdn.tailwindcss.com',
-  'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Dancing+Script:wght@700&display=swap',
-  // Critical JS libraries
-  'https://aistudiocdn.com/react@^19.2.0',
-  'https://aistudiocdn.com/react-dom@^19.2.0/client',
-  // Key Images
-  'https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png', // Logo
-  'https://i.ibb.co/Mkfdy286/image-removebg-preview.png' // Hero BG
+const CACHE = "pwabuilder-offline-page";
+
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
+
+const offlineFallbackPage = "offline.html";
+const assetsToCache = [
+    offlineFallbackPage,
+    // Logo used on the offline page
+    'https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png',
 ];
 
-// Install a service worker
-self.addEventListener('install', event => {
-  // Perform install steps
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
+self.addEventListener('install', async (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(function(cache) {
-        console.log('Opened cache and caching app shell');
-        return cache.addAll(URLS_TO_CACHE);
-      })
+    caches.open(CACHE)
+      .then((cache) => cache.addAll(assetsToCache))
   );
 });
 
-// Cache and return requests
-self.addEventListener('fetch', event => {
-  // Ignore non-GET requests and chrome extension requests
-  if (event.request.method !== 'GET' || event.request.url.startsWith('chrome-extension://')) {
-    return;
-  }
-  
-  // For navigation requests (e.g., loading the page), use a Network Falling Back to Cache strategy.
+if (workbox.navigationPreload.isSupported()) {
+  workbox.navigationPreload.enable();
+}
+
+// Cache assets (CSS, JS, images) using a Stale-While-Revalidate strategy.
+// This route will not handle navigation requests, which are handled by the custom fetch listener below.
+workbox.routing.registerRoute(
+  ({request}) => request.mode !== 'navigate',
+  new workbox.strategies.StaleWhileRevalidate({
+    cacheName: CACHE
+  })
+);
+
+// Custom fetch handler for navigation requests: try network, then fallback to offline page.
+self.addEventListener('fetch', (event) => {
   if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          // If the network request is successful, cache it and return it.
-          return caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, response.clone());
-            return response;
-          });
-        })
-        .catch(() => {
-          // If the network request fails, try to serve the response from the cache.
-          // Fallback to the root page if the specific page isn't cached.
-          return caches.match(event.request).then(response => response || caches.match('/'));
-        })
-    );
-    return;
+    event.respondWith((async () => {
+      try {
+        const preloadResp = await event.preloadResponse;
+
+        if (preloadResp) {
+          return preloadResp;
+        }
+
+        const networkResp = await fetch(event.request);
+        return networkResp;
+      } catch (error) {
+        console.log('Fetch failed; returning offline page instead.', error);
+        const cache = await caches.open(CACHE);
+        const cachedResp = await cache.match(offlineFallbackPage);
+        return cachedResp;
+      }
+    })());
   }
-
-  // For all other requests (assets like CSS, JS, images), use a Stale-While-Revalidate strategy.
-  event.respondWith(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.match(event.request).then(cachedResponse => {
-        // Fetch the latest version from the network.
-        const fetchPromise = fetch(event.request).then(networkResponse => {
-          // If successful, update the cache.
-          cache.put(event.request, networkResponse.clone());
-          return networkResponse;
-        });
-
-        // Return the cached response immediately if it exists, otherwise wait for the network response.
-        return cachedResponse || fetchPromise;
-      });
-    })
-  );
-});
-
-
-// Activate event: clean up old caches
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
 });
