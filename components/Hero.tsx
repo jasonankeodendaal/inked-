@@ -1,5 +1,5 @@
-
-import React, 'react';
+// FIX: Add missing React import
+import React, { useState, MouseEvent } from 'react';
 import { PortfolioItem } from '../App';
 import PortfolioModal from './PortfolioModal';
 import SearchIcon from './icons/SearchIcon';
@@ -10,8 +10,8 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate }) => {
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [selectedItem, setSelectedItem] = React.useState<PortfolioItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
 
   const handleImageClick = (item: PortfolioItem) => {
     setSelectedItem(item);
@@ -24,7 +24,7 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate }) => {
     setTimeout(() => setSelectedItem(null), 500);
   };
   
-  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const href = e.currentTarget.getAttribute('href');
     if (!href) return;

@@ -1,11 +1,12 @@
-import React from 'react';
+// FIX: Add missing React import
+import React, { MouseEvent } from 'react';
 
 interface AboutUsProps {
   aboutUsImageUrl: string;
 }
 
 const AboutUs: React.FC<AboutUsProps> = ({ aboutUsImageUrl }) => {
-  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleAnchorClick = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const href = e.currentTarget.getAttribute('href');
     if (href) {

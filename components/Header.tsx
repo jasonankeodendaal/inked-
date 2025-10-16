@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// FIX: Add missing React import
+import React, { useState, MouseEvent } from 'react';
 import MenuIcon from './icons/MenuIcon';
 import XIcon from './icons/XIcon';
 
@@ -13,7 +14,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, logoUrl, companyName }) => 
 
   const scrollingTextContent = (`${companyName} • `).repeat(5);
 
-  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, view?: 'home' | 'admin') => {
+  const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>, view?: 'home' | 'admin') => {
     e.preventDefault();
     if (view) {
         onNavigate(view);

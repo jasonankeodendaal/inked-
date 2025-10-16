@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// FIX: Add missing React import
+import React, { useState, FormEvent, MouseEvent } from 'react';
 
 interface AdminLoginPageProps {
   onLoginSuccess: () => void;
@@ -11,12 +12,12 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, onNavig
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
-  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     onNavigate('home');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     
     if (username.toLowerCase() === 'santa' && pin === '1900') {

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+// FIX: Add missing React import
+import React, { useState, useEffect, useCallback, MouseEvent } from 'react';
 import { PortfolioItem } from '../App';
 import FullScreenImageViewer from './FullScreenImageViewer';
 
@@ -26,7 +27,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
     return () => clearTimeout(timer);
   }, [onClose]);
   
-  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleAnchorClick = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const href = e.currentTarget.getAttribute('href');
     if (href) {
