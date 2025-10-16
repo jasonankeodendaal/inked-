@@ -30,6 +30,8 @@ export interface AdminPageProps {
   onCompanyNameUpdate: (name: string) => void;
   logoUrl: string;
   onLogoUrlUpdate: (url: string) => void;
+  aboutUsImageUrl: string;
+  onAboutUsImageUrlUpdate: (url: string) => void;
   address: string;
   onAddressUpdate: (address: string) => void;
   phone: string;

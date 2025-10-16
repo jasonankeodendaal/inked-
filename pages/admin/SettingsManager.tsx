@@ -9,6 +9,8 @@ interface SettingsManagerProps {
   onCompanyNameUpdate: (name: string) => void;
   logoUrl: string;
   onLogoUrlUpdate: (url: string) => void;
+  aboutUsImageUrl: string;
+  onAboutUsImageUrlUpdate: (url: string) => void;
   address: string;
   onAddressUpdate: (address: string) => void;
   phone: string;
@@ -60,6 +62,7 @@ const fileToDataUrl = (file: File): Promise<string> => {
 const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
   const [localCompanyName, setLocalCompanyName] = useState(props.companyName);
   const [localLogoUrl, setLocalLogoUrl] = useState(props.logoUrl);
+  const [localAboutUsImageUrl, setLocalAboutUsImageUrl] = useState(props.aboutUsImageUrl);
   const [localWhatsAppNumber, setLocalWhatsAppNumber] = useState(props.whatsAppNumber);
   const [localAddress, setLocalAddress] = useState(props.address);
   const [localPhone, setLocalPhone] = useState(props.phone);
@@ -80,6 +83,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
     props.onWhatsAppNumberUpdate(localWhatsAppNumber);
     props.onCompanyNameUpdate(localCompanyName);
     props.onLogoUrlUpdate(localLogoUrl);
+    props.onAboutUsImageUrlUpdate(localAboutUsImageUrl);
     props.onAddressUpdate(localAddress);
     props.onPhoneUpdate(localPhone);
     props.onEmailUpdate(localEmail);
@@ -99,6 +103,13 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
       if (e.target.files && e.target.files[0]) {
           const dataUrl = await fileToDataUrl(e.target.files[0]);
           setLocalLogoUrl(dataUrl);
+      }
+  };
+  
+  const handleAboutUsImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+          const dataUrl = await fileToDataUrl(e.target.files[0]);
+          setLocalAboutUsImageUrl(dataUrl);
       }
   };
 
@@ -131,6 +142,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
             settings: {
                 companyName: props.companyName,
                 logoUrl: props.logoUrl,
+                aboutUsImageUrl: props.aboutUsImageUrl,
                 whatsAppNumber: props.whatsAppNumber,
                 address: props.address,
                 phone: props.phone,
@@ -194,6 +206,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
                   // Restore settings
                   props.onCompanyNameUpdate(data.settings.companyName);
                   props.onLogoUrlUpdate(data.settings.logoUrl);
+                  props.onAboutUsImageUrlUpdate(data.settings.aboutUsImageUrl);
                   props.onWhatsAppNumberUpdate(data.settings.whatsAppNumber);
                   props.onAddressUpdate(data.settings.address);
                   props.onPhoneUpdate(data.settings.phone);
@@ -251,6 +264,13 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
               <div className="flex items-center gap-4">
                 {localLogoUrl && <img src={localLogoUrl} alt="Logo preview" className="w-16 h-16 rounded-md bg-white/10 p-1 object-contain"/>}
                 <input type="file" id="logo" accept="image/png, image/jpeg" onChange={handleLogoUpload} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40" />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="aboutUsImage" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Artist Portrait (About Us Section) </label>
+              <div className="flex items-center gap-4">
+                {localAboutUsImageUrl && <img src={localAboutUsImageUrl} alt="Artist portrait preview" className="w-16 h-16 rounded-full bg-white/10 p-1 object-cover"/>}
+                <input type="file" id="aboutUsImage" accept="image/png, image/jpeg" onChange={handleAboutUsImageUpload} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40" />
               </div>
             </div>
           </div>

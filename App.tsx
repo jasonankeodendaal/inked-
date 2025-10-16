@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import AdminPage from './pages/AdminPage';
 import Showroom from './pages/ShowroomPage';
 import AboutUs from './components/AboutUs';
+import WelcomeIntro from './components/WelcomeIntro'; // Import the new component
 
 export interface PortfolioItem {
   id: string;
@@ -231,6 +232,7 @@ const App: React.FC = () => {
   // Site settings state
   const [companyName, setCompanyName] = useState('Beautively Inked Tattoo Studio');
   const [logoUrl, setLogoUrl] = useState('https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png');
+  const [aboutUsImageUrl, setAboutUsImageUrl] = useState('https://picsum.photos/seed/artist-portrait/500/500');
   const [whatsAppNumber, setWhatsAppNumber] = useState('27795904162'); // E.g., 27795904162 for +27 79 590 4162
   const [address, setAddress] = useState('123 Ink Lane, Art City, 45678');
   const [phone, setPhone] = useState('+27 12 345 6789');
@@ -245,6 +247,20 @@ const App: React.FC = () => {
   const [vatNumber, setVatNumber] = useState(''); // Optional, so empty is fine
 
   const [currentView, setCurrentView] = useState('home'); // 'home' or 'admin'
+  
+  const [isIntroVisible, setIsIntroVisible] = useState(true);
+
+  useEffect(() => {
+    // Only show the intro once per session
+    if (sessionStorage.getItem('introShown')) {
+      setIsIntroVisible(false);
+    }
+  }, []);
+
+  const handleEnter = () => {
+    sessionStorage.setItem('introShown', 'true');
+    setIsIntroVisible(false);
+  };
 
   const navigate = (view: 'home' | 'admin') => {
     setCurrentView(view);
@@ -339,6 +355,8 @@ const App: React.FC = () => {
         onCompanyNameUpdate={setCompanyName}
         logoUrl={logoUrl}
         onLogoUrlUpdate={setLogoUrl}
+        aboutUsImageUrl={aboutUsImageUrl}
+        onAboutUsImageUrlUpdate={setAboutUsImageUrl}
         address={address}
         onAddressUpdate={setAddress}
         phone={phone}
@@ -363,23 +381,26 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="bg-brand-dark text-white font-sans">
-      <Header onNavigate={navigate} logoUrl={logoUrl}/>
-      <main>
-        <Hero portfolioData={portfolioData} onNavigate={navigate} companyName={companyName} />
-        <SpecialsCollage specials={specialsData} whatsAppNumber={whatsAppNumber} />
-        <AboutUs />
-        <Showroom showroomData={showroomData} />
-        <ContactForm onAddBooking={handleAddBooking} />
-      </main>
-      <Footer 
-        companyName={companyName} 
-        address={address}
-        phone={phone}
-        email={email}
-        socialLinks={socialLinks}
-      />
-    </div>
+    <>
+      <WelcomeIntro isVisible={isIntroVisible} onEnter={handleEnter} />
+      <div className={`bg-brand-dark text-white font-sans transition-opacity duration-1000 ${isIntroVisible ? 'opacity-0' : 'opacity-100'}`}>
+        <Header onNavigate={navigate} logoUrl={logoUrl}/>
+        <main>
+          <Hero portfolioData={portfolioData} onNavigate={navigate} companyName={companyName} />
+          <SpecialsCollage specials={specialsData} whatsAppNumber={whatsAppNumber} />
+          <AboutUs aboutUsImageUrl={aboutUsImageUrl} />
+          <Showroom showroomData={showroomData} />
+          <ContactForm onAddBooking={handleAddBooking} />
+        </main>
+        <Footer 
+          companyName={companyName} 
+          address={address}
+          phone={phone}
+          email={email}
+          socialLinks={socialLinks}
+        />
+      </div>
+    </>
   );
 };
 

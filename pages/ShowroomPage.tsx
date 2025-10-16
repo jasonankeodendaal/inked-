@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Genre, PortfolioItem } from '../App';
 import PortfolioModal from '../components/PortfolioModal';
+import PowderSplashBackground from '../components/PowderSplashBackground';
 
 interface ShowroomProps {
   showroomData: Genre[];
@@ -27,6 +28,8 @@ const Showroom: React.FC<ShowroomProps> = ({ showroomData }) => {
     <>
       <section id="showroom" className="relative bg-brand-light py-16 sm:py-20 overflow-hidden">
         
+        <PowderSplashBackground />
+
         <div className="relative z-10 container mx-auto px-4 text-brand-dark">
           <div className="max-w-4xl mb-12 text-center mx-auto">
             <h2 className="font-script text-4xl sm:text-6xl mb-4">
@@ -43,14 +46,14 @@ const Showroom: React.FC<ShowroomProps> = ({ showroomData }) => {
             <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gray-300/50 [transform:rotateX(80deg)] origin-bottom" style={{ backgroundImage: "radial-gradient(ellipse at top, rgba(255,255,255,0.5) 0%, transparent 60%)" }}></div>
 
             {/* Back Wall with Art */}
-            <div className="absolute inset-0 bg-repeat bg-center [transform:translateZ(-250px)] [box-shadow:inset_0_0_80px_20px_rgba(0,0,0,0.3)]" style={{ backgroundImage: "url('https://www.toptal.com/designers/subtlepatterns/uploads/light-grey-terrazzo.png')" }}>
+            <div className="absolute inset-0 bg-repeat bg-center [transform:translateZ(-250px)] [box-shadow:inset_0_0_80px_20px_rgba(0,0,0,0.3)] bg-white/50" style={{ backgroundImage: "url('https://www.toptal.com/designers/subtlepatterns/uploads/light-grey-terrazzo.png')" }}>
               <div className="absolute inset-0 bg-gradient-to-t from-brand-light/80 via-transparent to-brand-light/80"></div>
               <div className="p-4 sm:p-6 md:p-10 h-full overflow-y-auto">
                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-9 xl:grid-cols-10 gap-2 md:gap-4">
                     {allItems.map((item) => (
                         <div
                           key={item.id}
-                          className="group relative bg-brand-off-white p-1 pb-1.5 shadow-xl shadow-gray-500/60 rounded-sm transition-all duration-300 ease-in-out hover:scale-125 hover:z-20 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/40"
+                          className="group relative bg-brand-off-white/80 backdrop-blur-sm p-1 pb-1.5 shadow-xl shadow-gray-500/60 rounded-sm transition-all duration-300 ease-in-out hover:scale-125 hover:z-20 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/40"
                         >
                           <button
                             onClick={() => handleImageClick(item)}

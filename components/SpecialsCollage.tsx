@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SpecialItem } from '../App';
 import SpecialModal from './SpecialModal';
+import PowderSplashBackground from './PowderSplashBackground';
 
 interface SpecialsCollageProps {
   specials: SpecialItem[];
@@ -75,8 +76,9 @@ const SpecialsCollage: React.FC<SpecialsCollageProps> = ({ specials, whatsAppNum
 
   return (
     <>
-      <section className="bg-brand-light text-brand-dark py-16 sm:py-20">
-        <div className="container mx-auto px-4">
+      <section className="relative bg-brand-light text-brand-dark py-16 sm:py-20 overflow-hidden">
+        <PowderSplashBackground />
+        <div className="relative z-10 container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="font-script text-5xl md:text-6xl mb-4">Current Designs & Specials</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
@@ -86,7 +88,7 @@ const SpecialsCollage: React.FC<SpecialsCollageProps> = ({ specials, whatsAppNum
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 items-stretch">
               {specials.map((special) => (
-                  <div key={special.id} className="bg-brand-off-white border border-gray-200 shadow-xl shadow-black/10 rounded-lg flex flex-col h-full text-center group transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20">
+                  <div key={special.id} className="bg-brand-off-white/80 backdrop-blur-sm border border-gray-200 shadow-xl shadow-black/10 rounded-lg flex flex-col h-full text-center group transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20">
                       <div className="p-4 flex-grow flex flex-col">
                         <h3 className="font-script text-2xl text-brand-dark mb-2">{special.title}</h3>
                         <p className="text-gray-500 mb-4 text-xs flex-grow">{special.description}</p>

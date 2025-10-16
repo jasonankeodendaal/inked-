@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SocialLink } from '../App';
 import CreatorModal from './CreatorModal'; // Import the new modal component
+import PowderSplashBackground from './PowderSplashBackground';
 
 interface FooterProps {
   companyName: string;
@@ -15,8 +16,9 @@ const Footer: React.FC<FooterProps> = ({ companyName, address, phone, email, soc
 
   return (
     <>
-      <footer className="bg-brand-off-white text-brand-dark border-t border-gray-200 py-10 sm:py-12">
-        <div className="container mx-auto px-4">
+      <footer className="relative bg-brand-off-white text-brand-dark border-t border-gray-200 py-10 sm:py-12 overflow-hidden">
+        <PowderSplashBackground />
+        <div className="relative z-10 container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-center md:text-left">
             <div>
               <h3 className="font-bold text-lg tracking-wider uppercase mb-4">{companyName.replace(' Tattoo Studio', '')}</h3>

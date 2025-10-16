@@ -52,6 +52,8 @@
               'text-scroll': 'infinite-scroll 120s linear infinite',
               'fade-in-up': 'fade-in-up 1s ease-out .5s forwards',
               'fade-in': 'fade-in 0.5s ease-out forwards',
+              'vibrate-subtle': 'vibrate-subtle 0.1s linear infinite',
+              'float-up': 'float-up 3s ease-out infinite forwards',
             },
             keyframes: {
               'infinite-scroll': {
@@ -71,6 +73,20 @@
               'fade-in': {
                 '0%': { opacity: '0' },
                 '100%': { opacity: '1' },
+              },
+              'vibrate-subtle': {
+                '0%, 100%': { transform: 'translate(0, 0)' },
+                '50%': { transform: 'translate(0.5px, -0.5px)' },
+              },
+              'float-up': {
+                '0%': {
+                  opacity: '1',
+                  transform: 'translateY(0) scale(1)'
+                },
+                '100%': {
+                  opacity: '0',
+                  transform: 'translateY(-60px) scale(0.5)'
+                }
               }
             }
           }
