@@ -438,7 +438,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
       <TrainingGuide isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
 
 
-      <main className="flex-1 p-4 md:p-6 pb-32 overflow-y-auto">
+      <main className="flex-1 p-4 md:p-6 pb-24 overflow-y-auto">
         <header className="mb-6 flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-4">
                  {activeTab !== 'dashboard' && (
@@ -465,13 +465,13 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
         {renderContent()}
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 z-50 bg-admin-dark-card/80 backdrop-blur-lg border-t border-admin-dark-border">
-          <nav className="container mx-auto grid grid-cols-4">
+      <footer className="fixed bottom-0 left-0 right-0 z-50 bg-admin-dark-card/80 backdrop-blur-lg border-t border-admin-dark-border h-16">
+          <nav className="container mx-auto grid grid-cols-4 h-full">
               {navItems.map(item => (
                   <button 
                       key={item.id} 
                       onClick={() => handleTabChange(item.id)}
-                      className={`flex flex-col items-center justify-center gap-1 w-full h-16 transition-colors duration-200 ${activeTab === item.id ? 'text-admin-dark-primary bg-admin-dark-primary/10' : 'text-admin-dark-text-secondary hover:text-white'}`}
+                      className={`flex flex-col items-center justify-center gap-1 w-full h-full transition-colors duration-200 ${activeTab === item.id ? 'text-admin-dark-primary bg-admin-dark-primary/10' : 'text-admin-dark-text-secondary hover:text-white'}`}
                       aria-current={activeTab === item.id}
                   >
                       {item.icon}
