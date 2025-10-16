@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { PortfolioItem } from '../App';
 import PortfolioModal from './PortfolioModal';
@@ -55,7 +56,7 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate }) => {
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[25rem] sm:w-[35rem] md:w-[40rem] lg:w-[50rem] max-w-none h-auto opacity-30 lg:opacity-40 transform rotate-[5deg] pointer-events-none [filter:brightness(1.2)_contrast(1.2)_saturate(1.1)_drop_shadow(0_35px_30px_rgba(0,0,0,0.9))]"
             />
             <h1 
-              className="relative z-10 font-script text-5xl sm:text-7xl md:text-8xl lg:text-9xl leading-tight tracking-wide text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-100"
+              className="relative z-10 font-script text-5xl sm:text-7xl md:text-8xl lg:text-9xl leading-tight tracking-wide text-white"
               style={{
                   textShadow: `
                     0px 2px 2px rgba(0,0,0,0.7),
