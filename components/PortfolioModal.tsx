@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { PortfolioItem } from '../App';
 
@@ -84,9 +83,8 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
     >
       <div className="fixed inset-0 bg-black/80 backdrop-blur-lg"></div>
 
-      {/* FIX: Replaced SVG icon with emoji. */}
       <button onClick={handleClose} className="absolute top-4 right-4 z-20 p-2 text-2xl text-white/70 hover:text-white transition-colors" aria-label="Close dialog">
-        <span role="img" aria-label="close">✖️</span>
+        &#x2715;
       </button>
 
       <div 
@@ -113,13 +111,11 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
             
             {allImages.length > 1 && (
                 <>
-                    {/* FIX: Replaced SVG icon with emoji. */}
                     <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 text-2xl bg-black/50 rounded-full opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300" aria-label="Previous image">
-                        <span role="img" aria-label="previous">◀️</span>
+                        &#x25C0;&#xFE0E;
                     </button>
-                    {/* FIX: Replaced SVG icon with emoji. */}
                     <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-2xl bg-black/50 rounded-full opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300" aria-label="Next image">
-                        <span role="img" aria-label="next">▶️</span>
+                        &#x25B6;&#xFE0E;
                     </button>
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                         {allImages.map((_, index) => (

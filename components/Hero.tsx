@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
 import { PortfolioItem } from '../App';
 import PortfolioModal from './PortfolioModal';
+import SearchIcon from './icons/SearchIcon';
 
 interface HeroProps {
   portfolioData: PortfolioItem[];
@@ -47,7 +47,7 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) =
     <>
       <section className="relative h-screen bg-brand-dark text-brand-light flex flex-col items-center pt-32 sm:pt-0 sm:justify-center overflow-hidden">
         
-        <div className="absolute top-16 sm:top-24 left-0 w-full z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-12 sm:top-20 left-0 w-full z-0 overflow-hidden pointer-events-none">
             <div className="w-max flex animate-text-scroll transform-gpu">
                 <h2 className="text-[12vw] lg:text-[9vw] font-script text-white/10 whitespace-nowrap py-4 tracking-widest [text-shadow:1px_-1px_1px_rgba(224,224,224,0.15),-1px_1px_1px_rgba(10,10,10,0.5)]">
                     {scrollingTextContent}
@@ -60,7 +60,7 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) =
         
         <div className="absolute top-0 left-0 w-full h-full z-0 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-transparent"></div>
         
-        <div className="relative z-20 text-center px-4 sm:-mt-24 [filter:drop-shadow(0_5px_8px_rgba(0,0,0,1))]">
+        <div className="relative z-20 text-center px-4 sm:-mt-16 [filter:drop-shadow(0_5px_8px_rgba(0,0,0,1))]">
           <div className="relative">
             <h1 className="relative z-10 font-script text-4xl sm:text-6xl md:text-8xl lg:text-9xl leading-tight tracking-wide">
               Where your story becomes art.
@@ -85,7 +85,7 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) =
           </div>
         </div>
         
-        <div className="absolute top-[60%] sm:top-[62%] md:top-[60%] left-0 w-full h-[60%] z-10 [perspective:1000px]">
+        <div className="absolute top-[56%] sm:top-[62%] md:top-[60%] left-0 w-full h-[60%] z-10 [perspective:1000px]">
           <div className="absolute top-0 w-full h-full [transform-style:preserve-3d] [transform:rotateX(55deg)] md:[transform:rotateX(50deg)]">
             <div className="absolute h-full w-max flex animate-infinite-scroll group">
               {allPortfolioItems.map((item, index) => (
@@ -108,9 +108,8 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) =
                       <img src={item.primaryImage} alt={item.title} className="w-full h-full object-cover" />
                     )}
                     <div className="absolute inset-0 bg-black/20 opacity-100 group-hover:opacity-0 transition-opacity duration-300"></div>
-                    {/* FIX: Replaced SVG icon with emoji. */}
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span role="img" aria-label="search" className="text-5xl text-white/80">🔍</span>
+                      <SearchIcon className="w-12 h-12 text-white/80" />
                     </div>
                   </button>
                 </div>

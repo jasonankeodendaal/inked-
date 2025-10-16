@@ -19,5 +19,27 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#0a0a0a",
-  "background_color": "#0a0a0a"
+  "background_color": "#0a0a0a",
+  "orientation": "portrait-primary",
+  "categories": ["lifestyle", "personalization"],
+  "screenshots": [
+    {
+      "src": "https://picsum.photos/seed/screenshot1/1080/1920",
+      "type": "image/jpeg",
+      "sizes": "1080x1920",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "https://picsum.photos/seed/screenshot2/1080/1920",
+      "type": "image/jpeg",
+      "sizes": "1080x1920",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "https://picsum.photos/seed/screenshot3/1920/1080",
+      "type": "image/jpeg",
+      "sizes": "1920x1080",
+      "form_factor": "wide"
+    }
+  ]
 }

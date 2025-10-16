@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import MenuIcon from './icons/MenuIcon';
+import XIcon from './icons/XIcon';
 
 interface HeaderProps {
   onNavigate: (view: 'home' | 'admin') => void;
@@ -24,28 +26,27 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, logoUrl }) => {
   return (
     <header className="absolute top-0 left-0 right-0 z-50 text-brand-light">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-28 md:h-36">
+        <div className="flex justify-between items-center h-20 md:h-24">
           <a href="#" onClick={(e) => handleLinkClick(e, 'home')} className="flex items-center gap-3" aria-label="Beautively Inked Home">
-            <img src={logoUrl} alt="Beautively Inked Logo" className="h-24 w-24 md:h-32 md:w-32 object-contain" />
+            <img src={logoUrl} alt="Beautively Inked Logo" className="h-16 w-16 md:h-20 md:w-20 object-contain" />
           </a>
           
           <div className="flex items-center gap-4">
              <a href="#" onClick={(e) => handleLinkClick(e, 'admin')} className="hidden md:block text-xs text-gray-500 hover:text-brand-light transition-colors">
                 Admin
             </a>
-            <a href="#contact-form" onClick={handleLinkClick} className="border border-brand-light/50 px-6 py-2 rounded-full text-sm font-semibold hover:bg-brand-light hover:text-brand-dark transition-colors">
+            <a href="#contact-form" onClick={handleLinkClick} className="hidden sm:block border border-brand-light/50 px-6 py-2 rounded-full text-sm font-semibold hover:bg-brand-light hover:text-brand-dark transition-colors">
               Book Appointment
             </a>
             
             {/* Mobile Menu Button */}
-            {/* FIX: Replaced SVG icons with emojis */}
             <button 
-              className="md:hidden z-50 text-2xl"
+              className="md:hidden z-50 text-brand-light"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
               aria-expanded={isMenuOpen}
             >
-              {isMenuOpen ? '✖️' : '☰'}
+              {isMenuOpen ? <XIcon className="w-8 h-8" /> : <MenuIcon className="w-8 h-8" />}
             </button>
           </div>
         </div>
