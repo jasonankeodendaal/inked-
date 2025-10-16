@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, 'react';
 import { PortfolioItem } from '../App';
 import PortfolioModal from './PortfolioModal';
 import SearchIcon from './icons/SearchIcon';
@@ -10,8 +10,8 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [selectedItem, setSelectedItem] = React.useState<PortfolioItem | null>(null);
 
   const handleImageClick = (item: PortfolioItem) => {
     setSelectedItem(item);
@@ -67,8 +67,8 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate }) => {
             >
               Where your story becomes art.
             </h1>
-            <p className="relative z-10 mt-6 max-w-lg mx-auto text-gray-400 text-sm sm:text-base">
-              Bold decisions, permanent stories. Premium, beautiful ink for the unapologetic.
+            <p className="relative z-10 mt-6 max-w-xl mx-auto text-gray-300 text-base sm:text-lg tracking-wider uppercase font-semibold">
+              This isn't just ink. It's your rebellion, your anthem, your art. Wear it loud.
             </p>
             <div className="relative z-10 mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
               <a href="#contact-form" onClick={handleLinkClick} className="w-full sm:w-auto bg-brand-green border border-brand-green text-white px-6 py-2.5 sm:px-8 sm:py-3 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors">
