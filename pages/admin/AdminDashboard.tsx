@@ -438,7 +438,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
       <TrainingGuide isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
 
 
-      <main className="flex-1 p-4 md:p-6 pb-24 overflow-y-auto">
+      <main className="flex-1 p-4 md:p-6 pb-32 overflow-y-auto">
         <header className="mb-6 flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-4">
                  {activeTab !== 'dashboard' && (
