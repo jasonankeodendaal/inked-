@@ -15,10 +15,12 @@ export interface AdminPageProps {
   onBookingsUpdate: (data: Booking[]) => void;
   onManualAddBooking: (booking: Omit<Booking, 'id' | 'bookingType'>) => void;
   expenses: Expense[];
+  onExpensesUpdate: (data: Expense[]) => void;
   onAddExpense: (newExpense: Omit<Expense, 'id'>) => void;
   onUpdateExpense: (updatedExpense: Expense) => void;
   onDeleteExpense: (expenseId: string) => void;
   inventory: InventoryItem[];
+  onInventoryUpdate: (data: InventoryItem[]) => void;
   onAddInventoryItem: (newItem: Omit<InventoryItem, 'id'>) => void;
   onUpdateInventoryItem: (updatedItem: InventoryItem) => void;
   onDeleteInventoryItem: (itemId: string) => void;

@@ -324,10 +324,12 @@ const App: React.FC = () => {
         onBookingsUpdate={setBookings}
         onManualAddBooking={handleManualAddBooking}
         expenses={expenses}
+        onExpensesUpdate={setExpenses}
         onAddExpense={handleAddExpense}
         onUpdateExpense={handleUpdateExpense}
         onDeleteExpense={handleDeleteExpense}
         inventory={inventory}
+        onInventoryUpdate={setInventory}
         onAddInventoryItem={handleAddInventoryItem}
         onUpdateInventoryItem={handleUpdateInventoryItem}
         onDeleteInventoryItem={handleDeleteInventoryItem}

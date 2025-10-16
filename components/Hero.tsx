@@ -62,6 +62,12 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) =
         
         <div className="relative z-20 text-center px-4 sm:-mt-16 [filter:drop-shadow(0_5px_8px_rgba(0,0,0,1))]">
           <div className="relative">
+            <img 
+                src="https://i.ibb.co/v4bZb3t/Tattoo-Gun-Crystal-Clear.png"
+                alt="Tattoo machine"
+                aria-hidden="true"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[25rem] sm:w-[35rem] md:w-[40rem] lg:w-[50rem] max-w-none h-auto opacity-30 lg:opacity-40 transform rotate-[5deg] pointer-events-none [filter:brightness(1.2)_contrast(1.2)_saturate(1.1)_drop_shadow(0_35px_30px_rgba(0,0,0,0.9))]"
+            />
             <h1 className="relative z-10 font-script text-4xl sm:text-6xl md:text-8xl lg:text-9xl leading-tight tracking-wide">
               Where your story becomes art.
             </h1>
@@ -76,12 +82,6 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate, companyName }) =
                 Visit the Showroom
               </a>
             </div>
-             <img 
-                src="https://i.ibb.co/Mkfdy286/image-removebg-preview.png"
-                alt="Tattoo machine"
-                aria-hidden="true"
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[25rem] sm:w-[35rem] md:w-[40rem] lg:w-[50rem] max-w-none h-auto opacity-25 lg:opacity-35 transform rotate-[5deg] pointer-events-none [filter:brightness(1.2)_contrast(1.2)_saturate(1.1)_drop_shadow(0_35px_30px_rgba(0,0,0,0.9))]"
-              />
           </div>
         </div>
         

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { SocialLink } from '../../App';
+import { SocialLink, PortfolioItem, SpecialItem, Genre, Booking, Expense, InventoryItem } from '../../App';
 
 interface SettingsManagerProps {
+  // Settings
   whatsAppNumber: string;
   onWhatsAppNumberUpdate: (phone: string) => void;
   companyName: string;
@@ -16,7 +17,6 @@ interface SettingsManagerProps {
   onEmailUpdate: (email: string) => void;
   socialLinks: SocialLink[];
   onSocialLinksUpdate: (links: SocialLink[]) => void;
-  onClearAllData: () => void;
   bankName: string;
   onBankNameUpdate: (name: string) => void;
   accountNumber: string;
@@ -27,6 +27,25 @@ interface SettingsManagerProps {
   onAccountTypeUpdate: (type: string) => void;
   vatNumber: string;
   onVatNumberUpdate: (num: string) => void;
+  
+  // Data Arrays (for backup)
+  portfolioData: PortfolioItem[];
+  specialsData: SpecialItem[];
+  showroomData: Genre[];
+  bookings: Booking[];
+  expenses: Expense[];
+  inventory: InventoryItem[];
+
+  // Data Setters (for restore)
+  onPortfolioUpdate: (data: PortfolioItem[]) => void;
+  onSpecialsUpdate: (data: SpecialItem[]) => void;
+  onShowroomUpdate: (data: Genre[]) => void;
+  onBookingsUpdate: (data: Booking[]) => void;
+  onExpensesUpdate: (data: Expense[]) => void;
+  onInventoryUpdate: (data: InventoryItem[]) => void;
+  
+  // Other actions
+  onClearAllData: () => void;
 }
 
 const fileToDataUrl = (file: File): Promise<string> => {
@@ -105,6 +124,111 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
         props.onClearAllData();
     }
   };
+
+  const handleBackup = () => {
+    try {
+        const backupData = {
+            settings: {
+                companyName: props.companyName,
+                logoUrl: props.logoUrl,
+                whatsAppNumber: props.whatsAppNumber,
+                address: props.address,
+                phone: props.phone,
+                email: props.email,
+                socialLinks: props.socialLinks,
+                bankName: props.bankName,
+                accountNumber: props.accountNumber,
+                branchCode: props.branchCode,
+                accountType: props.accountType,
+                vatNumber: props.vatNumber,
+            },
+            portfolioData: props.portfolioData,
+            specialsData: props.specialsData,
+            showroomData: props.showroomData,
+            bookings: props.bookings,
+            expenses: props.expenses,
+            inventory: props.inventory,
+        };
+
+        const jsonString = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const date = new Date().toISOString().split('T')[0];
+        a.href = url;
+        a.download = `beautively-inked-backup-${date}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        alert('Backup downloaded successfully!');
+
+    } catch (error) {
+        console.error("Backup failed:", error);
+        alert("An error occurred during backup. Check the console for details.");
+    }
+  };
+
+  const handleRestore = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+          try {
+              const result = event.target?.result;
+              if (typeof result !== 'string') {
+                  throw new Error("Failed to read file content.");
+              }
+
+              const data = JSON.parse(result);
+              
+              const requiredKeys = ['settings', 'portfolioData', 'specialsData', 'showroomData', 'bookings', 'expenses', 'inventory'];
+              const hasAllKeys = requiredKeys.every(key => key in data);
+              if (!hasAllKeys) {
+                  throw new Error("Invalid backup file. It's missing required data sections.");
+              }
+
+              if (window.confirm("Are you sure you want to restore from this backup? This will overwrite ALL current data on the site.")) {
+                  // Restore settings
+                  props.onCompanyNameUpdate(data.settings.companyName);
+                  props.onLogoUrlUpdate(data.settings.logoUrl);
+                  props.onWhatsAppNumberUpdate(data.settings.whatsAppNumber);
+                  props.onAddressUpdate(data.settings.address);
+                  props.onPhoneUpdate(data.settings.phone);
+                  props.onEmailUpdate(data.settings.email);
+                  props.onSocialLinksUpdate(data.settings.socialLinks);
+                  props.onBankNameUpdate(data.settings.bankName);
+                  props.onAccountNumberUpdate(data.settings.accountNumber);
+                  props.onBranchCodeUpdate(data.settings.branchCode);
+                  props.onAccountTypeUpdate(data.settings.accountType);
+                  props.onVatNumberUpdate(data.settings.vatNumber);
+
+                  // Restore data arrays
+                  props.onPortfolioUpdate(data.portfolioData);
+                  props.onSpecialsUpdate(data.specialsData);
+                  props.onShowroomUpdate(data.showroomData);
+                  props.onBookingsUpdate(data.bookings);
+                  props.onExpensesUpdate(data.expenses);
+                  props.onInventoryUpdate(data.inventory);
+
+                  alert("Restore successful! The application will now reload to apply all changes.");
+                  window.location.reload();
+              }
+          } catch (error: any) {
+              alert(`Restore failed: ${error.message}`);
+          } finally {
+               e.target.value = ''; // Reset input
+          }
+      };
+      reader.onerror = () => {
+          alert("Failed to read the backup file.");
+          e.target.value = ''; // Reset input
+      };
+      reader.readAsText(file);
+  };
+
 
   return (
     <div className="bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-lg p-6 sm:p-8 max-w-4xl mx-auto">
@@ -207,6 +331,34 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
         </div>
       </form>
       
+      {/* Data Management Section */}
+      <section className="mt-12 pt-6 border-t border-admin-dark-border">
+          <h3 className="text-lg font-semibold text-white mb-2">💾 Data Management</h3>
+          <p className="text-sm text-admin-dark-text-secondary mb-4">Download a single JSON file containing all your site data, or restore your site from a backup file.</p>
+          <div className="flex flex-col sm:flex-row gap-4">
+              <button 
+                  type="button" 
+                  onClick={handleBackup}
+                  className="bg-blue-500/20 border border-blue-500/50 text-blue-300 px-6 py-2 rounded-md font-bold text-sm hover:bg-blue-500/40 hover:text-white transition-colors"
+              >
+                  Backup All Data
+              </button>
+              <label 
+                  htmlFor="restore-backup" 
+                  className="bg-green-500/20 border border-green-500/50 text-green-300 px-6 py-2 rounded-md font-bold text-sm hover:bg-green-500/40 hover:text-white transition-colors cursor-pointer text-center"
+              >
+                  Restore from Backup
+              </label>
+              <input 
+                  type="file" 
+                  id="restore-backup" 
+                  accept=".json" 
+                  onChange={handleRestore} 
+                  className="hidden" 
+              />
+          </div>
+      </section>
+
       {/* Danger Zone Section */}
       <section className="mt-12 pt-6 border-t-2 border-red-500/30">
           <h3 className="text-lg font-semibold text-red-400 mb-2">🚨 Danger Zone</h3>

@@ -4,13 +4,13 @@
   "description": "A beautiful, modern website for the Beautively Inked tattoo studio, featuring a green, white, and black theme. Built with React and Tailwind CSS.",
   "icons": [
     {
-      "src": "https://i.ibb.co/n8tnxm9q/31e985d7-135f-4a54-98f9-f110bd155497-1.png",
+      "src": "https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "https://i.ibb.co/n8tnxm9q/31e985d7-135f-4a54-98f9-f110bd155497-1.png",
+      "src": "https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
@@ -24,21 +24,21 @@
   "categories": ["lifestyle", "personalization"],
   "screenshots": [
     {
-      "src": "https://picsum.photos/seed/screenshot1/1080/1920",
-      "type": "image/jpeg",
-      "sizes": "1080x1920",
+      "src": "https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png",
+      "type": "image/png",
+      "sizes": "1080x1080",
       "form_factor": "narrow"
     },
     {
-      "src": "https://picsum.photos/seed/screenshot2/1080/1920",
-      "type": "image/jpeg",
-      "sizes": "1080x1920",
+      "src": "https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png",
+      "type": "image/png",
+      "sizes": "1080x1080",
       "form_factor": "narrow"
     },
     {
-      "src": "https://picsum.photos/seed/screenshot3/1920/1080",
-      "type": "image/jpeg",
-      "sizes": "1920x1080",
+      "src": "https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png",
+      "type": "image/png",
+      "sizes": "1080x1080",
       "form_factor": "wide"
     }
   ]
