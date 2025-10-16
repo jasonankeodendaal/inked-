@@ -27,7 +27,37 @@ Android Studio will now create and build the basic project structure. This might
 
 ---
 
-## Step 2: Replace Configuration Files
+## Step 2: Add Your App Icon
+
+Before replacing the configuration files, let's set your company logo as the app icon.
+
+1.  **Download Your Logo**: Save your company logo to your computer. You can use the one from your website: [https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png](https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png)
+
+2.  **Open Image Asset Studio**:
+    *   In the Project view of Android Studio, right-click on the `app` folder.
+    *   Select **New > Image Asset**.
+
+3.  **Configure the Icon**:
+    *   **Icon Type**: Make sure `Launcher Icons (Adaptive and Legacy)` is selected.
+    *   **Name**: Leave as `ic_launcher`.
+    *   In the **Foreground Layer** tab:
+        *   **Asset Type**: Select `Image`.
+        *   **Path**: Click the folder icon and select the logo file you downloaded.
+        *   **Resize**: Use the slider to adjust the logo size. It's best to have some space around the logo so it doesn't get cut off on some devices. A size of around **80%** is often a good starting point.
+    *   In the **Background Layer** tab:
+        *   **Asset Type**: Select `Color`.
+        *   Click the color box and set it to your site's dark theme color: `#0a0a0a`.
+    *   In the **Options** tab:
+        *   Ensure `Yes` is selected for `Legacy Icon (API <= 25)`, `Round Icon (API 25)`, and `Google Play Store Icon`.
+
+4.  **Generate Icons**:
+    *   Click **Next**.
+    *   Android Studio will show a preview of the files that will be created or overwritten.
+    *   Click **Finish**. This will generate all the necessary icon sizes for your app.
+
+---
+
+## Step 3: Replace Configuration Files
 
 I have generated the necessary configuration files for you. You will replace the files created by Android Studio with the ones from this project.
 
@@ -40,7 +70,7 @@ After replacing the files, Android Studio may show a notification bar that says 
 
 ---
 
-## Step 3: Deploy the `assetlinks.json` File
+## Step 4: Deploy the `assetlinks.json` File
 
 To verify the connection between your app and your website, you must host a file on your website at a specific URL.
 
@@ -60,7 +90,7 @@ To verify the connection between your app and your website, you must host a file
 
 ---
 
-## Step 4: Build the Signed APK
+## Step 5: Build the Signed APK
 
 Now you are ready to build the final APK file.
 
