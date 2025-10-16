@@ -77,6 +77,8 @@ export interface InventoryItem {
   quantity: number;
   cost: number;
   supplier?: string;
+  brand?: string;
+  lotNumber?: string;
 }
 
 
@@ -222,8 +224,9 @@ const initialExpenseData: Expense[] = [
 ];
 
 const initialInventoryData: InventoryItem[] = [
-    { id: 'i1', name: 'Black Ink (12oz)', category: 'Ink', quantity: 5, cost: 500, supplier: 'Tattoo World' },
-    { id: 'i2', name: '7RL Needles (Box of 50)', category: 'Needles', quantity: 10, cost: 350, supplier: 'Ink Emporium' },
+    { id: 'i1', name: 'Triple Black', category: 'Ink', quantity: 355, cost: 1.4, supplier: 'Tattoo World', brand: 'Dynamic Color', lotNumber: 'DYN-TB-1A2B' },
+    { id: 'i2', name: '7RL Needles', category: 'Needles', quantity: 500, cost: 7, supplier: 'Ink Emporium' },
+    { id: 'i3', name: 'Canary Yellow', category: 'Ink', quantity: 60, cost: 2.5, supplier: 'Tattoo World', brand: 'Intenze', lotNumber: 'INT-CY-5E6F' },
 ];
 
 const App: React.FC = () => {

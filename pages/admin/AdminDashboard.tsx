@@ -10,6 +10,7 @@ import PortfolioManager from './PortfolioManager';
 import SpecialsManager from './SpecialsManager';
 import FinancialsManager from './FinancialsManager';
 import TrainingGuide from './TrainingGuide'; // Import the new Training Guide
+import LogSuppliesModal from './components/LogSuppliesModal';
 
 
 // --- ICONS ---
@@ -146,8 +147,9 @@ const BookingsManager: React.FC<{
     selectedDate: string | null, 
     onClearDateFilter: () => void, 
     onAddManualBooking: () => void,
-    onEditBooking: (booking: Booking) => void
-}> = ({ bookings, onBookingsUpdate, selectedDate, onClearDateFilter, onAddManualBooking, onEditBooking }) => {
+    onEditBooking: (booking: Booking) => void,
+    onLogSupplies: (booking: Booking) => void,
+}> = ({ bookings, onBookingsUpdate, selectedDate, onClearDateFilter, onAddManualBooking, onEditBooking, onLogSupplies }) => {
     type StatusFilter = Booking['status'] | 'all';
     const [filter, setFilter] = useState<StatusFilter>('pending');
     
@@ -206,50 +208,60 @@ const BookingsManager: React.FC<{
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2">
             {filteredBookings.length > 0 ? (
-                filteredBookings.map(booking => (
-                    <div key={booking.id} className={`bg-admin-dark-bg/50 border-l-4 rounded-lg p-4 flex flex-col gap-3 ${statusStyles[booking.status]}`}>
-                        <div className="flex justify-between items-start gap-4">
-                            <div className="flex items-center gap-3 overflow-hidden">
-                                <span className="text-xl flex-shrink-0" title={booking.bookingType === 'manual' ? 'Manual Booking' : 'Online Booking'}>
-                                    {booking.bookingType === 'manual' ? '✍️' : '🌐'}
-                                </span>
-                                <div className="overflow-hidden">
-                                    <p className="font-bold text-white truncate">{booking.name}</p>
-                                    <p className="text-xs text-admin-dark-text-secondary truncate">{booking.email}</p>
-                                </div>
-                            </div>
-                            <div className="text-right flex-shrink-0">
-                                <p className="font-semibold text-white text-sm">{new Date(booking.bookingDate).toLocaleDateString('en-ZA')}</p>
-                                <p className="font-bold text-xs capitalize mt-1">{booking.status}</p>
-                            </div>
-                        </div>
-
-                        {booking.message && (
-                            <p className="text-sm text-admin-dark-text flex-grow">{booking.message}</p>
-                        )}
-                        
-                        {(booking.totalCost || booking.amountPaid) && (
-                            <div className="mt-2 pt-3 border-t border-admin-dark-border">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-admin-dark-text-secondary">Financials:</span>
-                                    <span className="font-semibold text-blue-400">
-                                        R {booking.amountPaid?.toFixed(2) || '0.00'} / {booking.totalCost?.toFixed(2) || '---'}
+                filteredBookings.map(booking => {
+                    const isToday = new Date(booking.bookingDate).toDateString() === new Date().toDateString();
+                    return (
+                        <div key={booking.id} className={`bg-admin-dark-bg/50 border-l-4 rounded-lg p-4 flex flex-col gap-3 ${statusStyles[booking.status]}`}>
+                            <div className="flex justify-between items-start gap-4">
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <span className="text-xl flex-shrink-0" title={booking.bookingType === 'manual' ? 'Manual Booking' : 'Online Booking'}>
+                                        {booking.bookingType === 'manual' ? '✍️' : '🌐'}
                                     </span>
+                                    <div className="overflow-hidden">
+                                        <p className="font-bold text-white truncate">{booking.name}</p>
+                                        <p className="text-xs text-admin-dark-text-secondary truncate">{booking.email}</p>
+                                    </div>
+                                </div>
+                                <div className="text-right flex-shrink-0">
+                                    <p className="font-semibold text-white text-sm">{new Date(booking.bookingDate).toLocaleDateString('en-ZA')}</p>
+                                    <p className="font-bold text-xs capitalize mt-1">{booking.status}</p>
                                 </div>
                             </div>
-                        )}
-                        <div className="flex flex-wrap items-center gap-2 mt-auto pt-3 border-t border-admin-dark-border">
-                            {availableStatuses.filter(s => s !== booking.status).map(status => (
-                                <button key={status} onClick={() => handleStatusChange(booking.id, status)} className="text-xs font-semibold px-2 py-1 rounded capitalize bg-white/5 hover:bg-white/10 transition-colors">
-                                    {status}
-                                </button>
-                            ))}
-                            <button onClick={() => onEditBooking(booking)} className="ml-auto flex items-center gap-1.5 p-2 text-xs font-semibold rounded bg-white/5 hover:bg-white/10 transition-colors" aria-label={`Edit booking for ${booking.name}`}>
-                                <span>✏️</span>
-                            </button>
+
+                            {booking.message && (
+                                <p className="text-sm text-admin-dark-text flex-grow">{booking.message}</p>
+                            )}
+                            
+                            {(booking.totalCost || booking.amountPaid) && (
+                                <div className="mt-2 pt-3 border-t border-admin-dark-border">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-admin-dark-text-secondary">Financials:</span>
+                                        <span className="font-semibold text-blue-400">
+                                            R {booking.amountPaid?.toFixed(2) || '0.00'} / {booking.totalCost?.toFixed(2) || '---'}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                            <div className="mt-auto pt-3 border-t border-admin-dark-border">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    {availableStatuses.filter(s => s !== booking.status).map(status => (
+                                        <button key={status} onClick={() => handleStatusChange(booking.id, status)} className="text-xs font-semibold px-2 py-1 rounded capitalize bg-white/5 hover:bg-white/10 transition-colors">
+                                            {status}
+                                        </button>
+                                    ))}
+                                    <button onClick={() => onEditBooking(booking)} className="ml-auto flex items-center gap-1.5 p-2 text-xs font-semibold rounded bg-white/5 hover:bg-white/10 transition-colors" aria-label={`Edit booking for ${booking.name}`}>
+                                        <span>✏️</span>
+                                    </button>
+                                </div>
+                                {booking.status === 'confirmed' && isToday && (
+                                    <button onClick={() => onLogSupplies(booking)} className="w-full mt-2 text-center bg-blue-500/20 text-blue-300 px-3 py-2 rounded-md font-bold text-xs hover:bg-blue-500/40 transition-colors flex items-center justify-center gap-2">
+                                        <span>📦</span> Log Supplies Used
+                                    </button>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ))
+                    );
+                })
             ) : (
                 <p className="text-center py-8 text-admin-dark-text-secondary md:col-span-2 xl:col-span-3">No bookings found for this filter.</p>
             )}
@@ -355,6 +367,8 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [bookingToEdit, setBookingToEdit] = useState<Booking | null>(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isSupplyLogOpen, setIsSupplyLogOpen] = useState(false);
+  const [bookingForSupplyLog, setBookingForSupplyLog] = useState<Booking | null>(null);
 
   const handleTabChange = (tab: AdminTab) => {
     setPreviousTab(activeTab);
@@ -373,6 +387,11 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
   const handleOpenEditModal = (booking: Booking) => {
     setBookingToEdit(booking);
     setIsBookingModalOpen(true);
+  };
+  
+  const handleOpenSupplyLog = (booking: Booking) => {
+    setBookingForSupplyLog(booking);
+    setIsSupplyLogOpen(true);
   };
 
   const handleSaveBooking = (bookingData: Booking) => {
@@ -394,6 +413,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
                 onClearDateFilter={() => setSelectedDate(null)}
                 onAddManualBooking={handleOpenCreateModal}
                 onEditBooking={handleOpenEditModal}
+                onLogSupplies={handleOpenSupplyLog}
             />
         </div>
         <div className="space-y-6">
@@ -434,38 +454,43 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
         onSave={handleSaveBooking}
         bookingToEdit={bookingToEdit}
       />
+
+      <LogSuppliesModal
+        isOpen={isSupplyLogOpen}
+        onClose={() => setIsSupplyLogOpen(false)}
+        booking={bookingForSupplyLog}
+        inventory={props.inventory}
+        onAddExpense={props.onAddExpense}
+        onUpdateInventoryItem={props.onUpdateInventoryItem}
+      />
       
       <TrainingGuide isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
 
+      <header className="p-4 md:p-6 flex items-center justify-between flex-wrap gap-4 border-b border-admin-dark-border flex-shrink-0">
+          <div className="flex items-center gap-4">
+               {activeTab !== 'dashboard' && (
+                  <button onClick={handleBack} className="p-2 bg-admin-dark-card/80 rounded-full hover:bg-white/10 transition-colors">
+                      <IconBack />
+                  </button>
+              )}
+              <img src={props.logoUrl} alt="Logo" className="w-12 h-12 object-contain rounded-full border-2 border-admin-dark-primary p-1" />
+              <div>
+                  <p className="text-admin-dark-text-secondary text-sm">Welcome back!</p>
+                  <h1 className="font-bold text-xl text-white capitalize">
+                      {activeTab === 'dashboard' ? 'Dashboard Overview' : activeTab}
+                  </h1>
+              </div>
+          </div>
+           <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+              <button onClick={() => setIsGuideOpen(true)} className="flex items-center gap-2 text-sm text-center py-2 px-4 text-admin-dark-text-secondary hover:text-white transition-colors bg-admin-dark-card border border-admin-dark-border rounded-md font-bold">
+                  <span>🎓</span> Training Guide
+              </button>
+              <button onClick={() => props.onNavigate('home')} className="text-sm text-center py-2 px-4 text-admin-dark-text-secondary hover:text-white transition-colors">View Site</button>
+              <button onClick={props.onLogout} className="bg-admin-dark-card border border-admin-dark-border px-4 py-2 rounded-md font-bold text-sm text-red-400 hover:bg-red-500/20 transition-colors">Logout</button>
+          </div>
+      </header>
 
-      <main className="flex-1 p-4 md:p-6 pb-24 overflow-y-auto">
-        <header className="mb-6 flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4">
-                 {activeTab !== 'dashboard' && (
-                    <button onClick={handleBack} className="p-2 bg-admin-dark-card/80 rounded-full hover:bg-white/10 transition-colors">
-                        <IconBack />
-                    </button>
-                )}
-                <img src={props.logoUrl} alt="Logo" className="w-12 h-12 object-contain rounded-full border-2 border-admin-dark-primary p-1" />
-                <div>
-                    <p className="text-admin-dark-text-secondary text-sm">Welcome back!</p>
-                    <h1 className="font-bold text-xl text-white capitalize">
-                        {activeTab === 'dashboard' ? 'Dashboard Overview' : activeTab}
-                    </h1>
-                </div>
-            </div>
-             <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-                <button onClick={() => setIsGuideOpen(true)} className="flex items-center gap-2 text-sm text-center py-2 px-4 text-admin-dark-text-secondary hover:text-white transition-colors bg-admin-dark-card border border-admin-dark-border rounded-md font-bold">
-                    <span>🎓</span> Training Guide
-                </button>
-                <button onClick={() => props.onNavigate('home')} className="text-sm text-center py-2 px-4 text-admin-dark-text-secondary hover:text-white transition-colors">View Site</button>
-                <button onClick={props.onLogout} className="bg-admin-dark-card border border-admin-dark-border px-4 py-2 rounded-md font-bold text-sm text-red-400 hover:bg-red-500/20 transition-colors">Logout</button>
-            </div>
-        </header>
-        {renderContent()}
-      </main>
-
-      <footer className="fixed bottom-0 left-0 right-0 z-50 bg-admin-dark-card/80 backdrop-blur-lg border-t border-admin-dark-border h-16">
+      <div className="flex-shrink-0 bg-admin-dark-card/80 backdrop-blur-lg border-b border-admin-dark-border h-16">
           <nav className="container mx-auto grid grid-cols-4 h-full">
               {navItems.map(item => (
                   <button 
@@ -479,7 +504,12 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
                   </button>
               ))}
           </nav>
-      </footer>
+      </div>
+
+      <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+        {renderContent()}
+      </main>
+
     </div>
   );
 };

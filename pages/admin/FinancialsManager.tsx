@@ -1,5 +1,7 @@
+
 import React, { useState } from 'react';
 import { Expense, InventoryItem, Booking } from '../../App';
+import YearlyProfitChart from './components/YearlyProfitChart';
 
 // --- Expense Management ---
 const ExpenseForm: React.FC<{
@@ -7,8 +9,6 @@ const ExpenseForm: React.FC<{
     onSave: (expense: Omit<Expense, 'id'> | Expense) => void;
     onCancel: () => void;
 }> = ({ expense, onSave, onCancel }) => {
-    // FIX: Explicitly type the state to ensure formData always conforms to Partial<Expense>.
-    // This prevents type errors when accessing properties that might not be in the initial object for a new expense.
     const [formData, setFormData] = useState<Partial<Expense>>(expense || { date: new Date().toISOString().split('T')[0], category: 'Supplies' });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -77,11 +77,11 @@ const ExpenseManager: React.FC<{
     };
 
     return (
-        <div>
+        <div className="mt-6">
             <header className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
                 <div>
                     <h3 className="text-xl font-bold text-white">Expense Tracker</h3>
-                    <p className="text-sm text-admin-dark-text-secondary mt-1">Log and manage all business expenses.</p>
+                    <p className="text-sm text-admin-dark-text-secondary mt-1">Log and manage expenses for the selected month.</p>
                 </div>
                 {!isAdding && !editingExpense && (
                     <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity">
@@ -100,7 +100,7 @@ const ExpenseManager: React.FC<{
             )}
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {expenses.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(exp => (
+                {expenses.length > 0 ? expenses.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(exp => (
                     <div key={exp.id} className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4 flex flex-col justify-between gap-3">
                         <div>
                             <div className="flex justify-between items-start">
@@ -121,12 +121,11 @@ const ExpenseManager: React.FC<{
                             </div>
                         </div>
                     </div>
-                ))}
+                )) : <p className="md:col-span-2 text-center text-admin-dark-text-secondary py-8">No expenses found for this month.</p>}
             </div>
         </div>
     );
 };
-
 
 // --- Inventory Management ---
 const InventoryForm: React.FC<{
@@ -158,10 +157,18 @@ const InventoryForm: React.FC<{
                         <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Category</label>
                         <input type="text" name="category" placeholder="e.g., Ink, Needles" value={formData.category || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required />
                     </div>
+                     <div>
+                        <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Brand (Optional)</label>
+                        <input type="text" name="brand" value={formData.brand || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Lot # (Optional)</label>
+                        <input type="text" name="lotNumber" value={formData.lotNumber || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" />
+                    </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Quantity</label>
+                        <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Quantity (units, or mL for ink)</label>
                         <input type="number" name="quantity" value={formData.quantity || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required />
                     </div>
                     <div>
@@ -204,7 +211,7 @@ const InventoryManager: React.FC<{
     const totalValue = inventory.reduce((sum, item) => sum + (item.cost * item.quantity), 0);
 
     return (
-        <div>
+        <div className="mt-6">
             <header className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
                  <div>
                     <h3 className="text-xl font-bold text-white">Inventory Management</h3>
@@ -240,7 +247,7 @@ const InventoryManager: React.FC<{
                             <div className="flex justify-between items-baseline my-3">
                                  <p className="font-bold text-2xl">
                                     <span className={item.quantity < 10 ? 'text-yellow-400' : 'text-white'}>{item.quantity}</span>
-                                    <span className="text-sm text-admin-dark-text-secondary ml-1"> units</span>
+                                    <span className="text-sm text-admin-dark-text-secondary ml-1"> {item.category === 'Ink' ? 'mL' : 'units'}</span>
                                 </p>
                                 <p className="text-blue-400 text-lg font-semibold">R{(item.cost * item.quantity).toFixed(2)}</p>
                             </div>
@@ -262,6 +269,50 @@ const InventoryManager: React.FC<{
     );
 };
 
+const MonthlyBreakdown: React.FC<{ bookings: Booking[], expenses: Expense[] }> = ({ bookings, expenses }) => {
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+                <h4 className="font-semibold text-white mb-3">Income (Completed Bookings)</h4>
+                <div className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4 max-h-80 overflow-y-auto">
+                    {bookings.length > 0 ? (
+                        <ul className="space-y-2">
+                            {bookings.map(b => (
+                                <li key={b.id} className="flex justify-between items-center text-sm p-2 rounded-md hover:bg-white/5">
+                                    <span className="text-admin-dark-text">{b.name}</span>
+                                    <span className="font-semibold text-green-400">+ R{b.totalCost?.toFixed(2)}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-sm text-admin-dark-text-secondary text-center py-4">No income recorded for this month.</p>
+                    )}
+                </div>
+            </div>
+            <div>
+                <h4 className="font-semibold text-white mb-3">Expenses</h4>
+                <div className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4 max-h-80 overflow-y-auto">
+                     {expenses.length > 0 ? (
+                        <ul className="space-y-2">
+                            {expenses.map(e => (
+                                <li key={e.id} className="flex justify-between items-center text-sm p-2 rounded-md hover:bg-white/5">
+                                    <div>
+                                        <p className="text-admin-dark-text">{e.description}</p>
+                                        <p className="text-xs text-admin-dark-text-secondary">{e.category}</p>
+                                    </div>
+                                    <span className="font-semibold text-red-400">- R{e.amount?.toFixed(2)}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-sm text-admin-dark-text-secondary text-center py-4">No expenses recorded for this month.</p>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 // --- Main Financials Manager ---
 interface FinancialsManagerProps {
@@ -277,59 +328,98 @@ interface FinancialsManagerProps {
 }
 
 const FinancialsManager: React.FC<FinancialsManagerProps> = (props) => {
-    const [activeSubTab, setActiveSubTab] = useState<'expenses' | 'inventory'>('expenses');
+    const [activeSubTab, setActiveSubTab] = useState<'breakdown' | 'expenses' | 'inventory'>('breakdown');
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
-    const totalRevenue = props.bookings
-        .filter(b => b.status === 'completed' && b.totalCost)
-        .reduce((sum, b) => sum + (b.totalCost || 0), 0);
-    const totalExpenses = props.expenses.reduce((sum, e) => sum + e.amount, 0);
+    const handleMonthChange = (increment: number) => {
+        setSelectedDate(current => {
+            const newDate = new Date(current);
+            newDate.setDate(1); // Avoid day issues
+            newDate.setMonth(newDate.getMonth() + increment);
+            return newDate;
+        });
+    };
+
+    const filteredBookings = props.bookings.filter(b => {
+        const bookingDate = new Date(b.bookingDate);
+        return b.status === 'completed' &&
+               bookingDate.getFullYear() === selectedDate.getFullYear() &&
+               bookingDate.getMonth() === selectedDate.getMonth();
+    });
+
+    const filteredExpenses = props.expenses.filter(e => {
+        const expenseDate = new Date(e.date);
+        return expenseDate.getFullYear() === selectedDate.getFullYear() &&
+               expenseDate.getMonth() === selectedDate.getMonth();
+    });
+    
+    const totalRevenue = filteredBookings.reduce((sum, b) => sum + (b.totalCost || 0), 0);
+    const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
     const netProfit = totalRevenue - totalExpenses;
 
     const summaryData = [
-        { title: 'Total Revenue', value: totalRevenue, color: 'text-green-400', icon: '📈' },
-        { title: 'Total Expenses', value: totalExpenses, color: 'text-red-400', icon: '📉' },
-        { title: 'Net Profit', value: netProfit, color: netProfit >= 0 ? 'text-blue-400' : 'text-red-400', icon: '💰' },
+        { title: 'Monthly Revenue', value: totalRevenue, color: 'text-green-400', icon: '📈' },
+        { title: 'Monthly Expenses', value: totalExpenses, color: 'text-red-400', icon: '📉' },
+        { title: 'Monthly Net Profit', value: netProfit, color: netProfit >= 0 ? 'text-blue-400' : 'text-red-400', icon: '💰' },
     ];
-
-    return (
-        <div className="bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-lg p-6">
-            <header className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
-                 <div>
-                    <h2 className="text-xl font-bold text-white">Financials & Stock</h2>
-                    <p className="text-sm text-admin-dark-text-secondary mt-1">Track your expenses and manage studio inventory.</p>
-                </div>
-                <div className="flex items-center gap-2 bg-admin-dark-bg p-1 rounded-lg self-start">
-                    <button onClick={() => setActiveSubTab('expenses')} className={`px-4 py-1.5 text-sm font-bold rounded-md transition-colors ${activeSubTab === 'expenses' ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>Expenses</button>
-                    <button onClick={() => setActiveSubTab('inventory')} className={`px-4 py-1.5 text-sm font-bold rounded-md transition-colors ${activeSubTab === 'inventory' ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>Inventory</button>
-                </div>
-            </header>
-
-            {/* Financial Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                {summaryData.map(item => (
-                    <div key={item.title} className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4">
-                        <p className="text-sm text-admin-dark-text-secondary flex items-center gap-2">{item.icon} {item.title}</p>
-                        <p className={`text-2xl font-bold mt-1 ${item.color}`}>R{item.value.toFixed(2)}</p>
-                    </div>
-                ))}
-            </div>
-
-            {activeSubTab === 'expenses' && (
-                <ExpenseManager 
-                    expenses={props.expenses}
+    
+    const renderContent = () => {
+        switch (activeSubTab) {
+            case 'breakdown':
+                return <MonthlyBreakdown bookings={filteredBookings} expenses={filteredExpenses} />;
+            case 'expenses':
+                return <ExpenseManager 
+                    expenses={filteredExpenses}
                     onAdd={props.onAddExpense}
                     onUpdate={props.onUpdateExpense}
                     onDelete={props.onDeleteExpense}
-                />
-            )}
-            {activeSubTab === 'inventory' && (
-                <InventoryManager
+                />;
+            case 'inventory':
+                 return <InventoryManager
                     inventory={props.inventory}
                     onAdd={props.onAddInventoryItem}
                     onUpdate={props.onUpdateInventoryItem}
                     onDelete={props.onDeleteInventoryItem}
-                />
-            )}
+                />;
+            default: return null;
+        }
+    }
+
+    return (
+        <div className="bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-lg p-6 space-y-8">
+            <header>
+                <h2 className="text-xl font-bold text-white">Financials & Stock</h2>
+                <p className="text-sm text-admin-dark-text-secondary mt-1">Track monthly performance and manage studio inventory.</p>
+            </header>
+
+            <section>
+                <div className="flex items-center justify-between mb-4 bg-admin-dark-bg/50 p-2 rounded-lg">
+                    <button onClick={() => handleMonthChange(-1)} className="px-3 py-1 hover:bg-white/10 rounded-md transition-colors">◀</button>
+                    <h3 className="font-semibold text-lg text-white text-center">{selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>
+                    <button onClick={() => handleMonthChange(1)} className="px-3 py-1 hover:bg-white/10 rounded-md transition-colors">▶</button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {summaryData.map(item => (
+                        <div key={item.title} className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4">
+                            <p className="text-sm text-admin-dark-text-secondary flex items-center gap-2">{item.icon} {item.title}</p>
+                            <p className={`text-2xl font-bold mt-1 ${item.color}`}>R{item.value.toFixed(2)}</p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+            
+            <section>
+                <YearlyProfitChart bookings={props.bookings} expenses={props.expenses} selectedYear={selectedDate.getFullYear()} />
+            </section>
+            
+            <section>
+                <div className="flex items-center gap-2 bg-admin-dark-bg p-1 rounded-lg self-start">
+                    {(['breakdown', 'expenses', 'inventory'] as const).map(tab => (
+                        <button key={tab} onClick={() => setActiveSubTab(tab)} className={`w-full px-4 py-1.5 text-sm font-bold rounded-md transition-colors capitalize ${activeSubTab === tab ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>{tab}</button>
+                    ))}
+                </div>
+                {renderContent()}
+            </section>
         </div>
     );
 };
