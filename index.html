@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Beautively Inked Tattoo Studio</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Apple PWA specific meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Beautively" />
+    <link rel="apple-touch-icon" href="https://i.ibb.co/n8tnxm9q/31e985d7-135f-4a54-98f9-f110bd155497-1.png" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              'sans': ['Montserrat', 'sans-serif'],
+              'script': ['Dancing Script', 'cursive'],
+            },
+            colors: {
+              'brand-dark': '#0a0a0a',
+              'brand-light': '#e0e0e0',
+              'brand-off-white': '#f8f8f8',
+              'brand-green': '#16a34a',
+              // Old Admin Theme (Light)
+              'admin-bg': '#f0f2f9',
+              'admin-primary': '#5e55ef',
+              'admin-secondary': '#ffab2e',
+              'admin-text': '#343853',
+              'admin-text-light': '#898da9',
+              // New Admin Theme (Dark)
+              'admin-dark-bg': '#1a1c23',
+              'admin-dark-card': '#242731',
+              'admin-dark-border': 'rgba(255, 255, 255, 0.07)',
+              'admin-dark-primary': '#6366f1',
+              'admin-dark-text': '#e5e7eb',
+              'admin-dark-text-secondary': '#9ca3af',
+            },
+            animation: {
+              'infinite-scroll': 'infinite-scroll 40s linear infinite',
+              'text-scroll': 'infinite-scroll 120s linear infinite',
+              'fade-in-up': 'fade-in-up 1s ease-out .5s forwards',
+              'fade-in': 'fade-in 0.5s ease-out forwards',
+            },
+            keyframes: {
+              'infinite-scroll': {
+                'from': { transform: 'translateX(0)' },
+                'to': { transform: 'translateX(-50%)' },
+              },
+              'fade-in-up': {
+                '0%': {
+                  opacity: '0',
+                  transform: 'translateY(20px)'
+                },
+                '100%': {
+                  opacity: '1',
+                  transform: 'translateY(0)'
+                }
+              },
+              'fade-in': {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <!-- Added Babel for JSX Transpilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+</head>
+  <body class="bg-brand-dark">
+    <div id="root"></div>
+    <!-- Load and transpile the React app -->
+    <script type="text/babel" data-type="module" src="/index.tsx"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(error => {
+              console.log('ServiceWorker registration failed: ', error);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>
