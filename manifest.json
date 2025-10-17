@@ -28,14 +28,8 @@
       "purpose": "maskable"
     }
   ],
-  "start_url": "/",
+  "start_url": ".",
   "scope": "/",
-  "scope_extensions": [
-    {
-      "origin": "*.beautively-inked.com"
-    }
-  ],
-  "id": "/",
   "display": "standalone",
   "display_override": [
     "window-controls-overlay",
@@ -131,19 +125,6 @@
   ],
   "launch_handler": {
     "client_mode": "navigate-existing"
-  },
-  "note_taking": {
-    "new_note_url": "/new-note",
-    "capture_links": true
-  },
-  "tab_strip": {
-    "home_tab": "new-tab-page",
-    "new_tab_button": {
-      "url": "/"
-    }
-  },
-  "side_panel": {
-    "preferred_width": 320
   },
   "widgets": [
     {
