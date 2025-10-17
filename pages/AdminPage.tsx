@@ -8,7 +8,7 @@ import { PortfolioItem, SpecialItem, Genre, Booking, SocialLink, Expense, Invent
 export interface AdminPageProps {
   user: User | null;
   onNavigate: (view: 'home' | 'admin') => void;
-  onLogout: () => void;
+  onSuccessfulLogout: () => void;
 
   // Portfolio
   portfolioData: PortfolioItem[];
@@ -75,12 +75,12 @@ const AdminPage: React.FC<AdminPageProps> = (props) => {
     signOut(auth)
       .then(() => {
         // onAuthStateChanged in App.tsx will handle the state update.
-        props.onLogout(); // This navigates to 'home' as defined in App.tsx
+        // This will navigate to 'home' as defined in App.tsx
+        props.onSuccessfulLogout();
       })
       .catch((error) => {
         console.error("Sign out error", error);
-        // Still log out on the client-side even if Firebase signout fails
-        props.onLogout();
+        alert("Failed to sign out. Please check your internet connection and try again.");
       });
   };
 

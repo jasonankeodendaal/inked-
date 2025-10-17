@@ -413,7 +413,7 @@ const App: React.FC = () => {
         onDeleteInventoryItem={handleDeleteInventoryItem}
         onSaveAllSettings={handleSaveAllSettings}
         onClearAllData={handleClearAllData}
-        onLogout={() => navigate('home')}
+        onSuccessfulLogout={() => navigate('home')}
         // Pass all settings as props
         companyName={companyName}
         logoUrl={logoUrl}

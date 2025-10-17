@@ -364,7 +364,11 @@ type AdminTab = 'dashboard' | 'art' | 'financials' | 'settings' | 'pwa';
 type ArtSubTab = 'portfolio' | 'showroom';
 type TourKey = 'dashboard' | 'art' | 'financials' | 'settings' | 'pwa';
 
-const AdminDashboard: React.FC<AdminPageProps> = (props) => {
+interface AdminDashboardComponentProps extends AdminPageProps {
+  onLogout: () => void;
+}
+
+const AdminDashboard: React.FC<AdminDashboardComponentProps> = (props) => {
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [artSubTab, setArtSubTab] = useState<ArtSubTab>('portfolio');
   const [previousTab, setPreviousTab] = useState<AdminTab>('dashboard');
