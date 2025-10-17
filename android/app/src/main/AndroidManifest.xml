@@ -24,13 +24,14 @@
             </intent-filter>
 
             <!--
-                [!!-CRITICAL-!!] THIS IS WHY YOU ARE GETTING A 404 ERROR.
-                You MUST replace "https://example.com" with the URL of your live website.
-                For example: android:value="https://beautively-inked.com"
+                [!!-CRITICAL-!!] THIS IS THE URL FOR YOUR LIVE WEBSITE.
+                You MUST replace the placeholder URL below with the actual URL where your
+                website is hosted. For example: "https://beautively-inked.com"
+                If you don't do this, your Android app will not work.
             -->
             <meta-data
                 android:name="android.support.customtabs.trusted.DEFAULT_URL"
-                android:value="https://example.com" />
+                android:value="https://REPLACE_WITH_YOUR_LIVE_WEBSITE_URL_HERE" />
 
             <!--
                  This meta-data tag is used to specify a list of additional trusted origins.
