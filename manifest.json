@@ -30,8 +30,10 @@
   ],
   "start_url": ".",
   "scope": "/",
+  "id": "/",
   "display": "standalone",
   "display_override": [
+    "edge_side_panel",
     "window-controls-overlay",
     "tabbed",
     "standalone"
@@ -125,6 +127,10 @@
   ],
   "launch_handler": {
     "client_mode": "navigate-existing"
+  },
+  "note_taking": {
+    "new_note_url": "/new-note",
+    "edit_note_url": "/edit-note"
   },
   "widgets": [
     {
