@@ -1,8 +1,9 @@
 
+
 import React, { useState } from 'react';
 import AdminLoginPage from './AdminLoginPage';
 import AdminDashboard from './admin/AdminDashboard';
-import { PortfolioItem, SpecialItem, Genre, Booking, SocialLink, Expense, InventoryItem } from '../App';
+import { PortfolioItem, SpecialItem, Genre, Booking, SocialLink, Expense, InventoryItem, ShowroomItem } from '../App';
 
 export interface AdminPageProps {
   onNavigate: (view: 'home' | 'admin') => void;
@@ -57,6 +58,8 @@ export interface AdminPageProps {
   onShowroomTitleUpdate: (title: string) => void;
   showroomDescription: string;
   onShowroomDescriptionUpdate: (description: string) => void;
+  heroTattooGunImageUrl: string;
+  onHeroTattooGunImageUrlUpdate: (url: string) => void;
 }
 
 const AdminPage: React.FC<AdminPageProps> = (props) => {

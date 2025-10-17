@@ -1,160 +1,316 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
+
+type TourKey = 'dashboard' | 'art' | 'financials' | 'settings' | 'pwa';
+
+interface GuideStep {
+    title: string;
+    content: string;
+    targetId: string;
+    placement?: 'top' | 'bottom' | 'left' | 'right';
+}
+
+const tours: Record<TourKey, GuideStep[]> = {
+    dashboard: [
+        {
+            targetId: 'welcome',
+            title: "👋 Welcome to the Dashboard!",
+            content: "This is your home base. It gives you an at-a-glance overview of your business, focusing on booking requests and upcoming appointments.",
+        },
+        {
+            targetId: 'dashboard-bookings-manager',
+            title: "Manage Bookings",
+            content: "This is the main panel for managing all incoming booking requests, whether they come from your website or you add them manually.",
+            placement: 'top',
+        },
+        {
+            targetId: 'dashboard-booking-filters',
+            title: "Filter Bookings",
+            content: "Quickly filter the booking list by status. The default view is 'Pending' so you can see new requests right away.",
+            placement: 'bottom',
+        },
+        {
+            targetId: 'dashboard-manual-booking-button',
+            title: "Manual Bookings",
+            content: "Click this to add bookings manually. This is perfect for appointments made over the phone, in person, or for blocking out time.",
+            placement: 'bottom',
+        },
+        {
+            targetId: 'dashboard-booking-list',
+            title: "Booking List",
+            content: "All bookings matching your current filter appear here. You can update their status, edit details, or log supplies used for completed appointments.",
+            placement: 'top',
+        },
+        {
+            targetId: 'dashboard-calendar',
+            title: "Booking Calendar",
+            content: "This calendar shows which days have bookings. Click on a date to filter the list to only show appointments for that day.",
+            placement: 'left',
+        },
+        {
+            targetId: 'dashboard-reminder-clock',
+            title: "Reminder Clock",
+            content: "This widget automatically shows your next 5 upcoming *confirmed* appointments, helping you prepare for the days ahead.",
+            placement: 'left',
+        },
+        {
+            targetId: 'dashboard-specials-manager',
+            title: "Specials Manager",
+            content: "This is a quick-access panel to manage your specials and flash designs directly from the dashboard.",
+            placement: 'left',
+        },
+    ],
+    art: [
+        {
+            targetId: 'art-subtabs',
+            title: "🎨 Art Management",
+            content: "This section is split into two parts: 'Portfolio', where you manage individual art pieces, and 'Showroom', where you organize them into public-facing galleries.",
+        },
+        {
+            targetId: 'add-new-item-button',
+            title: "Add New Portfolio Item",
+            content: "Click here to open the form for adding a new art piece. You can upload multiple images and even a video.",
+            placement: 'bottom',
+        },
+        {
+            targetId: 'portfolio-item-list',
+            title: "Portfolio List",
+            content: "All your uploaded art pieces are listed here. You can edit or delete them, and see if they have video content.",
+        },
+        {
+            targetId: 'feature-toggle',
+            title: "Feature in Hero",
+            content: "Use this toggle to select which pieces are 'featured'. Featured items will appear in the animated carousel on your website's homepage.",
+            placement: 'top',
+        },
+        {
+            targetId: 'art-showroom-tab',
+            title: "Showroom Tab",
+            content: "Now, click the 'Showroom' tab to see how to organize your portfolio into genres for your site's 'Flash Wall'.",
+            placement: 'bottom',
+        },
+        {
+            targetId: 'add-genre-button',
+            title: "Add New Genre",
+            content: "Click here to create a new category for your showroom, like 'Fine-Line' or 'Sleeves'.",
+            placement: 'bottom'
+        },
+        {
+            targetId: 'showroom-genre-list',
+            title: "Manage Genres",
+            content: "Here you can rename genres and add available portfolio items to them. You can also drag-and-drop items between genres and reorder the genres themselves.",
+        },
+    ],
+    financials: [
+        {
+            targetId: 'financials-month-navigator',
+            title: '💰 Financials & Stock',
+            content: "This section helps you track business performance. Use these arrows to navigate between different months.",
+        },
+        {
+            targetId: 'financials-summary-cards',
+            title: 'Monthly Summary',
+            content: "These cards provide a quick summary for the selected month: total revenue from completed bookings, total logged expenses, and the resulting net profit.",
+        },
+        {
+            targetId: 'financials-yearly-chart',
+            title: 'Yearly Overview',
+            content: "This chart visualizes the net profit for each month of the selected year, giving you a clear view of your financial trends.",
+        },
+        {
+            targetId: 'financials-subtabs',
+            title: 'Breakdown, Expenses, & Inventory',
+            content: "Use these tabs to switch between viewing a detailed monthly breakdown, managing individual expenses, and tracking your studio's supply inventory.",
+        },
+        {
+            targetId: 'financials-add-expense-button',
+            title: 'Add an Expense',
+            content: "Switch to the 'Expenses' tab and click this button to log a new business expense for the selected month.",
+            placement: 'bottom',
+        },
+        {
+            targetId: 'financials-add-inventory-button',
+            title: 'Add to Inventory',
+            content: "In the 'Inventory' tab, click this button to add new supplies to your stock, like inks, needles, or cleaning supplies.",
+            placement: 'bottom',
+        },
+    ],
+    settings: [
+        {
+            targetId: 'settings-company-details',
+            title: '⚙️ Site Settings',
+            content: "This page contains all the global configurations for your website. Let's start with Company Details.",
+        },
+        {
+            targetId: 'settings-page-content',
+            title: 'Page Content',
+            content: "Here you can customize the titles and descriptions for sections like the Showroom (or 'Flash Wall').",
+        },
+        {
+            targetId: 'settings-contact-info',
+            title: 'Contact Information',
+            content: "Update your studio's address, phone number, email, and WhatsApp number. These will be displayed in the footer and used for contact forms.",
+        },
+        {
+            targetId: 'settings-billing-info',
+            title: 'Billing & Invoicing',
+            content: "Enter your bank details here. This information can be used for generating invoices in the future.",
+        },
+        {
+            targetId: 'settings-data-management',
+            title: 'Data Management',
+            content: "You can download a single JSON file containing ALL of your site's data as a backup, or restore your site from a previously saved backup file.",
+            placement: 'top',
+        },
+        {
+            targetId: 'settings-danger-zone',
+            title: '🚨 Danger Zone',
+            content: "Be careful here! This section contains actions that permanently delete data, like clearing all the mock content from the site.",
+            placement: 'top',
+        },
+    ],
+    pwa: [
+        {
+            targetId: 'pwa-sw-features',
+            title: '🚀 PWA Capabilities',
+            content: "This panel shows the status of advanced features powered by your app's Service Worker, which runs in the background.",
+        },
+        {
+            targetId: 'pwa-permissions',
+            title: 'Request Permissions',
+            content: "Some features, like Push Notifications and Periodic Sync, require the user's permission. You can test the permission prompts with these buttons.",
+            placement: 'bottom',
+        },
+        {
+            targetId: 'pwa-manifest-features',
+            title: 'App Manifest Features',
+            content: "This list shows all the OS-level integrations defined in your app's manifest, like Shortcuts and File Handling, which make it feel like a native application.",
+            placement: 'top',
+        }
+    ]
+};
+
+const popoverPositions = {
+    top: 'bottom-full left-1/2 -translate-x-1/2 mb-4',
+    bottom: 'top-full left-1/2 -translate-x-1/2 mt-4',
+    left: 'right-full top-1/2 -translate-y-1/2 mr-4',
+    right: 'left-full top-1/2 -translate-y-1/2 ml-4',
+}
 
 interface TrainingGuideProps {
-    isOpen: boolean;
+    activeTour: TourKey | null;
     onClose: () => void;
 }
 
-const guideSteps = [
-    {
-        title: "👋 Welcome to the Training Guide!",
-        content: "This interactive guide will walk you through every feature of your admin dashboard. Use the 'Next' and 'Previous' buttons to navigate. Let's get started!",
-        highlight: 'hidden'
-    },
-    {
-        title: "📱 Main Navigation",
-        content: "This is your main navigation bar, always accessible at the bottom of the screen. It allows you to quickly switch between the main sections of your admin panel: Dashboard, Art, Financials, and Settings.",
-        highlight: 'absolute bottom-0 left-0 w-full h-16 border-4 border-admin-dark-primary rounded-lg shadow-lg'
-    },
-    {
-        title: "📊 Dashboard Overview",
-        content: "This is your home base. It gives you an at-a-glance overview of your business, focusing on booking requests and upcoming appointments. On larger screens, the layout expands to show more information side-by-side.",
-        highlight: 'absolute top-28 bottom-20 left-4 right-4 border-4 border-admin-dark-primary rounded-lg shadow-lg'
-    },
-    {
-        title: "Filter Bookings",
-        content: "Quickly filter the booking list by status. The default view is 'Pending' so you can see new requests right away. Click any status to change the view.",
-        highlight: 'absolute top-40 left-6 w-[calc(100%-3rem)] h-14 sm:w-auto sm:left-auto sm:right-44 lg:top-40 lg:right-56 border-4 border-admin-dark-primary rounded-lg shadow-lg'
-    },
-    {
-        title: "✍️ Manual Bookings",
-        content: "Click this button to open a form for adding bookings manually. This is perfect for appointments made over the phone, in person, or for blocking out time.",
-        highlight: 'absolute top-40 right-6 w-40 h-10 lg:top-40 border-4 border-admin-dark-primary rounded-lg shadow-lg'
-    },
-    {
-        title: "🗓️ Booking Calendar",
-        content: "This calendar shows which days have bookings. Click on a date to filter the 'Booking Requests' list to only show appointments for that specific day. Click it again to clear the filter.",
-        highlight: 'absolute top-1/3 left-4 right-4 h-64 lg:left-[68%] lg:w-[30%] lg:top-36 lg:h-[40%] border-4 border-admin-dark-primary rounded-lg shadow-lg'
-    },
-    {
-        title: "⏰ Reminder Clock",
-        content: "This widget automatically shows your next 5 upcoming *confirmed* appointments, helping you prepare for the days ahead without having to search for them.",
-        highlight: 'absolute top-2/3 left-4 right-4 h-1/4 lg:left-[68%] lg:w-[30%] lg:top-[58%] lg:h-[38%] border-4 border-admin-dark-primary rounded-lg shadow-lg'
-    },
-    {
-        title: "🎨 Art Management",
-        content: "The 'Art' tab is where you manage all your visual content. It's split into two sections: 'Portfolio' for individual art pieces and 'Showroom' to organize them into public-facing galleries.",
-        highlight: 'absolute bottom-0 left-[25%] w-1/4 h-16 border-4 border-admin-dark-primary rounded-lg'
-    },
-    {
-        title: "🖼️ Portfolio Manager",
-        content: "Here you can add, edit, and delete every piece of artwork. You can upload a primary image, a story, a full gallery, and even a video. Use the 'Feature in Hero' toggle to showcase a piece on your homepage's main banner.",
-        highlight: 'absolute top-28 bottom-20 left-4 right-4 border-4 border-admin-dark-primary rounded-lg shadow-lg'
-    },
-    {
-        title: "🖼️ Showroom Manager",
-        content: "In the 'Showroom' sub-tab, you can create genres (e.g., 'Fine-Line', 'Sleeves'). Then, you can add items from your portfolio to these genres to organize your 'Flash Wall' page for visitors.",
-        highlight: 'absolute top-28 bottom-20 left-4 right-4 border-4 border-admin-dark-primary rounded-lg shadow-lg'
-    },
-    {
-        title: "💰 Financials & Stock",
-        content: "The 'Financials' tab helps you track the health of your business. It includes an Expense Tracker and an Inventory Manager for your studio supplies.",
-        highlight: 'absolute bottom-0 left-[50%] w-1/4 h-16 border-4 border-admin-dark-primary rounded-lg'
-    },
-    {
-        title: "📈 Financial Summary",
-        content: "At the top of the Financials page, you'll find a quick summary of your total revenue (from completed bookings), total expenses logged, and the resulting net profit.",
-        highlight: 'absolute top-40 left-4 right-4 h-24 border-4 border-admin-dark-primary rounded-lg shadow-lg'
-    },
-    {
-        title: "⚙️ Site Settings",
-        content: "The 'Settings' tab contains all the global configurations for your website, such as your company name, logo, contact details, social media links, and billing information for invoices.",
-        highlight: 'absolute bottom-0 right-0 w-1/4 h-16 border-4 border-admin-dark-primary rounded-lg'
-    },
-     {
-        title: "🚨 Danger Zone",
-        content: "At the bottom of the Settings page is the 'Danger Zone'. Be very careful here! This section contains actions that can permanently delete data, like the 'Clear All Mock Data' button.",
-        highlight: 'absolute bottom-24 left-4 right-4 h-40 lg:w-1/2 lg:left-1/4 border-4 border-admin-dark-primary rounded-lg shadow-lg'
-    },
-    {
-        title: "🎉 You're all set!",
-        content: "Congratulations, you've completed the tour! You now know how to manage every aspect of your website. If you ever need a refresher, just open this guide again.",
-        highlight: 'hidden'
-    },
-];
-
-
-const TrainingGuide: React.FC<TrainingGuideProps> = ({ isOpen, onClose }) => {
+const TrainingGuide: React.FC<TrainingGuideProps> = ({ activeTour, onClose }) => {
     const [currentStep, setCurrentStep] = useState(0);
+    const [highlightStyle, setHighlightStyle] = useState({});
+    const [popoverStyle, setPopoverStyle] = useState({});
+    const [currentSteps, setCurrentSteps] = useState<GuideStep[]>([]);
+    const [isClosing, setIsClosing] = useState(false);
 
     useEffect(() => {
-        if (isOpen) {
+        if (activeTour) {
+            setCurrentSteps(tours[activeTour] || []);
+            setCurrentStep(0);
+            setIsClosing(false);
             document.body.style.overflow = 'hidden';
-            setCurrentStep(0); // Reset on open
         } else {
             document.body.style.overflow = '';
         }
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, [isOpen]);
+        return () => { document.body.style.overflow = ''; };
+    }, [activeTour]);
 
-    const nextStep = () => {
-        setCurrentStep(prev => Math.min(prev + 1, guideSteps.length - 1));
+    useLayoutEffect(() => {
+        if (!activeTour || currentSteps.length === 0) return;
+
+        const step = currentSteps[currentStep];
+        if (!step) return;
+
+        if (step.targetId === 'welcome') {
+             setHighlightStyle({ display: 'none' });
+             setPopoverStyle({ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 202 });
+             return;
+        }
+
+        const mainContent = document.getElementById('admin-main-content');
+        const targetElement = document.querySelector(`[data-tour-id="${step.targetId}"]`);
+        
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            
+            const updatePosition = () => {
+                const rect = targetElement.getBoundingClientRect();
+                 setHighlightStyle({
+                    position: 'fixed',
+                    top: `${rect.top - 4}px`,
+                    left: `${rect.left - 4}px`,
+                    width: `${rect.width + 8}px`,
+                    height: `${rect.height + 8}px`,
+                    display: 'block',
+                    zIndex: 201,
+                });
+                setPopoverStyle({
+                    position: 'fixed',
+                    top: `${rect.top}px`,
+                    left: `${rect.left}px`,
+                    width: `${rect.width}px`,
+                    height: `${rect.height}px`,
+                    zIndex: 202,
+                })
+            };
+            
+            // Initial position update, then another after scroll settles
+            updatePosition();
+            setTimeout(updatePosition, 500);
+        } else {
+            console.warn(`Tour target not found: ${step.targetId}`);
+            setHighlightStyle({ display: 'none' });
+        }
+
+    }, [currentStep, activeTour, currentSteps]);
+
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(onClose, 300);
     };
 
-    const prevStep = () => {
-        setCurrentStep(prev => Math.max(prev - 1, 0));
-    };
+    const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, currentSteps.length - 1));
+    const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
 
-    if (!isOpen) return null;
+    if (!activeTour) return null;
 
-    const step = guideSteps[currentStep];
-    const progress = ((currentStep + 1) / guideSteps.length) * 100;
-    const isLastStep = currentStep === guideSteps.length - 1;
+    const step = currentSteps[currentStep];
+    if (!step) return null;
+    
+    const progress = ((currentStep + 1) / currentSteps.length) * 100;
+    const isLastStep = currentStep === currentSteps.length - 1;
 
     return (
-        <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex flex-col items-center justify-end p-4 animate-fade-in" role="dialog" aria-modal="true">
-            {/* Clickaway background */}
-            <div className="absolute inset-0" onClick={onClose}></div>
-
-            {/* Highlight Box */}
-            <div className={`transition-all duration-500 ease-in-out pointer-events-none ${step.highlight}`}></div>
-
-            {/* Content Box */}
-            <div className="relative z-10 bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-2xl w-full max-w-2xl text-white p-6 space-y-4">
-                <header>
-                    <h2 className="text-xl font-bold">{step.title}</h2>
-                    <p className="text-admin-dark-text-secondary mt-2 text-sm leading-relaxed">{step.content}</p>
-                </header>
-
-                {/* Progress Bar */}
-                <div className="w-full bg-admin-dark-bg rounded-full h-2.5">
-                    <div className="bg-admin-dark-primary h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                    <button
-                        onClick={prevStep}
-                        disabled={currentStep === 0}
-                        className="px-6 py-2 rounded-lg font-bold text-sm text-admin-dark-text-secondary hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                    >
-                        Previous
-                    </button>
-                    {isLastStep ? (
-                         <button onClick={onClose} className="bg-green-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
-                            Finish
-                        </button>
-                    ) : (
-                        <button onClick={nextStep} className="bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
-                            Next
-                        </button>
-                    )}
-                </div>
+        <div className={`fixed inset-0 z-[200] transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`} role="dialog" aria-modal="true">
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={handleClose}></div>
+            
+            <div className="border-4 border-admin-dark-primary rounded-lg shadow-2xl transition-all duration-500 ease-in-out pointer-events-none" style={highlightStyle}></div>
+            
+            <div style={popoverStyle} className="pointer-events-none">
+                 <div className={`relative w-80 sm:w-96 bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-2xl text-white p-6 space-y-4 pointer-events-auto ${popoverPositions[step.placement || 'bottom']}`}>
+                    <header>
+                        <h2 className="text-xl font-bold">{step.title}</h2>
+                        <p className="text-admin-dark-text-secondary mt-2 text-sm leading-relaxed">{step.content}</p>
+                    </header>
+                    <div className="w-full bg-admin-dark-bg rounded-full h-2.5">
+                        <div className="bg-admin-dark-primary h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <button onClick={prevStep} disabled={currentStep === 0} className="px-6 py-2 rounded-lg font-bold text-sm text-admin-dark-text-secondary hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition">Previous</button>
+                        {isLastStep ? (
+                            <button onClick={handleClose} className="bg-green-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">Finish</button>
+                        ) : (
+                            <button onClick={nextStep} className="bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">Next</button>
+                        )}
+                    </div>
+                     <button onClick={handleClose} className="absolute -top-3 -right-3 w-8 h-8 flex items-center justify-center bg-admin-dark-card border border-admin-dark-border rounded-full text-white/70 hover:text-white transition-colors" aria-label="Close training guide">&times;</button>
+                 </div>
             </div>
-             <button onClick={onClose} className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors text-2xl" aria-label="Close training guide">
-                &times;
-            </button>
         </div>
     );
 };

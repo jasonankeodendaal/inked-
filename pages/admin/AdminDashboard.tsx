@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Booking } from '../../App';
 import { AdminPageProps } from '../AdminPage';
@@ -6,9 +5,10 @@ import { AdminPageProps } from '../AdminPage';
 // Import manager components
 import SettingsManager from './SettingsManager';
 import PortfolioManager from './PortfolioManager';
+import ShowroomManager from './ShowroomManager';
 import SpecialsManager from './SpecialsManager';
 import FinancialsManager from './FinancialsManager';
-import TrainingGuide from './TrainingGuide'; // Import the new Training Guide
+import TrainingGuide from './TrainingGuide';
 import LogSuppliesModal from './components/LogSuppliesModal';
 import PWACapabilities from '../../components/PWACapabilities';
 
@@ -20,6 +20,8 @@ const IconSettings = ({ className = 'w-6 h-6' }) => <svg className={className} v
 const IconFinancials = ({ className = 'w-6 h-6' }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 8h6m-5 4h.01M18 18H6a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2z"></path></svg>;
 const IconPWA = ({ className = 'w-6 h-6' }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>;
 const IconBack = () => <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>;
+const HelpIcon = ({ className = 'w-5 h-5' }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+
 
 // --- BOOKING MODAL (for Create/Edit) ---
 const BookingModal: React.FC<{
@@ -150,7 +152,8 @@ const BookingsManager: React.FC<{
     onAddManualBooking: () => void,
     onEditBooking: (booking: Booking) => void,
     onLogSupplies: (booking: Booking) => void,
-}> = ({ bookings, onBookingsUpdate, selectedDate, onClearDateFilter, onAddManualBooking, onEditBooking, onLogSupplies }) => {
+    startTour: (tourKey: 'dashboard') => void,
+}> = ({ bookings, onBookingsUpdate, selectedDate, onClearDateFilter, onAddManualBooking, onEditBooking, onLogSupplies, startTour }) => {
     type StatusFilter = Booking['status'] | 'all';
     const [filter, setFilter] = useState<StatusFilter>('pending');
     
@@ -178,21 +181,23 @@ const BookingsManager: React.FC<{
     const availableStatuses: Booking['status'][] = ['confirmed', 'completed', 'cancelled', 'pending'];
     
     return (
-        <div className="bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-lg p-6 h-full">
+        <div data-tour-id="dashboard-bookings-manager" className="bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-lg p-6 h-full">
             <header className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
-                <div>
+                <div className="flex items-center gap-3">
                     <h2 className="text-xl font-bold text-white">Booking Requests</h2>
-                    <p className="text-sm text-admin-dark-text-secondary mt-1">Manage all client bookings.</p>
+                    <button onClick={() => startTour('dashboard')} className="p-1.5 text-admin-dark-text-secondary hover:text-white hover:bg-white/10 rounded-full transition-colors" aria-label="Start Dashboard Tour">
+                        <HelpIcon />
+                    </button>
                 </div>
                 <div className="flex items-center gap-4 flex-wrap">
-                    <div className="flex items-center gap-2 bg-admin-dark-bg p-1 rounded-lg self-start">
+                    <div data-tour-id="dashboard-booking-filters" className="flex items-center flex-wrap gap-2 bg-admin-dark-bg p-1 rounded-lg self-start">
                         {(['all', 'pending', 'confirmed', 'completed', 'cancelled'] as StatusFilter[]).map(status => (
                         <button key={status} onClick={() => setFilter(status)} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors capitalize ${filter === status ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>
                             {status}
                         </button>
                         ))}
                     </div>
-                     <button onClick={onAddManualBooking} className="flex items-center gap-2 bg-admin-dark-primary text-white px-3 py-1.5 rounded-lg font-bold text-xs hover:opacity-90 transition-opacity">
+                     <button data-tour-id="dashboard-manual-booking-button" onClick={onAddManualBooking} className="flex items-center gap-2 bg-admin-dark-primary text-white px-3 py-1.5 rounded-lg font-bold text-xs hover:opacity-90 transition-opacity">
                         + Manual Booking
                     </button>
                 </div>
@@ -207,10 +212,9 @@ const BookingsManager: React.FC<{
                   </button>
               </div>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2">
+            <div data-tour-id="dashboard-booking-list" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2">
             {filteredBookings.length > 0 ? (
                 filteredBookings.map(booking => {
-                    const isToday = new Date(booking.bookingDate).toDateString() === new Date().toDateString();
                     return (
                         <div key={booking.id} className={`bg-admin-dark-bg/50 border-l-4 rounded-lg p-4 flex flex-col gap-3 ${statusStyles[booking.status]}`}>
                             <div className="flex justify-between items-start gap-4">
@@ -254,7 +258,7 @@ const BookingsManager: React.FC<{
                                         <span>✏️</span>
                                     </button>
                                 </div>
-                                {booking.status === 'confirmed' && isToday && (
+                                {booking.status === 'completed' && (
                                     <button onClick={() => onLogSupplies(booking)} className="w-full mt-2 text-center bg-blue-500/20 text-blue-300 px-3 py-2 rounded-lg font-bold text-xs hover:bg-blue-500/40 transition-colors flex items-center justify-center gap-2">
                                         <span>📦</span> Log Supplies Used
                                     </button>
@@ -311,7 +315,7 @@ const BookingCalendarWidget: React.FC<{ bookings: Booking[], selectedDate: strin
 
     return (
         <div className="bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-lg p-4 space-y-6">
-            <div>
+            <div data-tour-id="dashboard-calendar">
                 <h3 className="font-bold text-lg text-white mb-4">Booking Calendar</h3>
                 <div className="flex justify-between items-center mb-2">
                     <button onClick={() => changeMonth(-1)} className="text-admin-dark-text-secondary hover:text-white">◀</button>
@@ -335,7 +339,7 @@ const BookingCalendarWidget: React.FC<{ bookings: Booking[], selectedDate: strin
                     })}
                 </div>
             </div>
-            <div>
+            <div data-tour-id="dashboard-reminder-clock">
                  <h3 className="font-bold text-lg text-white mb-4">Reminder Clock</h3>
                  <div className="space-y-3">
                     {upcomingConfirmed.length > 0 ? upcomingConfirmed.map(booking => {
@@ -360,14 +364,17 @@ const BookingCalendarWidget: React.FC<{ bookings: Booking[], selectedDate: strin
 
 
 type AdminTab = 'dashboard' | 'art' | 'financials' | 'settings' | 'pwa';
+type ArtSubTab = 'portfolio' | 'showroom';
+type TourKey = 'dashboard' | 'art' | 'financials' | 'settings' | 'pwa';
 
 const AdminDashboard: React.FC<AdminPageProps> = (props) => {
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
+  const [artSubTab, setArtSubTab] = useState<ArtSubTab>('portfolio');
   const [previousTab, setPreviousTab] = useState<AdminTab>('dashboard');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [bookingToEdit, setBookingToEdit] = useState<Booking | null>(null);
-  const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [activeTour, setActiveTour] = useState<TourKey | null>(null);
   const [isSupplyLogOpen, setIsSupplyLogOpen] = useState(false);
   const [bookingForSupplyLog, setBookingForSupplyLog] = useState<Booking | null>(null);
 
@@ -415,6 +422,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
                 onAddManualBooking={handleOpenCreateModal}
                 onEditBooking={handleOpenEditModal}
                 onLogSupplies={handleOpenSupplyLog}
+                startTour={setActiveTour}
             />
         </div>
         <div className="space-y-6">
@@ -423,19 +431,33 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
         </div>
       </div>
   );
+  
+  const renderArtManagement = () => (
+    <div className="space-y-6">
+        <div data-tour-id="art-subtabs" className="flex items-center gap-2 bg-admin-dark-bg p-1 rounded-lg self-start max-w-sm">
+            <button onClick={() => setArtSubTab('portfolio')} className={`w-full px-4 py-1.5 text-sm font-bold rounded-lg transition-colors capitalize ${artSubTab === 'portfolio' ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>Portfolio</button>
+            <button data-tour-id="art-showroom-tab" onClick={() => setArtSubTab('showroom')} className={`w-full px-4 py-1.5 text-sm font-bold rounded-lg transition-colors capitalize ${artSubTab === 'showroom' ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>Showroom</button>
+        </div>
+        {artSubTab === 'portfolio' ? (
+            <PortfolioManager portfolioData={props.portfolioData} onPortfolioUpdate={props.onPortfolioUpdate} startTour={setActiveTour} />
+        ) : (
+            <ShowroomManager showroomData={props.showroomData} onShowroomUpdate={props.onShowroomUpdate} startTour={setActiveTour} />
+        )}
+    </div>
+  );
 
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
         return renderDashboard();
       case 'art':
-        return <PortfolioManager portfolioData={props.portfolioData} onPortfolioUpdate={props.onPortfolioUpdate} showroomData={props.showroomData} onShowroomUpdate={props.onShowroomUpdate} />;
+        return renderArtManagement();
       case 'financials':
-        return <FinancialsManager bookings={props.bookings} expenses={props.expenses} onAddExpense={props.onAddExpense} onUpdateExpense={props.onUpdateExpense} onDeleteExpense={props.onDeleteExpense} inventory={props.inventory} onAddInventoryItem={props.onAddInventoryItem} onUpdateInventoryItem={props.onUpdateInventoryItem} onDeleteInventoryItem={props.onDeleteInventoryItem} />;
+        return <FinancialsManager {...props} startTour={setActiveTour} />;
       case 'settings':
-        return <SettingsManager {...props} />;
+        return <SettingsManager {...props} startTour={setActiveTour} />;
       case 'pwa':
-        return <PWACapabilities />;
+        return <PWACapabilities startTour={setActiveTour} />;
       default:
         return renderDashboard();
     }
@@ -468,7 +490,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
         onUpdateInventoryItem={props.onUpdateInventoryItem}
       />
       
-      <TrainingGuide isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
+      <TrainingGuide activeTour={activeTour} onClose={() => setActiveTour(null)} />
 
       <header className="p-4 md:p-6 flex items-center justify-between flex-wrap gap-4 border-b border-admin-dark-border flex-shrink-0">
           <div className="flex items-center gap-4">
@@ -481,20 +503,17 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
               <div>
                   <p className="text-admin-dark-text-secondary text-sm">Welcome back!</p>
                   <h1 className="font-bold text-xl text-white capitalize">
-                      {activeTab === 'dashboard' ? 'Dashboard Overview' : `${activeTab} Status`}
+                      {activeTab === 'dashboard' ? 'Dashboard Overview' : `${activeTab} Management`}
                   </h1>
               </div>
           </div>
            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-              <button onClick={() => setIsGuideOpen(true)} className="flex items-center gap-2 text-sm text-center py-2 px-4 text-admin-dark-text-secondary hover:text-white transition-colors bg-admin-dark-card border border-admin-dark-border rounded-lg font-bold">
-                  <span>🎓</span> Training Guide
-              </button>
               <button onClick={() => props.onNavigate('home')} className="text-sm text-center py-2 px-4 text-admin-dark-text-secondary hover:text-white transition-colors">View Site</button>
               <button onClick={props.onLogout} className="bg-admin-dark-card border border-admin-dark-border px-4 py-2 rounded-lg font-bold text-sm text-red-400 hover:bg-red-500/20 transition-colors">Logout</button>
           </div>
       </header>
 
-      <div className="flex-shrink-0 bg-admin-dark-card/80 backdrop-blur-lg border-b border-admin-dark-border h-16">
+      <div data-tour-id="main-navigation" className="flex-shrink-0 bg-admin-dark-card/80 backdrop-blur-lg border-b border-admin-dark-border h-16">
           <nav className="container mx-auto grid grid-cols-5 h-full">
               {navItems.map(item => (
                   <button 
@@ -510,7 +529,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
           </nav>
       </div>
 
-      <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+      <main className="flex-1 p-4 md:p-6 overflow-y-auto" id="admin-main-content">
         {renderContent()}
       </main>
 

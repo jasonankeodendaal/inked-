@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -20,6 +18,14 @@ export interface PortfolioItem {
   videoData?: string; // Optional base64 Data URL for a video
   featured?: boolean;
 }
+
+export interface ShowroomItem {
+  id: string;
+  title: string;
+  images: string[]; // up to 5 images
+  videoUrl?: string;
+}
+
 
 export interface SpecialItem {
   id: string;
@@ -58,7 +64,7 @@ export interface Booking {
 export interface Genre {
   id:string;
   name: string;
-  items: PortfolioItem[];
+  items: ShowroomItem[];
 }
 
 // NEW Data Structures for Admin Panel
@@ -203,21 +209,46 @@ const initialSpecialsData: SpecialItem[] = [
   }
 ];
 
+const generateShowroomItems = (count: number, seedPrefix: string): ShowroomItem[] => {
+    const items: ShowroomItem[] = [];
+    const placeholderVideos = [
+        'https://assets.mixkit.co/videos/preview/mixkit-abstract-video-of-a-man-with-head-down-32839-large.mp4',
+        'https://assets.mixkit.co/videos/preview/mixkit-black-and-white-video-of-a-man-with-a-beard-34441-large.mp4',
+        'https://assets.mixkit.co/videos/preview/mixkit-futuristic-long-corridor-42419-large.mp4',
+        'https://assets.mixkit.co/videos/preview/mixkit-girl-in-a-leather-jacket-and-a-hat-in-a-dark-basement-43916-large.mp4',
+        'https://assets.mixkit.co/videos/preview/mixkit-mysterious-person-in-a-hoodie-standing-in-the-dark-43920-large.mp4'
+    ];
+
+    for (let i = 0; i < count; i++) {
+        const title = `${seedPrefix.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} Design #${i + 1}`;
+        const images = Array.from({ length: 5 }, (_, j) => `https://picsum.photos/seed/${seedPrefix}-${i}-img${j}/400/400`);
+        const videoUrl = placeholderVideos[i % placeholderVideos.length];
+
+        items.push({
+            id: `sr-${seedPrefix}-${i}`,
+            title,
+            images,
+            videoUrl,
+        });
+    }
+    return items;
+};
+
 const initialShowroomData: Genre[] = [
     {
         id: 'genre1',
         name: 'Fine-Line & Abstract',
-        items: initialPortfolioData.slice(0, 4),
+        items: generateShowroomItems(10, 'fine-line'),
     },
     {
         id: 'genre2',
         name: 'Sleeves & Large Pieces',
-        items: initialPortfolioData.slice(4, 8),
+        items: generateShowroomItems(10, 'large-pieces'),
     },
     {
         id: 'genre3',
         name: 'Modern & Geometric',
-        items: [initialPortfolioData[3], initialPortfolioData[5]],
+        items: generateShowroomItems(10, 'geometric'),
     }
 ];
 
@@ -253,6 +284,7 @@ const App: React.FC = () => {
   // Page content settings
   const [showroomTitle, setShowroomTitle] = useState('The Flash Wall');
   const [showroomDescription, setShowroomDescription] = useState("A curated collection of our work, showcasing the skill, diversity, and passion we bring to every piece.");
+  const [heroTattooGunImageUrl, setHeroTattooGunImageUrl] = useState('https://i.ibb.co/Mkfdy286/image-removebg-preview.png');
 
   // New billing settings state
   const [bankName, setBankName] = useState('FNB');
@@ -406,6 +438,8 @@ const App: React.FC = () => {
         onShowroomTitleUpdate={setShowroomTitle}
         showroomDescription={showroomDescription}
         onShowroomDescriptionUpdate={setShowroomDescription}
+        heroTattooGunImageUrl={heroTattooGunImageUrl}
+        onHeroTattooGunImageUrlUpdate={setHeroTattooGunImageUrl}
       />
     );
   }
@@ -414,14 +448,14 @@ const App: React.FC = () => {
     <>
       <Header onNavigate={navigate} logoUrl={logoUrl} companyName={companyName} />
       <main>
-        <Hero portfolioData={portfolioData} onNavigate={navigate} />
+        <Hero portfolioData={portfolioData} onNavigate={navigate} heroTattooGunImageUrl={heroTattooGunImageUrl} />
         <SpecialsCollage specials={specialsData} whatsAppNumber={whatsAppNumber} />
+        <AboutUs aboutUsImageUrl={aboutUsImageUrl} />
         <Showroom 
           showroomData={showroomData} 
           showroomTitle={showroomTitle} 
           showroomDescription={showroomDescription} 
         />
-        <AboutUs aboutUsImageUrl={aboutUsImageUrl} />
         <ContactForm onAddBooking={handleAddBooking} />
       </main>
       <Footer

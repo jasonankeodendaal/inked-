@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { Expense, InventoryItem, Booking } from '../../App';
 import YearlyProfitChart from './components/YearlyProfitChart';
@@ -85,7 +83,7 @@ const ExpenseManager: React.FC<{
                     <p className="text-sm text-admin-dark-text-secondary mt-1">Log and manage expenses for the selected month.</p>
                 </div>
                 {!isAdding && !editingExpense && (
-                    <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
+                    <button data-tour-id="financials-add-expense-button" onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                         Add Expense
                     </button>
@@ -219,7 +217,7 @@ const InventoryManager: React.FC<{
                     <p className="text-sm text-admin-dark-text-secondary mt-1">Total Stock Value: <span className="font-bold text-blue-400">R{totalValue.toFixed(2)}</span></p>
                 </div>
                 {!isAdding && !editingItem && (
-                    <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
+                    <button data-tour-id="financials-add-inventory-button" onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                         Add Item
                     </button>
@@ -326,6 +324,7 @@ interface FinancialsManagerProps {
     onAddInventoryItem: (newItem: Omit<InventoryItem, 'id'>) => void;
     onUpdateInventoryItem: (updatedItem: InventoryItem) => void;
     onDeleteInventoryItem: (itemId: string) => void;
+    startTour: (tourKey: 'financials') => void;
 }
 
 const FinancialsManager: React.FC<FinancialsManagerProps> = (props) => {
@@ -388,18 +387,20 @@ const FinancialsManager: React.FC<FinancialsManagerProps> = (props) => {
 
     return (
         <div className="bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-lg p-6 space-y-8">
-            <header>
+            <header className="flex items-center gap-3">
                 <h2 className="text-xl font-bold text-white">Financials & Stock</h2>
-                <p className="text-sm text-admin-dark-text-secondary mt-1">Track monthly performance and manage studio inventory.</p>
+                 <button onClick={() => props.startTour('financials')} className="p-1.5 text-admin-dark-text-secondary hover:text-white hover:bg-white/10 rounded-full transition-colors" aria-label="Start Financials Tour">
+                    <span>🎓</span>
+                </button>
             </header>
 
             <section>
-                <div className="flex items-center justify-between mb-4 bg-admin-dark-bg/50 p-2 rounded-lg">
+                <div data-tour-id="financials-month-navigator" className="flex items-center justify-between mb-4 bg-admin-dark-bg/50 p-2 rounded-lg">
                     <button onClick={() => handleMonthChange(-1)} className="px-3 py-1 hover:bg-white/10 rounded-lg transition-colors">◀</button>
                     <h3 className="font-semibold text-lg text-white text-center">{selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>
                     <button onClick={() => handleMonthChange(1)} className="px-3 py-1 hover:bg-white/10 rounded-lg transition-colors">▶</button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div data-tour-id="financials-summary-cards" className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {summaryData.map(item => (
                         <div key={item.title} className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4">
                             <p className="text-sm text-admin-dark-text-secondary flex items-center gap-2">{item.icon} {item.title}</p>
@@ -409,12 +410,12 @@ const FinancialsManager: React.FC<FinancialsManagerProps> = (props) => {
                 </div>
             </section>
             
-            <section>
+            <section data-tour-id="financials-yearly-chart">
                 <YearlyProfitChart bookings={props.bookings} expenses={props.expenses} selectedYear={selectedDate.getFullYear()} />
             </section>
             
             <section>
-                <div className="flex items-center gap-2 bg-admin-dark-bg p-1 rounded-lg self-start">
+                <div data-tour-id="financials-subtabs" className="flex items-center gap-2 bg-admin-dark-bg p-1 rounded-lg self-start">
                     {(['breakdown', 'expenses', 'inventory'] as const).map(tab => (
                         <button key={tab} onClick={() => setActiveSubTab(tab)} className={`w-full px-4 py-1.5 text-sm font-bold rounded-lg transition-colors capitalize ${activeSubTab === tab ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>{tab}</button>
                     ))}

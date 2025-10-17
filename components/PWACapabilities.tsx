@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 type Status = 'valid' | 'action-required' | 'not-supported';
@@ -27,7 +26,11 @@ const CapabilityItem: React.FC<Capability> = ({ name, status, emoji }) => (
   </div>
 );
 
-const PWACapabilities: React.FC = () => {
+interface PWACapabilitiesProps {
+    startTour: (tourKey: 'pwa') => void;
+}
+
+const PWACapabilities: React.FC<PWACapabilitiesProps> = ({ startTour }) => {
     const [pushStatus, setPushStatus] = useState<Status>('action-required');
     const [periodicSyncStatus, setPeriodicSyncStatus] = useState<Status>('action-required');
     const [notificationMessage, setNotificationMessage] = useState('');
@@ -113,14 +116,20 @@ const PWACapabilities: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-12 text-white">
+        <header className="flex items-center gap-3">
+             <h2 className="text-2xl font-bold">PWA Capabilities</h2>
+             <button onClick={() => startTour('pwa')} className="p-1.5 text-admin-dark-text-secondary hover:text-white hover:bg-white/10 rounded-full transition-colors" aria-label="Start PWA Tour">
+                <span>🎓</span>
+            </button>
+        </header>
       {notificationMessage && (
           <div className="bg-admin-dark-primary text-white p-3 rounded-lg text-center mb-6 animate-fade-in" role="alert">
               {notificationMessage}
           </div>
       )}
-      <section>
+      <section data-tour-id="pwa-sw-features">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold">Service Worker Features</h2>
+          <h3 className="text-xl font-bold">Service Worker Features</h3>
           <p className="text-admin-dark-text-secondary mt-2 text-sm">
             Your service worker is now fully equipped with advanced capabilities. Some features require user permission to be activated.
           </p>
@@ -128,7 +137,7 @@ const PWACapabilities: React.FC = () => {
         <div className="space-y-3">
           {serviceWorkerFeatures.map(item => <CapabilityItem key={item.name} {...item} />)}
           {/* Interactive Items */}
-          <div className="flex items-center justify-between p-4 bg-admin-dark-bg/50 rounded-lg border border-admin-dark-border">
+          <div data-tour-id="pwa-permissions" className="flex items-center justify-between p-4 bg-admin-dark-bg/50 rounded-lg border border-admin-dark-border">
             <div className="flex items-center gap-3">
               <span className="text-xl">🔔</span>
               <span className="font-semibold text-white">Push Notifications</span>
@@ -153,9 +162,9 @@ const PWACapabilities: React.FC = () => {
         </div>
       </section>
 
-      <section>
+      <section data-tour-id="pwa-manifest-features">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold">App Capabilities</h2>
+          <h3 className="text-xl font-bold">App Manifest Features</h3>
           <p className="text-admin-dark-text-secondary mt-2 text-sm">
             Your manifest now includes a full range of capabilities for deep OS integration.
           </p>

@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Genre, PortfolioItem } from '../App';
+import React, { useState } from 'react';
+import { Genre, ShowroomItem, PortfolioItem } from '../App';
 import PortfolioModal from '../components/PortfolioModal';
 
 const getMimeType = (url: string): string => {
@@ -22,57 +22,33 @@ interface ShowroomProps {
   showroomDescription: string;
 }
 
-const ShowroomGridItem: React.FC<{ item: PortfolioItem, onClick: () => void }> = ({ item, onClick }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const handleMouseEnter = () => {
-    if (videoRef.current) {
-      const playPromise = videoRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          // Ignore AbortError which is expected if hover is quickly removed
-          if (error.name !== 'AbortError') {
-            console.error("Video play failed:", error);
-          }
-        });
-      }
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
-  };
-
+const ShowroomGridItem: React.FC<{ item: ShowroomItem, onClick: () => void }> = ({ item, onClick }) => {
   return (
     <div className="transform transition-transform duration-300 hover:scale-105 group">
       <button
         onClick={onClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
         className="block w-full p-2 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 relative aspect-square"
         aria-label={`View details for ${item.title}`}
       >
-        <div className="absolute inset-2 rounded-lg overflow-hidden">
-          <img
-            src={item.primaryImage}
-            alt={item.title}
-            className="w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
-            loading="lazy"
-          />
-          {item.videoData && (
+        <div className="absolute inset-2 rounded-lg overflow-hidden bg-black">
+          {item.videoUrl ? (
             <video
-              ref={videoRef}
-              className="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              className="w-full h-full object-cover"
+              autoPlay
               muted
               loop
               playsInline
               preload="metadata"
             >
-              <source src={item.videoData} type={getMimeType(item.videoData)} />
+              <source src={item.videoUrl} type={getMimeType(item.videoUrl)} />
             </video>
+          ) : (
+            <img
+              src={item.images[0]}
+              alt={item.title}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
           )}
         </div>
       </button>
@@ -82,9 +58,9 @@ const ShowroomGridItem: React.FC<{ item: PortfolioItem, onClick: () => void }> =
 
 const Showroom: React.FC<ShowroomProps> = ({ showroomData, showroomTitle, showroomDescription }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ShowroomItem | null>(null);
 
-  const handleImageClick = (item: PortfolioItem) => {
+  const handleImageClick = (item: ShowroomItem) => {
     setSelectedItem(item);
     setIsModalOpen(true);
   };
@@ -93,12 +69,23 @@ const Showroom: React.FC<ShowroomProps> = ({ showroomData, showroomTitle, showro
     setIsModalOpen(false);
     setTimeout(() => setSelectedItem(null), 500);
   };
+  
+  // Create a PortfolioItem-like object for the modal
+  const adaptShowroomItemForModal = (item: ShowroomItem): PortfolioItem => {
+    return {
+        id: item.id,
+        title: item.title,
+        story: "This is a flash design from our showroom. Contact us to book this piece or a similar concept!",
+        primaryImage: item.images[0],
+        galleryImages: item.images.slice(1),
+        videoData: item.videoUrl,
+    };
+  };
 
-  // Get all items and filter for uniqueness, in case genres share items
   const allItems = showroomData.flatMap(genre => genre.items)
     .filter((item, index, self) => index === self.findIndex((t) => t.id === item.id));
 
-  if (allItems.length === 0) return null; // Handle empty state gracefully
+  if (allItems.length === 0) return null;
 
   return (
     <>
@@ -130,7 +117,7 @@ const Showroom: React.FC<ShowroomProps> = ({ showroomData, showroomTitle, showro
         <PortfolioModal
           isOpen={isModalOpen}
           onClose={closeModal}
-          item={selectedItem}
+          item={adaptShowroomItemForModal(selectedItem)}
         />
       )}
     </>

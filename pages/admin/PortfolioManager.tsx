@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PortfolioItem, Genre } from '../../App';
+import { PortfolioItem } from '../../App';
 import StarIcon from '../../components/icons/StarIcon';
 import TrashIcon from '../../components/icons/TrashIcon';
 import PlusIcon from '../../components/icons/PlusIcon';
@@ -183,307 +183,131 @@ const PortfolioItemEditForm = ({
 };
 
 
-const ShowroomManager: React.FC<{
-  showroomData: Genre[];
-  onShowroomUpdate: (data: Genre[]) => void;
+interface PortfolioManagerProps {
   portfolioData: PortfolioItem[];
-}> = ({ showroomData, onShowroomUpdate, portfolioData }) => {
-    const [editingGenreId, setEditingGenreId] = useState<string | null>(null);
-    const [editingGenreName, setEditingGenreName] = useState('');
-    const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
-    const [draggedGenreId, setDraggedGenreId] = useState<string | null>(null);
+  onPortfolioUpdate: (data: PortfolioItem[]) => void;
+  startTour: (tourKey: 'art') => void;
+}
 
-    const showroomItemIds = new Set(showroomData.flatMap(g => g.items.map(i => i.id)));
-    const availablePortfolioItems = portfolioData.filter(p => !showroomItemIds.has(p.id));
+const PortfolioManager: React.FC<PortfolioManagerProps> = ({
+  portfolioData,
+  onPortfolioUpdate,
+  startTour,
+}) => {
+    const [editingItem, setEditingItem] = useState<Partial<PortfolioItem> | null>(null);
+    const [isAddingNew, setIsAddingNew] = useState(false);
 
-    const handleAddNewGenre = () => {
-        const newGenre: Genre = { id: Date.now().toString(), name: 'New Genre', items: [] };
-        onShowroomUpdate([...showroomData, newGenre]);
+    const handleEditItem = (item: PortfolioItem) => {
+        setEditingItem(item);
+        setIsAddingNew(false);
     };
 
-    const handleUpdateGenreName = (genreId: string) => {
-        onShowroomUpdate(showroomData.map(g => g.id === genreId ? { ...g, name: editingGenreName } : g));
-        setEditingGenreId(null);
+    const handleAddNewItem = () => {
+        setEditingItem({});
+        setIsAddingNew(true);
     };
 
-    const handleDeleteGenre = (genreId: string) => {
-        if (window.confirm('Are you sure you want to delete this genre?')) {
-            onShowroomUpdate(showroomData.filter(g => g.id !== genreId));
-        }
-    };
-
-    const handleAddItem = (genreId: string, itemId: string) => {
-        const itemToAdd = portfolioData.find(p => p.id === itemId);
-        if (itemToAdd) {
-            onShowroomUpdate(showroomData.map(g => g.id === genreId ? { ...g, items: [...g.items, itemToAdd] } : g));
-        }
+    const handleCancelEdit = () => {
+        setEditingItem(null);
+        setIsAddingNew(false);
     };
     
-    const handleRemoveItem = (genreId: string, itemId: string) => {
-        onShowroomUpdate(showroomData.map(g => g.id === genreId ? { ...g, items: g.items.filter(i => i.id !== itemId) } : g));
-    };
-
-    // Drag and Drop Handlers
-    const handleGenreDragStart = (e: React.DragEvent, genreId: string) => {
-        e.dataTransfer.effectAllowed = 'move';
-        setDraggedGenreId(genreId);
-    };
-    const handleGenreDrop = (e: React.DragEvent, targetGenreId: string) => {
-        e.preventDefault();
-        if (!draggedGenreId || draggedGenreId === targetGenreId) return;
-
-        const reordered = [...showroomData];
-        const draggedIndex = reordered.findIndex(g => g.id === draggedGenreId);
-        const targetIndex = reordered.findIndex(g => g.id === targetGenreId);
-        const [draggedGenre] = reordered.splice(draggedIndex, 1);
-        reordered.splice(targetIndex, 0, draggedGenre);
-        onShowroomUpdate(reordered);
-    };
-    
-    const handleItemDragStart = (e: React.DragEvent, itemId: string) => {
-        e.dataTransfer.effectAllowed = 'move';
-        setDraggedItemId(itemId);
-    };
-    const handleItemDrop = (e: React.DragEvent, targetGenreId: string) => {
-        e.preventDefault();
-        if (!draggedItemId) return;
-        
-        let itemToMove: PortfolioItem | undefined;
-        let sourceGenreId: string | undefined;
-
-        // Find and remove item from source genre
-        const tempShowroomData = showroomData.map(g => {
-            const item = g.items.find(i => i.id === draggedItemId);
-            if (item) {
-                itemToMove = item;
-                sourceGenreId = g.id;
-                return { ...g, items: g.items.filter(i => i.id !== draggedItemId) };
-            }
-            return g;
-        });
-        
-        if (itemToMove) {
-            // Add item to target genre
-            const finalShowroomData = tempShowroomData.map(g => {
-                if (g.id === targetGenreId) {
-                    return { ...g, items: [...g.items, itemToMove!] };
-                }
-                return g;
-            });
-            onShowroomUpdate(finalShowroomData);
+    const handleSaveItem = (itemData: Partial<PortfolioItem>) => {
+        let updatedData;
+        if (isAddingNew) {
+            const newItem: PortfolioItem = {
+                id: Date.now().toString(),
+                title: itemData.title || 'New Piece',
+                story: itemData.story || '',
+                primaryImage: itemData.primaryImage || '',
+                galleryImages: itemData.galleryImages || [],
+                videoData: itemData.videoData,
+                featured: false,
+            };
+            updatedData = [...portfolioData, newItem];
+        } else {
+            updatedData = portfolioData.map(item => item.id === itemData.id ? { ...item, ...itemData } as PortfolioItem : item);
         }
-        setDraggedItemId(null);
+        onPortfolioUpdate(updatedData);
+        handleCancelEdit();
+    };
+
+    const handleDeleteItem = (id: string) => {
+        if (window.confirm('Are you sure you want to delete this art piece? It will also be removed from any showroom genres if it was added there.')) {
+            onPortfolioUpdate(portfolioData.filter(item => item.id !== id));
+            // Note: The logic to remove from showroom genres if it was a reference
+            // would need to be handled in the parent component or via a callback if that functionality is restored.
+            // For now, since they are decoupled, this is sufficient.
+        }
+    }
+
+    const handleToggleFeature = (id: string) => {
+        onPortfolioUpdate(portfolioData.map(item => item.id === id ? { ...item, featured: !item.featured } : item));
     };
 
     return (
-        <div className="space-y-6">
-            <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                 <div>
-                    <h3 className="text-xl font-bold text-white">Showroom Genres</h3>
-                    <p className="text-sm text-admin-dark-text-secondary mt-1">Organize portfolio items into genres. Drag to reorder items and genres.</p>
-                </div>
-                <button onClick={handleAddNewGenre} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
-                    <PlusIcon className="w-5 h-5" />
-                    Add Genre
+        <div className="bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-lg p-6 space-y-8">
+            <header className="flex items-center gap-3">
+                <h2 className="text-xl font-bold text-white">Portfolio Management</h2>
+                 <button onClick={() => startTour('art')} className="p-1.5 text-admin-dark-text-secondary hover:text-white hover:bg-white/10 rounded-full transition-colors" aria-label="Start Art Tour">
+                    <span>🎓</span>
                 </button>
             </header>
-
-            <div className="grid lg:grid-cols-2 gap-6">
-                {showroomData.map(genre => (
-                    <div 
-                        key={genre.id} 
-                        draggable
-                        onDragStart={e => handleGenreDragStart(e, genre.id)}
-                        onDragOver={e => e.preventDefault()}
-                        onDrop={e => handleGenreDrop(e, genre.id)}
-                        onDragEnd={() => setDraggedGenreId(null)}
-                        className={`bg-admin-dark-bg/50 border border-admin-dark-border rounded-xl p-4 transition-all duration-300 ${draggedGenreId === genre.id ? 'opacity-30' : ''}`}
-                    >
-                        <div className="flex items-center justify-between mb-4 flex-wrap gap-2 cursor-move">
-                            {editingGenreId === genre.id ? (
-                                <input type="text" value={editingGenreName} onChange={(e) => setEditingGenreName(e.target.value)} onBlur={() => handleUpdateGenreName(genre.id)} onKeyDown={(e) => e.key === 'Enter' && handleUpdateGenreName(genre.id)} className="text-lg font-semibold bg-admin-dark-bg border-b-2 border-admin-dark-primary outline-none text-white" autoFocus />
-                            ) : (
-                                <h4 className="text-lg font-semibold text-white">{genre.name}</h4>
-                            )}
-                            <div className="flex gap-1 text-admin-dark-text-secondary">
-                                <button onClick={() => { setEditingGenreId(genre.id); setEditingGenreName(genre.name); }} className="p-2 hover:bg-white/10 rounded-full hover:text-white transition-colors">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
-                                </button>
-                                <button onClick={() => handleDeleteGenre(genre.id)} className="p-2 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded-full transition-colors">
-                                    <TrashIcon className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div onDragOver={e => e.preventDefault()} onDrop={e => handleItemDrop(e, genre.id)} className="space-y-2 mb-4 min-h-[50px] bg-admin-dark-bg p-2 rounded-lg border-2 border-dashed border-transparent">
-                            {genre.items.map(item => (
-                                <div key={item.id} draggable onDragStart={e => handleItemDragStart(e, item.id)} onDragEnd={() => setDraggedItemId(null)} className={`bg-admin-dark-bg/80 p-2 rounded-md flex items-center justify-between cursor-move transition-opacity ${draggedItemId === item.id ? 'opacity-30' : ''}`}>
-                                    <div className="flex items-center gap-2">
-                                        <img src={item.primaryImage} alt={item.title} className="w-8 h-8 object-cover rounded"/>
-                                        <p className="text-sm text-admin-dark-text">{item.title}</p>
-                                    </div>
-                                    <button onClick={() => handleRemoveItem(genre.id, item.id)} className="p-1 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded-full transition-colors">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                        
-                        {availablePortfolioItems.length > 0 && (
-                            <div className="border-t border-admin-dark-border pt-3">
-                                <p className="text-xs text-admin-dark-text-secondary mb-2">Add available item:</p>
-                                <div className="flex flex-wrap gap-1">
-                                    {availablePortfolioItems.map(item => (
-                                        <button key={item.id} onClick={() => handleAddItem(genre.id, item.id)} className="text-xs bg-admin-dark-bg text-admin-dark-text-secondary px-2 py-1 rounded-lg hover:bg-admin-dark-primary/40 hover:text-white transition-colors">
-                                            + {item.title}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+            
+            <div>
+                <header className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+                    <div>
+                        <h3 className="text-xl font-bold text-white">Portfolio Items</h3>
+                        <p className="text-sm text-admin-dark-text-secondary mt-1">Manage individual art pieces with stories. Featured items appear on the homepage.</p>
                     </div>
-                ))}
+                    {!editingItem && (
+                        <button data-tour-id="add-new-item-button" onClick={handleAddNewItem} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
+                            <PlusIcon className="w-5 h-5"/>
+                            Add New Item
+                        </button>
+                    )}
+                </header>
+                <div data-tour-id="portfolio-item-list" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {(isAddingNew && editingItem) && <PortfolioItemEditForm initialItem={editingItem} onSave={handleSaveItem} onCancel={handleCancelEdit} isAddingNew={true}/>}
+
+                    {portfolioData.map(item => (
+                        <React.Fragment key={item.id}>
+                            {editingItem?.id === item.id ? (
+                                <PortfolioItemEditForm initialItem={editingItem} onSave={handleSaveItem} onCancel={handleCancelEdit} isAddingNew={false}/>
+                            ) : (
+                                <div className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4 flex flex-col justify-between gap-4">
+                                    <div className="flex items-start gap-4">
+                                        <img src={item.primaryImage} alt={item.title} className="w-16 h-16 object-cover rounded-lg flex-shrink-0"/>
+                                        <div className="overflow-hidden">
+                                            <p className="font-semibold text-white truncate">{item.title}</p>
+                                            <p className="text-sm text-admin-dark-text-secondary truncate">{item.story}</p>
+                                            {item.videoData && <span className="text-xs text-blue-400">Has Video</span>}
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center border-t border-admin-dark-border pt-3">
+                                        <div data-tour-id="feature-toggle" className="flex items-center gap-2">
+                                            <button onClick={() => handleToggleFeature(item.id)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${item.featured ? 'bg-admin-dark-primary' : 'bg-gray-600'}`}>
+                                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${item.featured ? 'translate-x-6' : 'translate-x-1'}`}/>
+                                            </button>
+                                            <span className="text-sm text-admin-dark-text-secondary">Feature in Hero</span>
+                                        </div>
+                                        <div className="flex gap-1 text-admin-dark-text-secondary">
+                                            <button onClick={() => handleEditItem(item)} className="p-2 hover:bg-white/10 rounded-full hover:text-white transition-colors" aria-label={`Edit ${item.title}`}>
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
+                                            </button>
+                                            <button onClick={() => handleDeleteItem(item.id)} className="p-2 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded-full transition-colors" aria-label={`Delete ${item.title}`}>
+                                                <TrashIcon className="w-4 h-4"/>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </React.Fragment>
+                    ))}
+                </div>
             </div>
         </div>
     );
 };
 
-interface ArtManagerProps {
-    portfolioData: PortfolioItem[];
-    onPortfolioUpdate: (data: PortfolioItem[]) => void;
-    showroomData: Genre[];
-    onShowroomUpdate: (data: Genre[]) => void;
-}
-
-const ArtManager: React.FC<ArtManagerProps> = ({ portfolioData, onPortfolioUpdate, showroomData, onShowroomUpdate }) => {
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [currentItem, setCurrentItem] = useState<Partial<PortfolioItem>>({});
-    const [isAddingNew, setIsAddingNew] = useState(false);
-    const [activeSubTab, setActiveSubTab] = useState<'portfolio' | 'showroom'>('portfolio');
-
-    const handleCancel = () => {
-        setEditingId(null);
-        setCurrentItem({});
-        setIsAddingNew(false);
-    };
-
-    const handleEdit = (item: PortfolioItem) => {
-        setEditingId(item.id);
-        setCurrentItem(item);
-        setIsAddingNew(false);
-        window.scrollTo(0, 0);
-    };
-
-    const handleSave = (savedItemData: Partial<PortfolioItem>) => {
-        let updatedData;
-        if (isAddingNew) {
-            const newItem: PortfolioItem = {
-                id: Date.now().toString(),
-                title: savedItemData.title || 'New Item',
-                story: savedItemData.story || '',
-                primaryImage: savedItemData.primaryImage || '',
-                galleryImages: savedItemData.galleryImages || [],
-                videoData: savedItemData.videoData,
-                featured: false, // Default featured to false
-            };
-            updatedData = [...portfolioData, newItem];
-        } else {
-            // When editing, we merge the saved data with the existing item to ensure we don't lose properties like `id` and `featured`.
-            updatedData = portfolioData.map(item => 
-                item.id === editingId ? { ...item, ...savedItemData } as PortfolioItem : item
-            );
-        }
-        onPortfolioUpdate(updatedData);
-        handleCancel();
-    };
-
-    const handleDelete = (id: string) => {
-        if(window.confirm('Are you sure you want to delete this item? This will also remove it from any showroom genre.')) {
-            onPortfolioUpdate(portfolioData.filter(item => item.id !== id));
-            // Also remove from showroom
-            const updatedShowroom = showroomData.map(genre => ({
-                ...genre,
-                items: genre.items.filter(item => item.id !== id)
-            }));
-            onShowroomUpdate(updatedShowroom);
-        }
-    }
-    
-    const handleFeatureToggle = (id: string) => {
-        const updatedData = portfolioData.map(pItem => 
-            pItem.id === id ? { ...pItem, featured: !pItem.featured } : pItem
-        );
-        onPortfolioUpdate(updatedData);
-    };
-
-    return (
-        <div className="bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-lg p-6">
-             <header className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
-                 <div>
-                    <h2 className="text-xl font-bold text-white">Art Management</h2>
-                    <p className="text-sm text-admin-dark-text-secondary mt-1">Manage portfolio pieces and organize them for display.</p>
-                </div>
-                <div className="flex items-center gap-2 bg-admin-dark-bg p-1 rounded-lg self-start">
-                    <button onClick={() => setActiveSubTab('portfolio')} className={`px-4 py-1.5 text-sm font-bold rounded-lg transition-colors ${activeSubTab === 'portfolio' ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>Portfolio</button>
-                    <button onClick={() => setActiveSubTab('showroom')} className={`px-4 py-1.5 text-sm font-bold rounded-lg transition-colors ${activeSubTab === 'showroom' ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>Showroom</button>
-                </div>
-            </header>
-            
-            {activeSubTab === 'portfolio' && (
-                <div>
-                    <div className="flex justify-end mb-4">
-                        <button onClick={() => { setIsAddingNew(true); setEditingId('__new__'); setCurrentItem({}); window.scrollTo(0,0); }} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
-                            <PlusIcon className="w-5 h-5" />
-                            Add New Item
-                        </button>
-                    </div>
-
-                    {(isAddingNew || editingId) && <PortfolioItemEditForm initialItem={currentItem} onSave={handleSave} onCancel={handleCancel} isAddingNew={isAddingNew} />}
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {portfolioData.map(item => (
-                             <div key={item.id} className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4 flex flex-col gap-4">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex items-start gap-4 overflow-hidden">
-                                        <img src={item.primaryImage} alt={item.title} className="w-16 h-16 object-cover rounded-lg flex-shrink-0"/>
-                                        <div>
-                                            <p className="font-semibold text-white truncate">{item.title}</p>
-                                            {item.videoData && (
-                                                <span className="text-xs mt-1 inline-block px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 flex-shrink-0" title="Contains video">
-                                                    Contains Video 🎥
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-2 text-admin-dark-text-secondary flex-shrink-0">
-                                        <button onClick={() => handleEdit(item)} className="p-2 hover:bg-white/10 rounded-full hover:text-white transition-colors" aria-label={`Edit ${item.title}`}>
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
-                                        </button>
-                                        <button onClick={() => handleDelete(item.id)} className="p-2 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded-full transition-colors" aria-label={`Delete ${item.title}`}>
-                                            <TrashIcon className="w-5 h-5" />
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="border-t border-admin-dark-border pt-3">
-                                    <label htmlFor={`feature-${item.id}`} className="flex items-center cursor-pointer justify-end gap-3">
-                                        <span className="text-sm font-semibold text-admin-dark-text-secondary">Feature in Hero</span>
-                                        <div className="relative">
-                                            <input type="checkbox" id={`feature-${item.id}`} checked={!!item.featured} onChange={() => handleFeatureToggle(item.id)} className="sr-only peer" />
-                                            <div className="block bg-admin-dark-bg w-12 h-6 rounded-full border border-admin-dark-border peer-checked:bg-admin-dark-primary peer-checked:border-admin-dark-primary transition"></div>
-                                            <div className="dot absolute left-1 top-1 bg-gray-400 peer-checked:bg-white w-4 h-4 rounded-full transition-transform peer-checked:transform peer-checked:translate-x-6"></div>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-            {activeSubTab === 'showroom' && (
-                <ShowroomManager showroomData={showroomData} onShowroomUpdate={onShowroomUpdate} portfolioData={portfolioData} />
-            )}
-        </div>
-    );
-};
-
-export default ArtManager;
+export default PortfolioManager;

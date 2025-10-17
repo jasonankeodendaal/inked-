@@ -15,7 +15,12 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
   const [isPaused, setIsPaused] = useState(false);
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
 
-  const allImages = [item.primaryImage, ...item.galleryImages].filter(Boolean);
+  const isVideo = (url: string) => /\.(mp4|webm|ogg)$/i.test(url.split('?')[0]) || url.startsWith('data:video/');
+
+  const allMedia = [item.primaryImage, ...item.galleryImages, item.videoData].filter(
+    (media): media is string => !!media
+  );
+
 
   const handleClose = useCallback(() => {
     setIsClosing(true);
@@ -37,23 +42,23 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
   };
 
   const nextImage = useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % allImages.length);
-  }, [allImages.length]);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % allMedia.length);
+  }, [allMedia.length]);
 
   const prevImage = useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + allImages.length) % allImages.length);
-  }, [allImages.length]);
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + allMedia.length) % allMedia.length);
+  }, [allMedia.length]);
   
   const goToImage = (index: number) => {
     setCurrentIndex(index);
   };
   
   useEffect(() => {
-    if (isOpen && !isPaused && allImages.length > 1) {
+    if (isOpen && !isPaused && allMedia.length > 1 && !isVideo(allMedia[currentIndex])) {
       const autoplayTimer = setInterval(nextImage, 5000);
       return () => clearInterval(autoplayTimer);
     }
-  }, [isOpen, currentIndex, isPaused, allImages.length, nextImage]);
+  }, [isOpen, currentIndex, isPaused, allMedia, nextImage]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -64,14 +69,14 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
           handleClose();
         }
       }
-      if (allImages.length > 1) {
+      if (allMedia.length > 1) {
         if (e.key === 'ArrowRight') nextImage();
         if (e.key === 'ArrowLeft') prevImage();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleClose, nextImage, prevImage, allImages.length, fullScreenImage]);
+  }, [handleClose, nextImage, prevImage, allMedia.length, fullScreenImage]);
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -101,30 +106,47 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
         onClick={(e) => e.stopPropagation()}
       >
         <div className="grid lg:grid-cols-5 gap-6 md:gap-8 bg-black/50 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden">
-          {/* Image Gallery */}
+          {/* Media Gallery */}
           <div 
             className="lg:col-span-3 bg-black/20 aspect-square lg:aspect-auto relative group overflow-hidden"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
             <div className="relative w-full h-full">
-              {allImages.map((src, index) => (
-                <button
+              {allMedia.map((src, index) => (
+                <div
                   key={`${item.id}-${index}`}
-                  onClick={() => setFullScreenImage(src)}
-                  className={`absolute inset-0 w-full h-full p-0 border-0 bg-transparent transition-opacity duration-700 ease-in-out cursor-zoom-in ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
-                  aria-label={`View image ${index + 1} in full screen`}
+                  className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
                 >
-                  <img 
-                      src={src} 
-                      alt={`${item.title} - image ${index + 1}`} 
-                      className="w-full h-full object-contain"
-                  />
-                </button>
+                  {isVideo(src) ? (
+                     <video
+                        src={src}
+                        className="w-full h-full object-contain"
+                        controls
+                        autoPlay
+                        playsInline
+                        onPlay={() => setIsPaused(true)}
+                        onPause={() => setIsPaused(false)}
+                        onEnded={allMedia.length > 1 ? nextImage : undefined}
+                      />
+                  ) : (
+                    <button
+                      onClick={() => setFullScreenImage(src)}
+                      className="absolute inset-0 w-full h-full p-0 border-0 bg-transparent cursor-zoom-in"
+                      aria-label={`View image ${index + 1} in full screen`}
+                    >
+                      <img 
+                          src={src} 
+                          alt={`${item.title} - media ${index + 1}`} 
+                          className="w-full h-full object-contain"
+                      />
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
             
-            {allImages.length > 1 && (
+            {allMedia.length > 1 && (
                 <>
                     <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 text-2xl bg-black/50 rounded-full opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300" aria-label="Previous image">
                         &#x25C0;&#xFE0E;
@@ -133,7 +155,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
                         &#x25B6;&#xFE0E;
                     </button>
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                        {allImages.map((_, index) => (
+                        {allMedia.map((_, index) => (
                             <button key={index} onClick={() => goToImage(index)} className={`w-2.5 h-2.5 rounded-full transition-colors ${index === currentIndex ? 'bg-white' : 'bg-white/30 hover:bg-white/60'}`} aria-label={`Go to image ${index + 1}`}></button>
                         ))}
                     </div>

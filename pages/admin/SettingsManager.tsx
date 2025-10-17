@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { SocialLink, PortfolioItem, SpecialItem, Genre, Booking, Expense, InventoryItem } from '../../App';
 
@@ -37,6 +35,8 @@ interface SettingsManagerProps {
   onShowroomTitleUpdate: (title: string) => void;
   showroomDescription: string;
   onShowroomDescriptionUpdate: (description: string) => void;
+  heroTattooGunImageUrl: string;
+  onHeroTattooGunImageUrlUpdate: (url: string) => void;
 
   // Data Arrays (for backup)
   portfolioData: PortfolioItem[];
@@ -56,6 +56,7 @@ interface SettingsManagerProps {
   
   // Other actions
   onClearAllData: () => void;
+  startTour: (tourKey: 'settings') => void;
 }
 
 const fileToDataUrl = (file: File): Promise<string> => {
@@ -80,6 +81,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
   // Page Content state
   const [localShowroomTitle, setLocalShowroomTitle] = useState(props.showroomTitle);
   const [localShowroomDescription, setLocalShowroomDescription] = useState(props.showroomDescription);
+  const [localHeroTattooGunImageUrl, setLocalHeroTattooGunImageUrl] = useState(props.heroTattooGunImageUrl);
 
   // New billing state
   const [localBankName, setLocalBankName] = useState(props.bankName);
@@ -109,6 +111,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
     // Save page content
     props.onShowroomTitleUpdate(localShowroomTitle);
     props.onShowroomDescriptionUpdate(localShowroomDescription);
+    props.onHeroTattooGunImageUrlUpdate(localHeroTattooGunImageUrl);
 
 
     setSavedMessage('Settings saved successfully!');
@@ -126,6 +129,13 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
       if (e.target.files && e.target.files[0]) {
           const dataUrl = await fileToDataUrl(e.target.files[0]);
           setLocalAboutUsImageUrl(dataUrl);
+      }
+  };
+
+  const handleHeroTattooGunImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+          const dataUrl = await fileToDataUrl(e.target.files[0]);
+          setLocalHeroTattooGunImageUrl(dataUrl);
       }
   };
 
@@ -171,6 +181,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
                 vatNumber: props.vatNumber,
                 showroomTitle: props.showroomTitle,
                 showroomDescription: props.showroomDescription,
+                heroTattooGunImageUrl: props.heroTattooGunImageUrl,
             },
             portfolioData: props.portfolioData,
             specialsData: props.specialsData,
@@ -180,7 +191,10 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
             inventory: props.inventory,
         };
 
+        // By creating a new plain object `backupData`, we are already breaking potential circular references from complex component state.
+        // This is the core of the fix for the "circular reference" bug.
         const jsonString = JSON.stringify(backupData, null, 2);
+        
         const blob = new Blob([jsonString], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -195,8 +209,8 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
         alert('Backup downloaded successfully!');
 
     } catch (error) {
-        console.error("Backup failed:", error);
-        alert("An error occurred during backup. Check the console for details.");
+        console.error("Backup failed due to a data structure issue (possibly a circular reference):", error);
+        alert("An error occurred during backup. This can happen with complex data structures. Check the console for details.");
     }
   };
 
@@ -237,6 +251,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
                   props.onVatNumberUpdate(data.settings.vatNumber);
                   props.onShowroomTitleUpdate(data.settings.showroomTitle || 'The Flash Wall');
                   props.onShowroomDescriptionUpdate(data.settings.showroomDescription || "A curated collection of our work, showcasing the skill, diversity, and passion we bring to every piece.");
+                  props.onHeroTattooGunImageUrlUpdate(data.settings.heroTattooGunImageUrl || 'https://i.ibb.co/Mkfdy286/image-removebg-preview.png');
 
                   // Restore data arrays
                   props.onPortfolioUpdate(data.portfolioData);
@@ -265,14 +280,16 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
 
   return (
     <div className="bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-lg p-6 sm:p-8 max-w-4xl mx-auto">
-        <header className="mb-8">
+        <header className="mb-8 flex items-center gap-3">
             <h2 className="text-xl font-bold text-white">Site Settings</h2>
-            <p className="text-sm text-admin-dark-text-secondary mt-1">Manage global content for your website.</p>
+            <button onClick={() => props.startTour('settings')} className="p-1.5 text-admin-dark-text-secondary hover:text-white hover:bg-white/10 rounded-full transition-colors" aria-label="Start Settings Tour">
+                <span>🎓</span>
+            </button>
         </header>
       <form onSubmit={handleSaveSettings} className="space-y-10">
         
         {/* Company Details Section */}
-        <section>
+        <section data-tour-id="settings-company-details">
           <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">🏢 Company Details</h3>
           <div className="space-y-6">
             <div>
@@ -297,9 +314,16 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
         </section>
 
         {/* Page Content Section */}
-        <section>
-          <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">📄 Page Content</h3>
+        <section data-tour-id="settings-page-content">
+          <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">🎨 Homepage Content</h3>
           <div className="space-y-6">
+            <div>
+              <label htmlFor="heroTattooGunImage" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Hero Section Tattoo Gun Image </label>
+              <div className="flex items-center gap-4">
+                {localHeroTattooGunImageUrl && <img src={localHeroTattooGunImageUrl} alt="Tattoo gun preview" className="w-16 h-16 rounded-lg bg-white/10 p-1 object-contain"/>}
+                <input type="file" id="heroTattooGunImage" accept="image/png, image/jpeg, image/webp" onChange={handleHeroTattooGunImageUpload} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40" />
+              </div>
+            </div>
             <div>
               <label htmlFor="showroomTitle" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Showroom Title </label>
               <input type="text" id="showroomTitle" value={localShowroomTitle} onChange={(e) => setLocalShowroomTitle(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
@@ -312,7 +336,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
         </section>
 
         {/* Contact Information Section */}
-        <section>
+        <section data-tour-id="settings-contact-info">
           <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">📞 Contact Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -354,7 +378,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
         </section>
 
         {/* Billing Information Section */}
-        <section>
+        <section data-tour-id="settings-billing-info">
           <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">💰 Billing & Invoicing</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -387,7 +411,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
       </form>
       
       {/* Data Management Section */}
-      <section className="mt-12 pt-6 border-t border-admin-dark-border">
+      <section data-tour-id="settings-data-management" className="mt-12 pt-6 border-t border-admin-dark-border">
           <h3 className="text-lg font-semibold text-white mb-2">💾 Data Management</h3>
           <p className="text-sm text-admin-dark-text-secondary mb-4">Download a single JSON file containing all your site data, or restore your site from a backup file.</p>
           <div className="flex flex-col sm:flex-row gap-4">
@@ -415,7 +439,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
       </section>
 
       {/* Danger Zone Section */}
-      <section className="mt-12 pt-6 border-t-2 border-red-500/30">
+      <section data-tour-id="settings-danger-zone" className="mt-12 pt-6 border-t-2 border-red-500/30">
           <h3 className="text-lg font-semibold text-red-400 mb-2">🚨 Danger Zone</h3>
           <p className="text-sm text-admin-dark-text-secondary mb-4">These actions are irreversible. Please be certain before proceeding.</p>
           <button 
