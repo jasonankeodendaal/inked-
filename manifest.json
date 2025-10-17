@@ -32,12 +32,6 @@
   "scope": "/",
   "id": "/",
   "display": "standalone",
-  "display_override": [
-    "edge_side_panel",
-    "window-controls-overlay",
-    "tabbed",
-    "standalone"
-  ],
   "theme_color": "#0a0a0a",
   "background_color": "#0a0a0a",
   "orientation": "portrait-primary",
