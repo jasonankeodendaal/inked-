@@ -34,7 +34,7 @@ const PortfolioItemEditForm = ({
   isAddingNew
 }: {
   initialItem: Partial<PortfolioItem>;
-  onSave: (itemData: Partial<PortfolioItem>) => void;
+  onSave: (itemData: Partial<PortfolioItem>) => Promise<void>;
   onCancel: () => void;
   isAddingNew: boolean;
 }) => {
@@ -91,14 +91,14 @@ const PortfolioItemEditForm = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!primaryImage && gallery.length > 0) {
         alert("Please select a primary image for this portfolio item by clicking the star icon.");
         return;
     }
     const finalGalleryImages = gallery.filter(img => img !== primaryImage);
-    onSave({ ...initialItem, title, story, primaryImage: primaryImage || '', galleryImages: finalGalleryImages, videoData: videoData || undefined });
+    await onSave({ ...initialItem, title, story, primaryImage: primaryImage || '', galleryImages: finalGalleryImages, videoData: videoData || undefined });
   };
   
   const inputClasses = "w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2.5 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none transition";
@@ -185,9 +185,9 @@ const PortfolioItemEditForm = ({
 
 interface PortfolioManagerProps {
   portfolioData: PortfolioItem[];
-  onAddPortfolioItem: (item: Omit<PortfolioItem, 'id'>) => void;
-  onUpdatePortfolioItem: (item: PortfolioItem) => void;
-  onDeletePortfolioItem: (id: string) => void;
+  onAddPortfolioItem: (item: Omit<PortfolioItem, 'id'>) => Promise<void>;
+  onUpdatePortfolioItem: (item: PortfolioItem) => Promise<void>;
+  onDeletePortfolioItem: (id: string) => Promise<void>;
   startTour: (tourKey: 'art') => void;
 }
 
@@ -216,7 +216,7 @@ const PortfolioManager: React.FC<PortfolioManagerProps> = ({
         setIsAddingNew(false);
     };
     
-    const handleSaveItem = (itemData: Partial<PortfolioItem>) => {
+    const handleSaveItem = async (itemData: Partial<PortfolioItem>) => {
         if (isAddingNew) {
             const newItem: Omit<PortfolioItem, 'id'> = {
                 title: itemData.title || 'New Piece',
@@ -226,21 +226,21 @@ const PortfolioManager: React.FC<PortfolioManagerProps> = ({
                 videoData: itemData.videoData,
                 featured: false,
             };
-            onAddPortfolioItem(newItem);
+            await onAddPortfolioItem(newItem);
         } else {
-            onUpdatePortfolioItem(itemData as PortfolioItem);
+            await onUpdatePortfolioItem(itemData as PortfolioItem);
         }
         handleCancelEdit();
     };
 
-    const handleDeleteItem = (id: string) => {
+    const handleDeleteItem = async (id: string) => {
         if (window.confirm('Are you sure you want to delete this art piece? This will remove it from the database permanently.')) {
-            onDeletePortfolioItem(id);
+            await onDeletePortfolioItem(id);
         }
     }
 
-    const handleToggleFeature = (item: PortfolioItem) => {
-        onUpdatePortfolioItem({ ...item, featured: !item.featured });
+    const handleToggleFeature = async (item: PortfolioItem) => {
+        await onUpdatePortfolioItem({ ...item, featured: !item.featured });
     };
 
     return (

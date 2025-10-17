@@ -234,19 +234,19 @@ const App: React.FC = () => {
   };
 
   // Portfolio
-  const handleUpdatePortfolioItem = (item: PortfolioItem) => updateItem('portfolio', item);
-  const handleAddPortfolioItem = (item: Omit<PortfolioItem, 'id'>) => addItem('portfolio', item);
-  const handleDeletePortfolioItem = (itemId: string) => deleteItem('portfolio', itemId);
+  const handleUpdatePortfolioItem = async (item: PortfolioItem) => await updateItem('portfolio', item);
+  const handleAddPortfolioItem = async (item: Omit<PortfolioItem, 'id'>) => await addItem('portfolio', item);
+  const handleDeletePortfolioItem = async (itemId: string) => await deleteItem('portfolio', itemId);
 
   // Specials
-  const handleUpdateSpecialItem = (item: SpecialItem) => updateItem('specials', item);
-  const handleAddSpecialItem = (item: Omit<SpecialItem, 'id'>) => addItem('specials', item);
-  const handleDeleteSpecialItem = (itemId: string) => deleteItem('specials', itemId);
+  const handleUpdateSpecialItem = async (item: SpecialItem) => await updateItem('specials', item);
+  const handleAddSpecialItem = async (item: Omit<SpecialItem, 'id'>) => await addItem('specials', item);
+  const handleDeleteSpecialItem = async (itemId: string) => await deleteItem('specials', itemId);
 
   // Showroom
-  const handleUpdateShowroomGenre = (item: Genre) => updateItem('showroom', item);
-  const handleAddShowroomGenre = (item: Omit<Genre, 'id'>) => addItem('showroom', item);
-  const handleDeleteShowroomGenre = (itemId: string) => deleteItem('showroom', itemId);
+  const handleUpdateShowroomGenre = async (item: Genre) => await updateItem('showroom', item);
+  const handleAddShowroomGenre = async (item: Omit<Genre, 'id'>) => await addItem('showroom', item);
+  const handleDeleteShowroomGenre = async (itemId: string) => await deleteItem('showroom', itemId);
   
   // Bookings
   const handleAddBooking = async (newBookingData: Omit<Booking, 'id' | 'status' | 'bookingType'>) => {
@@ -257,24 +257,24 @@ const App: React.FC = () => {
     };
     await addItem('bookings', newBooking);
   };
-  const handleManualAddBooking = (newBookingData: Omit<Booking, 'id' | 'bookingType'>) => {
+  const handleManualAddBooking = async (newBookingData: Omit<Booking, 'id' | 'bookingType'>) => {
     const newBooking: Omit<Booking, 'id'> = {
       ...newBookingData,
       bookingType: 'manual',
     };
-    addItem('bookings', newBooking);
+    await addItem('bookings', newBooking);
   };
-  const handleUpdateBooking = (item: Booking) => updateItem('bookings', item);
+  const handleUpdateBooking = async (item: Booking) => await updateItem('bookings', item);
 
   // Expenses
-  const handleAddExpense = (newExpense: Omit<Expense, 'id'>) => addItem('expenses', newExpense);
-  const handleUpdateExpense = (updatedExpense: Expense) => updateItem('expenses', updatedExpense);
-  const handleDeleteExpense = (expenseId: string) => deleteItem('expenses', expenseId);
+  const handleAddExpense = async (newExpense: Omit<Expense, 'id'>) => await addItem('expenses', newExpense);
+  const handleUpdateExpense = async (updatedExpense: Expense) => await updateItem('expenses', updatedExpense);
+  const handleDeleteExpense = async (expenseId: string) => await deleteItem('expenses', expenseId);
 
   // Inventory
-  const handleAddInventoryItem = (newItem: Omit<InventoryItem, 'id'>) => addItem('inventory', newItem);
-  const handleUpdateInventoryItem = (updatedItem: InventoryItem) => updateItem('inventory', updatedItem);
-  const handleDeleteInventoryItem = (itemId: string) => deleteItem('inventory', itemId);
+  const handleAddInventoryItem = async (newItem: Omit<InventoryItem, 'id'>) => await addItem('inventory', newItem);
+  const handleUpdateInventoryItem = async (updatedItem: InventoryItem) => await updateItem('inventory', updatedItem);
+  const handleDeleteInventoryItem = async (itemId: string) => await deleteItem('inventory', itemId);
 
   // Settings
   const handleSaveAllSettings = async (settings: any) => {

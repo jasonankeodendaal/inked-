@@ -11,42 +11,42 @@ export interface AdminPageProps {
 
   // Portfolio
   portfolioData: PortfolioItem[];
-  onAddPortfolioItem: (item: Omit<PortfolioItem, 'id'>) => void;
-  onUpdatePortfolioItem: (item: PortfolioItem) => void;
-  onDeletePortfolioItem: (id: string) => void;
+  onAddPortfolioItem: (item: Omit<PortfolioItem, 'id'>) => Promise<void>;
+  onUpdatePortfolioItem: (item: PortfolioItem) => Promise<void>;
+  onDeletePortfolioItem: (id: string) => Promise<void>;
 
   // Specials
   specialsData: SpecialItem[];
-  onAddSpecialItem: (item: Omit<SpecialItem, 'id'>) => void;
-  onUpdateSpecialItem: (item: SpecialItem) => void;
-  onDeleteSpecialItem: (id: string) => void;
+  onAddSpecialItem: (item: Omit<SpecialItem, 'id'>) => Promise<void>;
+  onUpdateSpecialItem: (item: SpecialItem) => Promise<void>;
+  onDeleteSpecialItem: (id: string) => Promise<void>;
 
   // Showroom
   showroomData: Genre[];
-  onAddShowroomGenre: (item: Omit<Genre, 'id'>) => void;
-  onUpdateShowroomGenre: (item: Genre) => void;
-  onDeleteShowroomGenre: (id: string) => void;
+  onAddShowroomGenre: (item: Omit<Genre, 'id'>) => Promise<void>;
+  onUpdateShowroomGenre: (item: Genre) => Promise<void>;
+  onDeleteShowroomGenre: (id: string) => Promise<void>;
 
   // Bookings
   bookings: Booking[];
-  onUpdateBooking: (booking: Booking) => void;
-  onManualAddBooking: (booking: Omit<Booking, 'id' | 'bookingType'>) => void;
+  onUpdateBooking: (booking: Booking) => Promise<void>;
+  onManualAddBooking: (booking: Omit<Booking, 'id' | 'bookingType'>) => Promise<void>;
 
   // Expenses
   expenses: Expense[];
-  onAddExpense: (newExpense: Omit<Expense, 'id'>) => void;
-  onUpdateExpense: (updatedExpense: Expense) => void;
-  onDeleteExpense: (expenseId: string) => void;
+  onAddExpense: (newExpense: Omit<Expense, 'id'>) => Promise<void>;
+  onUpdateExpense: (updatedExpense: Expense) => Promise<void>;
+  onDeleteExpense: (expenseId: string) => Promise<void>;
 
   // Inventory
   inventory: InventoryItem[];
-  onAddInventoryItem: (newItem: Omit<InventoryItem, 'id'>) => void;
-  onUpdateInventoryItem: (updatedItem: InventoryItem) => void;
-  onDeleteInventoryItem: (itemId: string) => void;
+  onAddInventoryItem: (newItem: Omit<InventoryItem, 'id'>) => Promise<void>;
+  onUpdateInventoryItem: (updatedItem: InventoryItem) => Promise<void>;
+  onDeleteInventoryItem: (itemId: string) => Promise<void>;
   
   // Settings
-  onSaveAllSettings: (settings: any) => void;
-  onClearAllData: () => void;
+  onSaveAllSettings: (settings: any) => Promise<void>;
+  onClearAllData: () => Promise<void>;
 
   // Pass-through settings properties
   companyName: string;

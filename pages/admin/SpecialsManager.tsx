@@ -10,7 +10,7 @@ const fileToDataUrl = (file: File): Promise<string> => {
     });
 };
 
-const EditForm = ({item, onSave, onCancel, onChange}: {item: Partial<SpecialItem>, onSave: (e: React.FormEvent) => void, onCancel: () => void, onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void}) => {
+const EditForm = ({item, onSave, onCancel, onChange}: {item: Partial<SpecialItem>, onSave: (e: React.FormEvent) => Promise<void>, onCancel: () => void, onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void}) => {
     
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -80,9 +80,9 @@ const EditForm = ({item, onSave, onCancel, onChange}: {item: Partial<SpecialItem
 
 interface SpecialsManagerProps {
   specialsData: SpecialItem[];
-  onAddSpecialItem: (item: Omit<SpecialItem, 'id'>) => void;
-  onUpdateSpecialItem: (item: SpecialItem) => void;
-  onDeleteSpecialItem: (id: string) => void;
+  onAddSpecialItem: (item: Omit<SpecialItem, 'id'>) => Promise<void>;
+  onUpdateSpecialItem: (item: SpecialItem) => Promise<void>;
+  onDeleteSpecialItem: (id: string) => Promise<void>;
 }
 
 const SpecialsManager: React.FC<SpecialsManagerProps> = ({ 
@@ -119,7 +119,7 @@ const SpecialsManager: React.FC<SpecialsManagerProps> = ({
         setIsAddingNew(false);
     };
 
-    const handleSave = (e: React.FormEvent) => {
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         
         const processedItem: Partial<SpecialItem> = {
@@ -135,16 +135,16 @@ const SpecialsManager: React.FC<SpecialsManagerProps> = ({
         }
 
         if (isAddingNew) {
-            onAddSpecialItem(processedItem as Omit<SpecialItem, 'id'>);
+            await onAddSpecialItem(processedItem as Omit<SpecialItem, 'id'>);
         } else {
-            onUpdateSpecialItem({ ...processedItem, id: editingId } as SpecialItem);
+            await onUpdateSpecialItem({ ...processedItem, id: editingId } as SpecialItem);
         }
         handleCancel();
     };
     
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if(window.confirm('Are you sure you want to delete this special?')) {
-            onDeleteSpecialItem(id);
+            await onDeleteSpecialItem(id);
         }
     }
 

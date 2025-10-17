@@ -5,7 +5,7 @@ import YearlyProfitChart from './components/YearlyProfitChart';
 // --- Expense Management ---
 const ExpenseForm: React.FC<{
     expense?: Partial<Expense>;
-    onSave: (expense: Omit<Expense, 'id'> | Expense) => void;
+    onSave: (expense: Omit<Expense, 'id'> | Expense) => Promise<void>;
     onCancel: () => void;
 }> = ({ expense, onSave, onCancel }) => {
     const [formData, setFormData] = useState<Partial<Expense>>(expense || { date: new Date().toISOString().split('T')[0], category: 'Supplies' });
@@ -15,9 +15,9 @@ const ExpenseForm: React.FC<{
         setFormData(prev => ({ ...prev, [name]: type === 'number' ? parseFloat(value) : value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onSave(formData as Omit<Expense, 'id'> | Expense);
+        await onSave(formData as Omit<Expense, 'id'> | Expense);
     };
 
     return (
@@ -58,18 +58,18 @@ const ExpenseForm: React.FC<{
 
 const ExpenseManager: React.FC<{
     expenses: Expense[];
-    onAdd: (newExpense: Omit<Expense, 'id'>) => void;
-    onUpdate: (updatedExpense: Expense) => void;
-    onDelete: (expenseId: string) => void;
+    onAdd: (newExpense: Omit<Expense, 'id'>) => Promise<void>;
+    onUpdate: (updatedExpense: Expense) => Promise<void>;
+    onDelete: (expenseId: string) => Promise<void>;
 }> = ({ expenses, onAdd, onUpdate, onDelete }) => {
     const [isAdding, setIsAdding] = useState(false);
     const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
-    const handleSave = (expenseData: Omit<Expense, 'id'> | Expense) => {
+    const handleSave = async (expenseData: Omit<Expense, 'id'> | Expense) => {
         if ('id' in expenseData) {
-            onUpdate(expenseData);
+            await onUpdate(expenseData);
         } else {
-            onAdd(expenseData);
+            await onAdd(expenseData);
         }
         setIsAdding(false);
         setEditingExpense(null);
@@ -129,7 +129,7 @@ const ExpenseManager: React.FC<{
 // --- Inventory Management ---
 const InventoryForm: React.FC<{
     item?: Partial<InventoryItem>;
-    onSave: (item: Omit<InventoryItem, 'id'> | InventoryItem) => void;
+    onSave: (item: Omit<InventoryItem, 'id'> | InventoryItem) => Promise<void>;
     onCancel: () => void;
 }> = ({ item, onSave, onCancel }) => {
     const [formData, setFormData] = useState(item || {});
@@ -139,9 +139,9 @@ const InventoryForm: React.FC<{
         setFormData(prev => ({ ...prev, [name]: type === 'number' ? parseFloat(value) : value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onSave(formData as Omit<InventoryItem, 'id'> | InventoryItem);
+        await onSave(formData as Omit<InventoryItem, 'id'> | InventoryItem);
     };
 
     return (
@@ -190,18 +190,18 @@ const InventoryForm: React.FC<{
 
 const InventoryManager: React.FC<{
     inventory: InventoryItem[];
-    onAdd: (newItem: Omit<InventoryItem, 'id'>) => void;
-    onUpdate: (updatedItem: InventoryItem) => void;
-    onDelete: (itemId: string) => void;
+    onAdd: (newItem: Omit<InventoryItem, 'id'>) => Promise<void>;
+    onUpdate: (updatedItem: InventoryItem) => Promise<void>;
+    onDelete: (itemId: string) => Promise<void>;
 }> = ({ inventory, onAdd, onUpdate, onDelete }) => {
     const [isAdding, setIsAdding] = useState(false);
     const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
 
-    const handleSave = (itemData: Omit<InventoryItem, 'id'> | InventoryItem) => {
+    const handleSave = async (itemData: Omit<InventoryItem, 'id'> | InventoryItem) => {
         if ('id' in itemData) {
-            onUpdate(itemData);
+            await onUpdate(itemData);
         } else {
-            onAdd(itemData);
+            await onAdd(itemData);
         }
         setIsAdding(false);
         setEditingItem(null);
@@ -317,13 +317,13 @@ const MonthlyBreakdown: React.FC<{ bookings: Booking[], expenses: Expense[] }> =
 interface FinancialsManagerProps {
     bookings: Booking[];
     expenses: Expense[];
-    onAddExpense: (newExpense: Omit<Expense, 'id'>) => void;
-    onUpdateExpense: (updatedExpense: Expense) => void;
-    onDeleteExpense: (expenseId: string) => void;
+    onAddExpense: (newExpense: Omit<Expense, 'id'>) => Promise<void>;
+    onUpdateExpense: (updatedExpense: Expense) => Promise<void>;
+    onDeleteExpense: (expenseId: string) => Promise<void>;
     inventory: InventoryItem[];
-    onAddInventoryItem: (newItem: Omit<InventoryItem, 'id'>) => void;
-    onUpdateInventoryItem: (updatedItem: InventoryItem) => void;
-    onDeleteInventoryItem: (itemId: string) => void;
+    onAddInventoryItem: (newItem: Omit<InventoryItem, 'id'>) => Promise<void>;
+    onUpdateInventoryItem: (updatedItem: InventoryItem) => Promise<void>;
+    onDeleteInventoryItem: (itemId: string) => Promise<void>;
     startTour: (tourKey: 'financials') => void;
 }
 

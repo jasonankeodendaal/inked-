@@ -18,7 +18,7 @@ const ShowroomItemForm = ({
   onCancel,
 }: {
   initialItem: Partial<ShowroomItem>;
-  onSave: (itemData: ShowroomItem) => void;
+  onSave: (itemData: ShowroomItem) => Promise<void>;
   onCancel: () => void;
 }) => {
   const [formData, setFormData] = useState<Partial<ShowroomItem>>(initialItem);
@@ -50,13 +50,13 @@ const ShowroomItemForm = ({
       setFormData(prev => ({...prev, images: prev.images?.filter((_, i) => i !== index)}));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!formData.title || !formData.images || formData.images.length === 0) {
           alert("A title and at least one image are required.");
           return;
       }
-      onSave({
+      await onSave({
         id: formData.id || Date.now().toString(),
         title: formData.title,
         images: formData.images,
@@ -114,9 +114,9 @@ const ShowroomItemForm = ({
 
 interface ShowroomManagerProps {
   showroomData: Genre[];
-  onAddShowroomGenre: (genre: Omit<Genre, 'id'>) => void;
-  onUpdateShowroomGenre: (genre: Genre) => void;
-  onDeleteShowroomGenre: (id: string) => void;
+  onAddShowroomGenre: (genre: Omit<Genre, 'id'>) => Promise<void>;
+  onUpdateShowroomGenre: (genre: Genre) => Promise<void>;
+  onDeleteShowroomGenre: (id: string) => Promise<void>;
   startTour: (tourKey: 'art') => void;
 }
 
@@ -129,20 +129,20 @@ const ShowroomManager: React.FC<ShowroomManagerProps> = ({
 }) => {
     const [editingItem, setEditingItem] = useState<{item: Partial<ShowroomItem>, genreId: string} | null>(null);
 
-    const handleAddGenre = () => {
+    const handleAddGenre = async () => {
         const name = prompt("Enter new genre name:");
         if (name) {
-            onAddShowroomGenre({ name, items: [] });
+            await onAddShowroomGenre({ name, items: [] });
         }
     };
     
-    const handleDeleteGenre = (genreId: string) => {
+    const handleDeleteGenre = async (genreId: string) => {
         if (window.confirm("Are you sure you want to delete this genre? The pieces inside will also be deleted from the showroom.")) {
-            onDeleteShowroomGenre(genreId);
+            await onDeleteShowroomGenre(genreId);
         }
     };
 
-    const handleSaveItem = (itemData: ShowroomItem) => {
+    const handleSaveItem = async (itemData: ShowroomItem) => {
         if (!editingItem) return;
         const { genreId } = editingItem;
         const genreToUpdate = showroomData.find(g => g.id === genreId);
@@ -155,16 +155,16 @@ const ShowroomManager: React.FC<ShowroomManagerProps> = ({
         } else {
             updatedItems = [...genreToUpdate.items, itemData];
         }
-        onUpdateShowroomGenre({ ...genreToUpdate, items: updatedItems });
+        await onUpdateShowroomGenre({ ...genreToUpdate, items: updatedItems });
         setEditingItem(null);
     };
 
-    const handleDeleteItem = (genreId: string, itemId: string) => {
+    const handleDeleteItem = async (genreId: string, itemId: string) => {
         if (window.confirm("Delete this showroom piece?")) {
             const genreToUpdate = showroomData.find(g => g.id === genreId);
             if(genreToUpdate) {
               const updatedItems = genreToUpdate.items.filter(i => i.id !== itemId);
-              onUpdateShowroomGenre({ ...genreToUpdate, items: updatedItems });
+              await onUpdateShowroomGenre({ ...genreToUpdate, items: updatedItems });
             }
         }
     };

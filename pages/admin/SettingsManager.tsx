@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { SocialLink, PortfolioItem, SpecialItem, Genre, Booking, Expense, InventoryItem } from '../../App';
 
 interface SettingsManagerProps {
-  onSaveAllSettings: (settings: any) => void;
-  onClearAllData: () => void;
+  onSaveAllSettings: (settings: any) => Promise<void>;
+  onClearAllData: () => Promise<void>;
   startTour: (tourKey: 'settings') => void;
   
   // Settings
@@ -66,7 +66,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
 
   const [savedMessage, setSavedMessage] = useState('');
   
-  const handleSaveSettings = (e: React.FormEvent) => {
+  const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     const allSettings = {
         companyName: localCompanyName,
@@ -86,7 +86,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
         showroomDescription: localShowroomDescription,
         heroTattooGunImageUrl: localHeroTattooGunImageUrl,
     };
-    props.onSaveAllSettings(allSettings);
+    await props.onSaveAllSettings(allSettings);
 
     setSavedMessage('Settings saved successfully!');
     setTimeout(() => setSavedMessage(''), 3000);

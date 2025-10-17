@@ -27,7 +27,7 @@ const HelpIcon = ({ className = 'w-5 h-5' }) => <svg className={className} fill=
 const BookingModal: React.FC<{
     isOpen: boolean;
     onClose: () => void;
-    onSave: (bookingData: Booking) => void;
+    onSave: (bookingData: Booking) => Promise<void>;
     bookingToEdit?: Booking | null;
 }> = ({ isOpen, onClose, onSave, bookingToEdit }) => {
     
@@ -63,9 +63,9 @@ const BookingModal: React.FC<{
         setFormData(prev => ({ ...prev, [name]: finalValue === '' ? undefined : finalValue } as Booking));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onSave(formData);
+        await onSave(formData);
         onClose();
     };
 
@@ -146,7 +146,7 @@ const BookingModal: React.FC<{
 // --- BOOKINGS MANAGER ---
 const BookingsManager: React.FC<{ 
     bookings: Booking[], 
-    onUpdateBooking: (booking: Booking) => void, 
+    onUpdateBooking: (booking: Booking) => Promise<void>, 
     selectedDate: string | null, 
     onClearDateFilter: () => void, 
     onAddManualBooking: () => void,
@@ -164,8 +164,8 @@ const BookingsManager: React.FC<{
     const filteredBookings = (filter === 'all' ? filteredByDate : filteredByDate.filter(b => b.status === filter))
       .sort((a, b) => new Date(a.bookingDate).getTime() - new Date(b.bookingDate).getTime());
 
-    const handleStatusChange = (booking: Booking, newStatus: Booking['status']) => {
-        onUpdateBooking({ ...booking, status: newStatus });
+    const handleStatusChange = async (booking: Booking, newStatus: Booking['status']) => {
+        await onUpdateBooking({ ...booking, status: newStatus });
     };
 
     const statusStyles: Record<Booking['status'], string> = {
@@ -399,12 +399,12 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
     setIsSupplyLogOpen(true);
   };
 
-  const handleSaveBooking = (bookingData: Booking) => {
+  const handleSaveBooking = async (bookingData: Booking) => {
     if (bookingToEdit) { // Update existing booking
-        props.onUpdateBooking(bookingData);
+        await props.onUpdateBooking(bookingData);
     } else { // Create new manual booking
         const { id, bookingType, ...newBookingData } = bookingData;
-        props.onManualAddBooking(newBookingData);
+        await props.onManualAddBooking(newBookingData);
     }
   };
 
