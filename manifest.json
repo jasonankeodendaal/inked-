@@ -1,34 +1,35 @@
 {
   "short_name": "Beautively",
   "name": "Beautively Inked Tattoo Studio",
-  "description": "A beautiful, modern website for the Beautively Inked tattoo studio, featuring a green, white, and black theme. Built with React and Tailwind CSS.",
+  "description": "A beautiful, modern website for the Beautively Inked tattoo studio, featuring a gold, white, and black theme. Built with React and Tailwind CSS.",
   "icons": [
     {
-      "src": "https://i.ibb.co/fVzq56Ng/31e985d7-135f-4a54-98f9-f110bd155497-2.png",
+      "src": "https://i.ibb.co/RksbjvVJ/android-launchericon-192-192.png",
       "type": "image/png",
       "sizes": "192x192",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "https://i.ibb.co/fVzq56Ng/31e985d7-135f-4a54-98f9-f110bd155497-2.png",
-      "type": "image/png",
-      "sizes": "256x256",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://i.ibb.co/fVzq56Ng/31e985d7-135f-4a54-98f9-f110bd155497-2.png",
-      "type": "image/png",
-      "sizes": "384x384",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://i.ibb.co/fVzq56Ng/31e985d7-135f-4a54-98f9-f110bd155497-2.png",
+      "src": "https://i.ibb.co/1D0NzkM/android-launchericon-512-512.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.ibb.co/RksbjvVJ/android-launchericon-192-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://i.ibb.co/1D0NzkM/android-launchericon-512-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
   "start_url": "/",
+  "scope": "/",
   "id": "/",
   "display": "standalone",
   "theme_color": "#0a0a0a",

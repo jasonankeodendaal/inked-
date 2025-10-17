@@ -150,7 +150,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
                 </div>
             </div>
             <div className="mt-8 flex-shrink-0">
-                <a href="#contact-form" onClick={handleAnchorClick} className="w-full block text-center bg-brand-green border border-brand-green text-white px-8 py-3 rounded-full font-semibold hover:bg-opacity-80 transition-colors">
+                <a href="#contact-form" onClick={handleAnchorClick} className="w-full block text-center bg-brand-gold border border-brand-gold text-white px-8 py-3 rounded-full font-semibold hover:bg-opacity-80 transition-colors">
                     Get a Quote for a Similar Piece
                 </a>
             </div>
