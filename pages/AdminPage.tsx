@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { auth } from '../firebase';
 import AdminLoginPage from './AdminLoginPage';
 import AdminDashboard from './admin/AdminDashboard';
 import { PortfolioItem, SpecialItem, Genre, Booking, SocialLink, Expense, InventoryItem } from '../App';

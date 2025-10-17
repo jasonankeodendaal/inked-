@@ -1,6 +1,6 @@
 // FIX: Add missing React import
 import React, { useState, FormEvent, MouseEvent } from 'react';
-import { auth } from '../../firebase';
+import { auth } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 
