@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Genre, ShowroomItem, PortfolioItem } from '../App';
 import PortfolioModal from '../components/PortfolioModal';
 
@@ -23,6 +23,19 @@ interface ShowroomProps {
 }
 
 const ShowroomGridItem: React.FC<{ item: ShowroomItem, onClick: () => void }> = ({ item, onClick }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    // Only run the carousel if there is no video and more than one image.
+    if (!item.videoUrl && item.images && item.images.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentIndex(prevIndex => (prevIndex + 1) % item.images.length);
+      }, 3000); // Change image every 3 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [item.videoUrl, item.images]);
+
   return (
     <div className="transform transition-transform duration-300 hover:scale-105 group">
       <button
@@ -43,12 +56,17 @@ const ShowroomGridItem: React.FC<{ item: ShowroomItem, onClick: () => void }> = 
               <source src={item.videoUrl} type={getMimeType(item.videoUrl)} />
             </video>
           ) : (
-            <img
-              src={item.images[0]}
-              alt={item.title}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
+            <div className="relative w-full h-full">
+              {item.images.map((src, index) => (
+                <img
+                  key={`${item.id}-img-${index}`}
+                  src={src}
+                  alt={`${item.title} preview ${index + 1}`}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
+                  loading="lazy"
+                />
+              ))}
+            </div>
           )}
         </div>
       </button>

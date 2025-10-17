@@ -222,7 +222,7 @@ const generateShowroomItems = (count: number, seedPrefix: string): ShowroomItem[
     for (let i = 0; i < count; i++) {
         const title = `${seedPrefix.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} Design #${i + 1}`;
         const images = Array.from({ length: 5 }, (_, j) => `https://picsum.photos/seed/${seedPrefix}-${i}-img${j}/400/400`);
-        const videoUrl = placeholderVideos[i % placeholderVideos.length];
+        const videoUrl = i % 2 === 0 ? placeholderVideos[Math.floor(i / 2) % placeholderVideos.length] : undefined;
 
         items.push({
             id: `sr-${seedPrefix}-${i}`,
