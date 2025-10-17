@@ -1,0 +1,22 @@
+{
+  "designs": [
+    {
+      "title": "Cosmic Rose Flash",
+      "description": "Limited time design, available this month only.",
+      "imageUrl": "https://picsum.photos/seed/widget1/200/200",
+      "url": "/#showroom"
+    },
+    {
+      "title": "Geometric Wolf",
+      "description": "A new flash piece by our lead artist.",
+      "imageUrl": "https://picsum.photos/seed/widget2/200/200",
+      "url": "/#showroom"
+    },
+    {
+      "title": "Sacred Dagger",
+      "description": "A classic design with a modern twist.",
+      "imageUrl": "https://picsum.photos/seed/widget3/200/200",
+      "url": "/#showroom"
+    }
+  ]
+}

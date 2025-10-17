@@ -30,6 +30,11 @@
   ],
   "start_url": "/",
   "scope": "/",
+  "scope_extensions": [
+    {
+      "origin": "*.beautively-inked.com"
+    }
+  ],
   "id": "/",
   "display": "standalone",
   "display_override": [
@@ -41,7 +46,8 @@
   "background_color": "#0a0a0a",
   "orientation": "portrait-primary",
   "lang": "en-US",
-  "iarc_rating_id": "",
+  "dir": "ltr",
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "categories": [
     "lifestyle",
     "personalization"
