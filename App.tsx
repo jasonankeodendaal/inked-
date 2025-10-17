@@ -242,7 +242,7 @@ const App: React.FC = () => {
   
   // Site settings state
   const [companyName, setCompanyName] = useState('Beautively Inked Tattoo Studio');
-  const [logoUrl, setLogoUrl] = useState('https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png');
+  const [logoUrl, setLogoUrl] = useState('https://i.ibb.co/fVzq56Ng/31e985d7-135f-4a54-98f9-f110bd155497-2.png');
   const [aboutUsImageUrl, setAboutUsImageUrl] = useState('https://picsum.photos/seed/artist-portrait/500/500');
   const [whatsAppNumber, setWhatsAppNumber] = useState('27795904162'); // E.g., 27795904162 for +27 79 590 4162
   const [address, setAddress] = useState('123 Ink Lane, Art City, 45678');

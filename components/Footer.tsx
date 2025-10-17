@@ -28,8 +28,8 @@ const Footer: React.FC<FooterProps> = ({ companyName, address, phone, email, soc
               <h4 className="font-semibold text-gray-800 mb-3">Contact Us</h4>
               <address className="not-italic text-sm text-gray-600 space-y-2">
                 <p>{address}</p>
-                <p><a href={`tel:${phone.replace(/\s/g, '')}`} className="hover:text-brand-green transition-colors">{phone}</a></p>
-                <p><a href={`mailto:${email}`} className="hover:text-brand-green transition-colors">{email}</a></p>
+                <p><a href={`tel:${phone.replace(/\s/g, '')}`} className="hover:text-brand-gold transition-colors">{phone}</a></p>
+                <p><a href={`mailto:${email}`} className="hover:text-brand-gold transition-colors">{email}</a></p>
               </address>
             </div>
             <div>
@@ -37,7 +37,7 @@ const Footer: React.FC<FooterProps> = ({ companyName, address, phone, email, soc
               {socialLinks.length > 0 ? (
                   <div className="flex justify-center md:justify-start items-center gap-4">
                     {socialLinks.map(link => (
-                      <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-brand-green transition-colors">
+                      <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-brand-gold transition-colors">
                         <img src={link.icon} alt="Social media icon" className="w-6 h-6 object-contain" />
                       </a>
                     ))}
@@ -52,7 +52,7 @@ const Footer: React.FC<FooterProps> = ({ companyName, address, phone, email, soc
                 Website created by{' '}
                 <button
                     onClick={() => setIsCreatorModalOpen(true)}
-                    className="font-semibold text-gray-700 hover:text-brand-green underline transition-colors"
+                    className="font-semibold text-gray-700 hover:text-brand-gold underline transition-colors"
                 >
                     JSTYP.me
                 </button>

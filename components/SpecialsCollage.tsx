@@ -118,10 +118,10 @@ const SpecialsCollage: React.FC<SpecialsCollageProps> = ({ specials, whatsAppNum
                               href={createWhatsAppLink(special)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="w-full bg-green-100 border border-green-300 text-green-700 px-4 py-2 rounded-full text-xs font-semibold hover:bg-green-600 hover:text-white transition-colors flex items-center justify-center gap-1.5"
+                              className="w-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-800 px-4 py-2 rounded-full text-xs font-semibold hover:bg-yellow-500 hover:text-white transition-colors flex items-center justify-center gap-1.5"
                               aria-label={`Inquire about ${special.title} on WhatsApp`}
                           >
-                              <span role="img" aria-label="WhatsApp icon">🟢</span>
+                              <span role="img" aria-label="WhatsApp icon">⭐</span>
                               Inquire Now
                           </a>
                       </div>

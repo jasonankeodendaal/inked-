@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { Expense, InventoryItem, Booking } from '../../App';
 import YearlyProfitChart from './components/YearlyProfitChart';
@@ -27,11 +28,11 @@ const ExpenseForm: React.FC<{
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Date</label>
-                        <input type="date" name="date" value={formData.date || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" style={{ colorScheme: 'dark' }} required />
+                        <input type="date" name="date" value={formData.date || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" style={{ colorScheme: 'dark' }} required />
                     </div>
                     <div>
                         <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Category</label>
-                        <select name="category" value={formData.category || 'Supplies'} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required>
+                        <select name="category" value={formData.category || 'Supplies'} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required>
                             <option>Supplies</option>
                             <option>Rent</option>
                             <option>Utilities</option>
@@ -41,16 +42,16 @@ const ExpenseForm: React.FC<{
                     </div>
                     <div>
                         <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Amount (R)</label>
-                        <input type="number" name="amount" placeholder="0.00" value={formData.amount || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" step="0.01" required />
+                        <input type="number" name="amount" placeholder="0.00" value={formData.amount || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" step="0.01" required />
                     </div>
                 </div>
                 <div>
                     <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Description</label>
-                    <input type="text" name="description" placeholder="e.g., Monthly Studio Rent" value={formData.description || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required />
+                    <input type="text" name="description" placeholder="e.g., Monthly Studio Rent" value={formData.description || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required />
                 </div>
                 <div className="flex gap-4 pt-2">
-                    <button type="submit" className="bg-admin-dark-primary text-white px-6 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity">Save Expense</button>
-                    <button type="button" onClick={onCancel} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-md font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
+                    <button type="submit" className="bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">Save Expense</button>
+                    <button type="button" onClick={onCancel} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-lg font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
                 </div>
             </form>
         </div>
@@ -84,7 +85,7 @@ const ExpenseManager: React.FC<{
                     <p className="text-sm text-admin-dark-text-secondary mt-1">Log and manage expenses for the selected month.</p>
                 </div>
                 {!isAdding && !editingExpense && (
-                    <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity">
+                    <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                         Add Expense
                     </button>
@@ -151,38 +152,38 @@ const InventoryForm: React.FC<{
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Item Name</label>
-                        <input type="text" name="name" value={formData.name || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required />
+                        <input type="text" name="name" value={formData.name || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required />
                     </div>
                     <div>
                         <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Category</label>
-                        <input type="text" name="category" placeholder="e.g., Ink, Needles" value={formData.category || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required />
+                        <input type="text" name="category" placeholder="e.g., Ink, Needles" value={formData.category || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required />
                     </div>
                      <div>
                         <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Brand (Optional)</label>
-                        <input type="text" name="brand" value={formData.brand || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" />
+                        <input type="text" name="brand" value={formData.brand || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" />
                     </div>
                     <div>
                         <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Lot # (Optional)</label>
-                        <input type="text" name="lotNumber" value={formData.lotNumber || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" />
+                        <input type="text" name="lotNumber" value={formData.lotNumber || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" />
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Quantity (units, or mL for ink)</label>
-                        <input type="number" name="quantity" value={formData.quantity || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required />
+                        <input type="number" name="quantity" value={formData.quantity || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required />
                     </div>
                     <div>
                         <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Cost per Item (R)</label>
-                        <input type="number" name="cost" step="0.01" value={formData.cost || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required />
+                        <input type="number" name="cost" step="0.01" value={formData.cost || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" required />
                     </div>
                     <div>
                         <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Supplier (Optional)</label>
-                        <input type="text" name="supplier" value={formData.supplier || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" />
+                        <input type="text" name="supplier" value={formData.supplier || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" />
                     </div>
                 </div>
                 <div className="flex gap-4 pt-2">
-                    <button type="submit" className="bg-admin-dark-primary text-white px-6 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity">Save Item</button>
-                    <button type="button" onClick={onCancel} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-md font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
+                    <button type="submit" className="bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">Save Item</button>
+                    <button type="button" onClick={onCancel} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-lg font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
                 </div>
             </form>
         </div>
@@ -218,7 +219,7 @@ const InventoryManager: React.FC<{
                     <p className="text-sm text-admin-dark-text-secondary mt-1">Total Stock Value: <span className="font-bold text-blue-400">R{totalValue.toFixed(2)}</span></p>
                 </div>
                 {!isAdding && !editingItem && (
-                    <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity">
+                    <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                         Add Item
                     </button>
@@ -278,7 +279,7 @@ const MonthlyBreakdown: React.FC<{ bookings: Booking[], expenses: Expense[] }> =
                     {bookings.length > 0 ? (
                         <ul className="space-y-2">
                             {bookings.map(b => (
-                                <li key={b.id} className="flex justify-between items-center text-sm p-2 rounded-md hover:bg-white/5">
+                                <li key={b.id} className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-white/5">
                                     <span className="text-admin-dark-text">{b.name}</span>
                                     <span className="font-semibold text-green-400">+ R{b.totalCost?.toFixed(2)}</span>
                                 </li>
@@ -295,7 +296,7 @@ const MonthlyBreakdown: React.FC<{ bookings: Booking[], expenses: Expense[] }> =
                      {expenses.length > 0 ? (
                         <ul className="space-y-2">
                             {expenses.map(e => (
-                                <li key={e.id} className="flex justify-between items-center text-sm p-2 rounded-md hover:bg-white/5">
+                                <li key={e.id} className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-white/5">
                                     <div>
                                         <p className="text-admin-dark-text">{e.description}</p>
                                         <p className="text-xs text-admin-dark-text-secondary">{e.category}</p>
@@ -394,9 +395,9 @@ const FinancialsManager: React.FC<FinancialsManagerProps> = (props) => {
 
             <section>
                 <div className="flex items-center justify-between mb-4 bg-admin-dark-bg/50 p-2 rounded-lg">
-                    <button onClick={() => handleMonthChange(-1)} className="px-3 py-1 hover:bg-white/10 rounded-md transition-colors">◀</button>
+                    <button onClick={() => handleMonthChange(-1)} className="px-3 py-1 hover:bg-white/10 rounded-lg transition-colors">◀</button>
                     <h3 className="font-semibold text-lg text-white text-center">{selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>
-                    <button onClick={() => handleMonthChange(1)} className="px-3 py-1 hover:bg-white/10 rounded-md transition-colors">▶</button>
+                    <button onClick={() => handleMonthChange(1)} className="px-3 py-1 hover:bg-white/10 rounded-lg transition-colors">▶</button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {summaryData.map(item => (
@@ -415,7 +416,7 @@ const FinancialsManager: React.FC<FinancialsManagerProps> = (props) => {
             <section>
                 <div className="flex items-center gap-2 bg-admin-dark-bg p-1 rounded-lg self-start">
                     {(['breakdown', 'expenses', 'inventory'] as const).map(tab => (
-                        <button key={tab} onClick={() => setActiveSubTab(tab)} className={`w-full px-4 py-1.5 text-sm font-bold rounded-md transition-colors capitalize ${activeSubTab === tab ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>{tab}</button>
+                        <button key={tab} onClick={() => setActiveSubTab(tab)} className={`w-full px-4 py-1.5 text-sm font-bold rounded-lg transition-colors capitalize ${activeSubTab === tab ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>{tab}</button>
                     ))}
                 </div>
                 {renderContent()}

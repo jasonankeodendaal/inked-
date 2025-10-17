@@ -26,26 +26,26 @@ const EditForm = ({item, onSave, onCancel, onChange}: {item: Partial<SpecialItem
     };
 
     return (
-    <form onSubmit={onSave} className="bg-black/20 border border-admin-dark-border rounded-lg p-6 my-4 space-y-4 animate-fade-in md:col-span-2">
+    <form onSubmit={onSave} className="bg-black/20 border border-admin-dark-border rounded-2xl p-6 my-4 space-y-4 animate-fade-in md:col-span-2">
         <div>
             <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Title</label>
-            <input type="text" name="title" value={item.title || ''} onChange={onChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
+            <input type="text" name="title" value={item.title || ''} onChange={onChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
         </div>
         <div>
             <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Description</label>
-            <textarea name="description" value={item.description || ''} onChange={onChange} rows={3} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
+            <textarea name="description" value={item.description || ''} onChange={onChange} rows={3} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
         </div>
         <div>
             <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Image</label>
             <div className="flex items-center gap-4">
-                {item.imageUrl && <img src={item.imageUrl} alt="Special preview" className="w-20 h-20 object-cover rounded-md bg-black/20"/>}
+                {item.imageUrl && <img src={item.imageUrl} alt="Special preview" className="w-20 h-20 object-cover rounded-lg bg-black/20"/>}
                 <input type="file" name="imageUrl" accept="image/png, image/jpeg" onChange={handleImageUpload} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40"/>
             </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Price Type</label>
-                <select name="priceType" value={item.priceType || 'none'} onChange={onChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none appearance-none bg-no-repeat bg-right pr-8" style={{backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundSize: '1.5em 1.5em'}}>
+                <select name="priceType" value={item.priceType || 'none'} onChange={onChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none appearance-none bg-no-repeat bg-right pr-8" style={{backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundSize: '1.5em 1.5em'}}>
                     <option value="none">None</option>
                     <option value="fixed">Fixed Price</option>
                     <option value="hourly">Hourly Rate</option>
@@ -57,24 +57,24 @@ const EditForm = ({item, onSave, onCancel, onChange}: {item: Partial<SpecialItem
                     <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">
                         {item.priceType === 'percentage' ? 'Percentage (%)' : 'Price (R)'}
                     </label>
-                    <input type="number" name="priceValue" value={item.priceValue || ''} onChange={onChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
+                    <input type="number" name="priceValue" value={item.priceValue || ''} onChange={onChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
                 </div>
             )}
         </div>
          <div>
             <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Details (one per line)</label>
-            <textarea name="details" value={Array.isArray(item.details) ? item.details.join('\n') : ''} onChange={onChange} rows={4} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" placeholder="e.g., Includes free consultation"/>
+            <textarea name="details" value={Array.isArray(item.details) ? item.details.join('\n') : ''} onChange={onChange} rows={4} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" placeholder="e.g., Includes free consultation"/>
         </div>
         {item.priceType === 'percentage' && (
              <div>
                 <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Voucher Code (Optional)</label>
-                <input type="text" name="voucherCode" value={item.voucherCode || ''} onChange={onChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
+                <input type="text" name="voucherCode" value={item.voucherCode || ''} onChange={onChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
             </div>
         )}
 
         <div className="flex gap-4 pt-2">
-            <button type="submit" className="bg-admin-dark-primary text-white px-6 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity">Save Special</button>
-            <button type="button" onClick={onCancel} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-md font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
+            <button type="submit" className="bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">Save Special</button>
+            <button type="button" onClick={onCancel} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-lg font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
         </div>
     </form>
 )};
@@ -172,7 +172,7 @@ const SpecialsManager: React.FC<{
                     <h2 className="text-xl font-bold text-white">Specials Manager</h2>
                     <p className="text-sm text-admin-dark-text-secondary mt-1">Manage current flash designs and special offers.</p>
                 </div>
-                <button onClick={handleAddNew} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity">
+                <button onClick={handleAddNew} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                     Add New Special
                 </button>
@@ -188,7 +188,7 @@ const SpecialsManager: React.FC<{
                         ) : (
                             <div className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4 flex flex-col justify-between gap-4">
                                 <div className="flex items-start gap-4">
-                                    <img src={item.imageUrl} alt={item.title} className="w-16 h-16 object-cover rounded-md flex-shrink-0"/>
+                                    <img src={item.imageUrl} alt={item.title} className="w-16 h-16 object-cover rounded-lg flex-shrink-0"/>
                                     <div>
                                         <p className="font-semibold text-white">{item.title}</p>
                                         <p className="text-sm text-admin-dark-text-secondary">{item.description}</p>

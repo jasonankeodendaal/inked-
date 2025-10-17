@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect } from 'react';
 import { Booking } from '../../App';
 import { AdminPageProps } from '../AdminPage';
@@ -68,7 +69,7 @@ const BookingModal: React.FC<{
 
     if (!isOpen) return null;
 
-    const inputClasses = "w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2.5 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none transition";
+    const inputClasses = "w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2.5 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none transition";
     const selectClasses = `${inputClasses} appearance-none bg-no-repeat bg-right pr-8`;
     const isEditing = !!bookingToEdit;
 
@@ -131,8 +132,8 @@ const BookingModal: React.FC<{
                         </div>
                     </div>
                     <div className="flex justify-end gap-4 pt-6 border-t border-admin-dark-border">
-                        <button type="button" onClick={onClose} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-md font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
-                        <button type="submit" className="bg-admin-dark-primary text-white px-6 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity">Save Booking</button>
+                        <button type="button" onClick={onClose} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-lg font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
+                        <button type="submit" className="bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">Save Booking</button>
                     </div>
                 </form>
             </div>
@@ -186,12 +187,12 @@ const BookingsManager: React.FC<{
                 <div className="flex items-center gap-4 flex-wrap">
                     <div className="flex items-center gap-2 bg-admin-dark-bg p-1 rounded-lg self-start">
                         {(['all', 'pending', 'confirmed', 'completed', 'cancelled'] as StatusFilter[]).map(status => (
-                        <button key={status} onClick={() => setFilter(status)} className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors capitalize ${filter === status ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>
+                        <button key={status} onClick={() => setFilter(status)} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors capitalize ${filter === status ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>
                             {status}
                         </button>
                         ))}
                     </div>
-                     <button onClick={onAddManualBooking} className="flex items-center gap-2 bg-admin-dark-primary text-white px-3 py-1.5 rounded-md font-bold text-xs hover:opacity-90 transition-opacity">
+                     <button onClick={onAddManualBooking} className="flex items-center gap-2 bg-admin-dark-primary text-white px-3 py-1.5 rounded-lg font-bold text-xs hover:opacity-90 transition-opacity">
                         + Manual Booking
                     </button>
                 </div>
@@ -245,16 +246,16 @@ const BookingsManager: React.FC<{
                             <div className="mt-auto pt-3 border-t border-admin-dark-border">
                                 <div className="flex flex-wrap items-center gap-2">
                                     {availableStatuses.filter(s => s !== booking.status).map(status => (
-                                        <button key={status} onClick={() => handleStatusChange(booking.id, status)} className="text-xs font-semibold px-2 py-1 rounded capitalize bg-white/5 hover:bg-white/10 transition-colors">
+                                        <button key={status} onClick={() => handleStatusChange(booking.id, status)} className="text-xs font-semibold px-2 py-1 rounded-lg capitalize bg-white/5 hover:bg-white/10 transition-colors">
                                             {status}
                                         </button>
                                     ))}
-                                    <button onClick={() => onEditBooking(booking)} className="ml-auto flex items-center gap-1.5 p-2 text-xs font-semibold rounded bg-white/5 hover:bg-white/10 transition-colors" aria-label={`Edit booking for ${booking.name}`}>
+                                    <button onClick={() => onEditBooking(booking)} className="ml-auto flex items-center gap-1.5 p-2 text-xs font-semibold rounded-lg bg-white/5 hover:bg-white/10 transition-colors" aria-label={`Edit booking for ${booking.name}`}>
                                         <span>✏️</span>
                                     </button>
                                 </div>
                                 {booking.status === 'confirmed' && isToday && (
-                                    <button onClick={() => onLogSupplies(booking)} className="w-full mt-2 text-center bg-blue-500/20 text-blue-300 px-3 py-2 rounded-md font-bold text-xs hover:bg-blue-500/40 transition-colors flex items-center justify-center gap-2">
+                                    <button onClick={() => onLogSupplies(booking)} className="w-full mt-2 text-center bg-blue-500/20 text-blue-300 px-3 py-2 rounded-lg font-bold text-xs hover:bg-blue-500/40 transition-colors flex items-center justify-center gap-2">
                                         <span>📦</span> Log Supplies Used
                                     </button>
                                 )}
@@ -482,11 +483,11 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
               </div>
           </div>
            <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-              <button onClick={() => setIsGuideOpen(true)} className="flex items-center gap-2 text-sm text-center py-2 px-4 text-admin-dark-text-secondary hover:text-white transition-colors bg-admin-dark-card border border-admin-dark-border rounded-md font-bold">
+              <button onClick={() => setIsGuideOpen(true)} className="flex items-center gap-2 text-sm text-center py-2 px-4 text-admin-dark-text-secondary hover:text-white transition-colors bg-admin-dark-card border border-admin-dark-border rounded-lg font-bold">
                   <span>🎓</span> Training Guide
               </button>
               <button onClick={() => props.onNavigate('home')} className="text-sm text-center py-2 px-4 text-admin-dark-text-secondary hover:text-white transition-colors">View Site</button>
-              <button onClick={props.onLogout} className="bg-admin-dark-card border border-admin-dark-border px-4 py-2 rounded-md font-bold text-sm text-red-400 hover:bg-red-500/20 transition-colors">Logout</button>
+              <button onClick={props.onLogout} className="bg-admin-dark-card border border-admin-dark-border px-4 py-2 rounded-lg font-bold text-sm text-red-400 hover:bg-red-500/20 transition-colors">Logout</button>
           </div>
       </header>
 

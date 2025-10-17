@@ -104,25 +104,25 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAddBooking }) => {
               </div>
               <div className="grid lg:grid-cols-2 gap-12 items-start">
                   <div className="lg:mt-8 text-gray-300">
-                      <div className="border-l-4 border-brand-green pl-6">
+                      <div className="border-l-4 border-brand-gold pl-6">
                           <h4 className="font-bold text-2xl text-white mb-2">Our Process</h4>
                           <p className="text-sm leading-relaxed">
                               Booking an appointment is the first step. Once we receive your request, we'll reach out via email to schedule a consultation. This is where we'll discuss your ideas, placement, and sizing to give you an accurate quote and book your tattoo session.
                           </p>
                       </div>
-                       <div className="mt-10 border-l-4 border-brand-green pl-6">
+                       <div className="mt-10 border-l-4 border-brand-gold pl-6">
                           <h4 className="font-bold text-2xl text-white mb-2">What to Include</h4>
                            <ul className="list-none space-y-3 text-sm mt-4">
                               <li className="flex items-start gap-3">
-                                  <span className="text-brand-green mt-1">✔️</span>
+                                  <span className="text-brand-gold mt-1">✔️</span>
                                   <span>A detailed description of your tattoo idea.</span>
                               </li>
                               <li className="flex items-start gap-3">
-                                  <span className="text-brand-green mt-1">✔️</span>
+                                  <span className="text-brand-gold mt-1">✔️</span>
                                   <span>Placement and approximate size (in cm).</span>
                               </li>
                               <li className="flex items-start gap-3">
-                                  <span className="text-brand-green mt-1">✔️</span>
+                                  <span className="text-brand-gold mt-1">✔️</span>
                                   <span>Any reference images you have for inspiration.</span>
                               </li>
                            </ul>
@@ -134,36 +134,36 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAddBooking }) => {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                               <div>
                                   <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-2">Name</label>
-                                  <input type="text" id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Full Name" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 text-white focus:ring-brand-green focus:border-brand-green" required/>
+                                  <input type="text" id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Full Name" className="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:ring-brand-gold focus:border-brand-gold" required/>
                               </div>
                               <div>
                                   <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">Email</label>
-                                  <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email Address" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 text-white focus:ring-brand-green focus:border-brand-green" required/>
+                                  <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email Address" className="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:ring-brand-gold focus:border-brand-gold" required/>
                               </div>
                           </div>
 
                           <div>
                               <label className="block text-sm font-medium text-gray-400 mb-2">Preferred Contact Method</label>
-                              <div className="flex gap-1 rounded-md bg-brand-dark border border-gray-700 p-1">
-                                  <button type="button" onClick={() => setContactMethod('email')} className={`w-1/2 p-2 rounded text-sm font-semibold transition-colors ${contactMethod === 'email' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5'}`}>Email</button>
-                                  <button type="button" onClick={() => setContactMethod('whatsapp')} className={`w-1/2 p-2 rounded text-sm font-semibold transition-colors ${contactMethod === 'whatsapp' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5'}`}>WhatsApp</button>
+                              <div className="flex gap-1 rounded-lg bg-brand-dark border border-gray-700 p-1">
+                                  <button type="button" onClick={() => setContactMethod('email')} className={`w-1/2 p-2 rounded-md text-sm font-semibold transition-colors ${contactMethod === 'email' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5'}`}>Email</button>
+                                  <button type="button" onClick={() => setContactMethod('whatsapp')} className={`w-1/2 p-2 rounded-md text-sm font-semibold transition-colors ${contactMethod === 'whatsapp' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5'}`}>WhatsApp</button>
                               </div>
                           </div>
 
                           {contactMethod === 'whatsapp' && (
                               <div className="animate-fade-in">
                                   <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-400 mb-2">WhatsApp Number</label>
-                                  <input type="tel" id="whatsapp" value={whatsappNumber} onChange={e => setWhatsappNumber(e.target.value)} placeholder="e.g. 27795904162" className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 text-white focus:ring-brand-green focus:border-brand-green" required/>
+                                  <input type="tel" id="whatsapp" value={whatsappNumber} onChange={e => setWhatsappNumber(e.target.value)} placeholder="e.g. 27795904162" className="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:ring-brand-gold focus:border-brand-gold" required/>
                               </div>
                           )}
 
                           <div>
                               <label htmlFor="bookingDate" className="block text-sm font-medium text-gray-400 mb-2">Preferred Date</label>
-                              <input type="date" id="bookingDate" value={bookingDate} onChange={e => setBookingDate(e.target.value)} min={today} className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 text-white focus:ring-brand-green focus:border-brand-green" required style={{ colorScheme: 'dark' }} />
+                              <input type="date" id="bookingDate" value={bookingDate} onChange={e => setBookingDate(e.target.value)} min={today} className="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:ring-brand-gold focus:border-brand-gold" required style={{ colorScheme: 'dark' }} />
                           </div>
                           <div>
                           <label htmlFor="message" className="block text-sm font-medium text-gray-400 mb-2">Message</label>
-                          <textarea id="message" rows={4} value={message} onChange={e => setMessage(e.target.value)} placeholder="Tell us about the tattoo you have in mind..." className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 text-white focus:ring-brand-green focus:border-brand-green" required></textarea>
+                          <textarea id="message" rows={4} value={message} onChange={e => setMessage(e.target.value)} placeholder="Tell us about the tattoo you have in mind..." className="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:ring-brand-gold focus:border-brand-gold" required></textarea>
                           </div>
                           <div>
                               <label htmlFor="referenceImage" className="block text-sm font-medium text-gray-400 mb-2">Reference Images (Optional, up to 5)</label>
@@ -171,17 +171,17 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAddBooking }) => {
                               {referenceImagePreviews.length > 0 && (
                                   <div className="mt-4 flex flex-wrap gap-2">
                                       {referenceImagePreviews.map((src, index) => (
-                                          <img key={index} src={src} alt={`Preview ${index + 1}`} className="w-16 h-16 object-cover rounded-md" />
+                                          <img key={index} src={src} alt={`Preview ${index + 1}`} className="w-16 h-16 object-cover rounded-lg" />
                                       ))}
                                   </div>
                               )}
                           </div>
                           
                           {errorMessage && <p className="text-center text-red-400 text-sm">{errorMessage}</p>}
-                          {successMessage && <p className="text-center text-green-400 text-sm">{successMessage}</p>}
+                          {successMessage && <p className="text-center text-yellow-400 text-sm">{successMessage}</p>}
 
                           <div>
-                          <button type="submit" className="w-full bg-brand-green text-white py-3 rounded-md font-bold text-lg hover:bg-opacity-80 transition-colors mt-2">
+                          <button type="submit" className="w-full bg-brand-gold text-white py-3 rounded-full font-bold text-lg hover:bg-opacity-80 transition-colors mt-2">
                               Send Request
                           </button>
                           </div>

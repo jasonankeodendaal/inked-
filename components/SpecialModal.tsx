@@ -95,7 +95,7 @@ const SpecialModal: React.FC<SpecialModalProps> = ({ isOpen, onClose, item, crea
                 <ul className="space-y-2 text-left text-gray-700 my-4 text-sm">
                   {item.details.map((detail, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <span role="img" aria-label="check mark" className="flex-shrink-0 mt-0.5 text-green-500">✅</span>
+                      <span role="img" aria-label="check mark" className="flex-shrink-0 mt-0.5">✨</span>
                       <span>{detail}</span>
                     </li>
                   ))}
@@ -118,10 +118,10 @@ const SpecialModal: React.FC<SpecialModalProps> = ({ isOpen, onClose, item, crea
                 href={createWhatsAppLink(item)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-full font-semibold hover:bg-green-600 hover:text-white transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-800 px-4 py-3 rounded-full font-semibold hover:bg-yellow-500 hover:text-white transition-colors flex items-center justify-center gap-2"
                 aria-label={`Inquire about ${item.title} on WhatsApp`}
             >
-                <span role="img" aria-label="WhatsApp icon">🟢</span>
+                <span role="img" aria-label="WhatsApp icon">⭐</span>
                 Inquire on WhatsApp
             </a>
           </div>

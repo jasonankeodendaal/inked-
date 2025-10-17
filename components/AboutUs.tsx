@@ -43,14 +43,14 @@ const AboutUs: React.FC<AboutUsProps> = ({ aboutUsImageUrl }) => {
               <h2 className="font-script text-4xl sm:text-6xl text-brand-light mb-4">
                 Our Story
               </h2>
-              <div className="w-24 h-1 bg-brand-green mx-auto lg:mx-0 mb-6"></div>
+              <div className="w-24 h-1 bg-brand-gold mx-auto lg:mx-0 mb-6"></div>
               <p className="text-gray-300 leading-relaxed mb-6">
                 Founded on a passion for permanent art and personal expression, Beautively Inked is more than just a tattoo studio—it's a creative sanctuary. With years of experience and a dedication to craftsmanship, we specialize in turning your unique stories into timeless designs.
               </p>
               <p className="text-gray-400 leading-relaxed mb-8">
                 We believe every tattoo is a collaboration. From the initial consultation to the final touch, we prioritize a clean, comfortable, and inspiring environment, ensuring your experience is as memorable as the art itself.
               </p>
-              <a href="#contact-form" onClick={handleAnchorClick} className="inline-block bg-brand-green border border-brand-green text-white px-8 py-3 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors">
+              <a href="#contact-form" onClick={handleAnchorClick} className="inline-block bg-brand-gold border border-brand-gold text-white px-8 py-3 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors">
                 Start Your Journey
               </a>
             </div>

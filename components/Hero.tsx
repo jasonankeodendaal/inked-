@@ -72,7 +72,7 @@ const Hero: React.FC<HeroProps> = ({ portfolioData, onNavigate }) => {
               This isn't just ink. It's your rebellion, your anthem, your art. Wear it loud.
             </p>
             <div className="relative z-10 mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a href="#contact-form" onClick={handleLinkClick} className="w-full sm:w-auto bg-brand-green border border-brand-green text-white px-6 py-2.5 sm:px-8 sm:py-3 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors">
+              <a href="#contact-form" onClick={handleLinkClick} className="w-full sm:w-auto bg-brand-gold border border-brand-gold text-white px-6 py-2.5 sm:px-8 sm:py-3 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors">
                 Book an Appointment
               </a>
               <a href="#showroom" onClick={handleLinkClick} className="w-full sm:w-auto border border-brand-light/50 px-6 py-2.5 sm:px-8 sm:py-3 rounded-full text-sm font-semibold hover:bg-brand-light hover:text-brand-dark transition-colors">

@@ -39,7 +39,7 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, onNavig
         <h1 className="text-3xl font-bold text-center mb-2 tracking-wider">Admin Portal</h1>
         <p className="text-center text-gray-400 mb-8">Login to manage your website.</p>
         
-        <div className="bg-black/20 border border-white/10 rounded-lg p-8 shadow-2xl">
+        <div className="bg-black/20 border border-white/10 rounded-2xl p-8 shadow-2xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-400 mb-2">
@@ -51,7 +51,7 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, onNavig
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Santa"
-                className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-light/50 focus:border-brand-light/50 transition"
+                className="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 focus:ring-brand-light/50 focus:border-brand-light/50 transition"
                 required
                 aria-required="true"
               />
@@ -66,7 +66,7 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, onNavig
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 placeholder="••••"
-                className="w-full bg-brand-dark border border-gray-700 rounded-md p-3 focus:ring-brand-light/50 focus:border-brand-light/50 transition"
+                className="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 focus:ring-brand-light/50 focus:border-brand-light/50 transition"
                 required
                 aria-required="true"
               />
@@ -77,7 +77,7 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, onNavig
             <div>
               <button
                 type="submit"
-                className="w-full bg-brand-light text-brand-dark py-3 rounded-md font-bold text-lg hover:bg-white/90 transition-transform transform hover:scale-105"
+                className="w-full bg-brand-light text-brand-dark py-3 rounded-lg font-bold text-lg hover:bg-white/90 transition-transform transform hover:scale-105"
               >
                 Login
               </button>

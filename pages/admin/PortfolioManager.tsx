@@ -101,11 +101,11 @@ const PortfolioItemEditForm = ({
     onSave({ ...initialItem, title, story, primaryImage: primaryImage || '', galleryImages: finalGalleryImages, videoData: videoData || undefined });
   };
   
-  const inputClasses = "w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2.5 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none transition";
+  const inputClasses = "w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2.5 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none transition";
   const fileInputClasses = "block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40";
 
   return (
-    <form onSubmit={handleSubmit} className="bg-black/20 border border-admin-dark-border rounded-lg p-6 my-4 space-y-6 animate-fade-in md:col-span-2">
+    <form onSubmit={handleSubmit} className="bg-black/20 border border-admin-dark-border rounded-2xl p-6 my-4 space-y-6 animate-fade-in md:col-span-2">
         <header>
             <h3 className="text-xl font-bold text-white">{isAddingNew ? 'Create New Art Piece' : 'Edit Art Piece'}</h3>
             <p className="text-sm text-admin-dark-text-secondary mt-1">{isAddingNew ? "Upload a batch of images and a video to create a new portfolio item." : "Modify the details of this existing art piece."}</p>
@@ -146,7 +146,7 @@ const PortfolioItemEditForm = ({
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
                         {gallery.map((imgSrc) => (
                             <div key={imgSrc} className="relative group aspect-square">
-                                <img src={imgSrc} className={`w-full h-full object-cover rounded-md transition-all duration-300 ${primaryImage === imgSrc ? 'ring-4 ring-offset-2 ring-offset-admin-dark-bg ring-admin-dark-primary' : ''}`} alt="Gallery item" />
+                                <img src={imgSrc} className={`w-full h-full object-cover rounded-lg transition-all duration-300 ${primaryImage === imgSrc ? 'ring-4 ring-offset-2 ring-offset-admin-dark-bg ring-admin-dark-primary' : ''}`} alt="Gallery item" />
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                     <button type="button" onClick={() => setPrimaryImage(imgSrc)} className="p-2 bg-black/50 text-white rounded-full hover:bg-admin-dark-primary" title="Set as Primary">
                                         <StarIcon className={`w-5 h-5 ${primaryImage === imgSrc ? 'text-yellow-400' : ''}`} />
@@ -172,11 +172,11 @@ const PortfolioItemEditForm = ({
         </div>
 
         <div className="flex items-center gap-4 pt-4 border-t border-admin-dark-border">
-            <button type="submit" className="flex items-center gap-2 bg-admin-dark-primary text-white px-6 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity">
+            <button type="submit" className="flex items-center gap-2 bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                 Save
             </button>
-            <button type="button" onClick={onCancel} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-md font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
+            <button type="button" onClick={onCancel} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-lg font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
         </div>
     </form>
   );
@@ -282,7 +282,7 @@ const ShowroomManager: React.FC<{
                     <h3 className="text-xl font-bold text-white">Showroom Genres</h3>
                     <p className="text-sm text-admin-dark-text-secondary mt-1">Organize portfolio items into genres. Drag to reorder items and genres.</p>
                 </div>
-                <button onClick={handleAddNewGenre} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity">
+                <button onClick={handleAddNewGenre} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
                     <PlusIcon className="w-5 h-5" />
                     Add Genre
                 </button>
@@ -315,7 +315,7 @@ const ShowroomManager: React.FC<{
                             </div>
                         </div>
                         
-                        <div onDragOver={e => e.preventDefault()} onDrop={e => handleItemDrop(e, genre.id)} className="space-y-2 mb-4 min-h-[50px] bg-admin-dark-bg p-2 rounded-md border-2 border-dashed border-transparent">
+                        <div onDragOver={e => e.preventDefault()} onDrop={e => handleItemDrop(e, genre.id)} className="space-y-2 mb-4 min-h-[50px] bg-admin-dark-bg p-2 rounded-lg border-2 border-dashed border-transparent">
                             {genre.items.map(item => (
                                 <div key={item.id} draggable onDragStart={e => handleItemDragStart(e, item.id)} onDragEnd={() => setDraggedItemId(null)} className={`bg-admin-dark-bg/80 p-2 rounded-md flex items-center justify-between cursor-move transition-opacity ${draggedItemId === item.id ? 'opacity-30' : ''}`}>
                                     <div className="flex items-center gap-2">
@@ -334,7 +334,7 @@ const ShowroomManager: React.FC<{
                                 <p className="text-xs text-admin-dark-text-secondary mb-2">Add available item:</p>
                                 <div className="flex flex-wrap gap-1">
                                     {availablePortfolioItems.map(item => (
-                                        <button key={item.id} onClick={() => handleAddItem(genre.id, item.id)} className="text-xs bg-admin-dark-bg text-admin-dark-text-secondary px-2 py-1 rounded hover:bg-admin-dark-primary/40 hover:text-white transition-colors">
+                                        <button key={item.id} onClick={() => handleAddItem(genre.id, item.id)} className="text-xs bg-admin-dark-bg text-admin-dark-text-secondary px-2 py-1 rounded-lg hover:bg-admin-dark-primary/40 hover:text-white transition-colors">
                                             + {item.title}
                                         </button>
                                     ))}
@@ -424,15 +424,15 @@ const ArtManager: React.FC<ArtManagerProps> = ({ portfolioData, onPortfolioUpdat
                     <p className="text-sm text-admin-dark-text-secondary mt-1">Manage portfolio pieces and organize them for display.</p>
                 </div>
                 <div className="flex items-center gap-2 bg-admin-dark-bg p-1 rounded-lg self-start">
-                    <button onClick={() => setActiveSubTab('portfolio')} className={`px-4 py-1.5 text-sm font-bold rounded-md transition-colors ${activeSubTab === 'portfolio' ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>Portfolio</button>
-                    <button onClick={() => setActiveSubTab('showroom')} className={`px-4 py-1.5 text-sm font-bold rounded-md transition-colors ${activeSubTab === 'showroom' ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>Showroom</button>
+                    <button onClick={() => setActiveSubTab('portfolio')} className={`px-4 py-1.5 text-sm font-bold rounded-lg transition-colors ${activeSubTab === 'portfolio' ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>Portfolio</button>
+                    <button onClick={() => setActiveSubTab('showroom')} className={`px-4 py-1.5 text-sm font-bold rounded-lg transition-colors ${activeSubTab === 'showroom' ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>Showroom</button>
                 </div>
             </header>
             
             {activeSubTab === 'portfolio' && (
                 <div>
                     <div className="flex justify-end mb-4">
-                        <button onClick={() => { setIsAddingNew(true); setEditingId('__new__'); setCurrentItem({}); window.scrollTo(0,0); }} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity">
+                        <button onClick={() => { setIsAddingNew(true); setEditingId('__new__'); setCurrentItem({}); window.scrollTo(0,0); }} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
                             <PlusIcon className="w-5 h-5" />
                             Add New Item
                         </button>
@@ -445,7 +445,7 @@ const ArtManager: React.FC<ArtManagerProps> = ({ portfolioData, onPortfolioUpdat
                              <div key={item.id} className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4 flex flex-col gap-4">
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex items-start gap-4 overflow-hidden">
-                                        <img src={item.primaryImage} alt={item.title} className="w-16 h-16 object-cover rounded-md flex-shrink-0"/>
+                                        <img src={item.primaryImage} alt={item.title} className="w-16 h-16 object-cover rounded-lg flex-shrink-0"/>
                                         <div>
                                             <p className="font-semibold text-white truncate">{item.title}</p>
                                             {item.videoData && (

@@ -19,10 +19,9 @@ const gridItems = Array.from({ length: 400 }).map((_, i) => {
 
 const WelcomeBackground: React.FC = () => {
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden bg-brand-dark" aria-hidden="true">
+    <div className="absolute inset-0 overflow-hidden bg-brand-dark" aria-hidden="true">
       <div 
-        className="absolute inset-[-20%] w-[140%] h-[140%] grid gap-4 opacity-10 animate-subtle-pan"
-        style={{ gridTemplateColumns: 'repeat(20, minmax(0, 1fr))' }}
+        className="absolute inset-[-20%] w-[140%] h-[140%] grid grid-cols-10 md:grid-cols-15 lg:grid-cols-20 gap-4 opacity-10 animate-subtle-pan"
       >
         {gridItems.map(({ id, Icon, style }) => (
           <div key={id} style={style} className="flex items-center justify-center p-2">

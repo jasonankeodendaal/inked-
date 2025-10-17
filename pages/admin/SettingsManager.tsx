@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { SocialLink, PortfolioItem, SpecialItem, Genre, Booking, Expense, InventoryItem } from '../../App';
 
@@ -276,12 +277,12 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
           <div className="space-y-6">
             <div>
               <label htmlFor="companyName" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Company Name </label>
-              <input type="text" id="companyName" value={localCompanyName} onChange={(e) => setLocalCompanyName(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+              <input type="text" id="companyName" value={localCompanyName} onChange={(e) => setLocalCompanyName(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
             </div>
             <div>
               <label htmlFor="logo" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Logo </label>
               <div className="flex items-center gap-4">
-                {localLogoUrl && <img src={localLogoUrl} alt="Logo preview" className="w-16 h-16 rounded-md bg-white/10 p-1 object-contain"/>}
+                {localLogoUrl && <img src={localLogoUrl} alt="Logo preview" className="w-16 h-16 rounded-lg bg-white/10 p-1 object-contain"/>}
                 <input type="file" id="logo" accept="image/png, image/jpeg" onChange={handleLogoUpload} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40" />
               </div>
             </div>
@@ -301,11 +302,11 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
           <div className="space-y-6">
             <div>
               <label htmlFor="showroomTitle" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Showroom Title </label>
-              <input type="text" id="showroomTitle" value={localShowroomTitle} onChange={(e) => setLocalShowroomTitle(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+              <input type="text" id="showroomTitle" value={localShowroomTitle} onChange={(e) => setLocalShowroomTitle(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
             </div>
             <div>
               <label htmlFor="showroomDescription" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Showroom Description </label>
-              <textarea id="showroomDescription" value={localShowroomDescription} onChange={(e) => setLocalShowroomDescription(e.target.value)} rows={3} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+              <textarea id="showroomDescription" value={localShowroomDescription} onChange={(e) => setLocalShowroomDescription(e.target.value)} rows={3} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
             </div>
           </div>
         </section>
@@ -316,19 +317,19 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                   <label htmlFor="address" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Address </label>
-                  <input type="text" id="address" value={localAddress} onChange={(e) => setLocalAddress(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+                  <input type="text" id="address" value={localAddress} onChange={(e) => setLocalAddress(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
               </div>
               <div>
                   <label htmlFor="phone" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Phone Number </label>
-                  <input type="text" id="phone" value={localPhone} onChange={(e) => setLocalPhone(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+                  <input type="text" id="phone" value={localPhone} onChange={(e) => setLocalPhone(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
               </div>
               <div>
                   <label htmlFor="email" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Contact Email </label>
-                  <input type="email" id="email" value={localEmail} onChange={(e) => setLocalEmail(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+                  <input type="email" id="email" value={localEmail} onChange={(e) => setLocalEmail(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
               </div>
               <div>
                   <label htmlFor="whatsAppNumber" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> WhatsApp Number </label>
-                  <input type="text" id="whatsAppNumber" value={localWhatsAppNumber} onChange={(e) => setLocalWhatsAppNumber(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+                  <input type="text" id="whatsAppNumber" value={localWhatsAppNumber} onChange={(e) => setLocalWhatsAppNumber(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
                   <p className="text-xs text-admin-dark-text-secondary mt-2">No symbols (e.g., 27795904162)</p>
               </div>
           </div>
@@ -340,14 +341,14 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
             <div className="space-y-3">
                 {localSocialLinks.map(link => (
                     <div key={link.id} className="flex items-center gap-3">
-                        <img src={link.icon} alt="Social Icon" className="w-8 h-8 rounded-md bg-white/10 p-1 object-contain"/>
-                        <input type="text" value={link.url} onChange={(e) => handleUpdateSocialLink(link.id, e.target.value)} placeholder="https://..." className="flex-grow bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition"/>
+                        <img src={link.icon} alt="Social Icon" className="w-8 h-8 rounded-lg bg-white/10 p-1 object-contain"/>
+                        <input type="text" value={link.url} onChange={(e) => handleUpdateSocialLink(link.id, e.target.value)} placeholder="https://..." className="flex-grow bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition"/>
                         <button type="button" onClick={() => handleRemoveSocialLink(link.id)} className="p-2 text-red-500 hover:bg-red-500/20 rounded-full transition-colors">&times;</button>
                     </div>
                 ))}
             </div>
             <div className="mt-4">
-                 <label htmlFor="social_upload" className="inline-block text-sm text-admin-dark-primary bg-admin-dark-primary/20 hover:bg-admin-dark-primary/40 px-4 py-2 rounded-md cursor-pointer transition-colors">Add Social Icon</label>
+                 <label htmlFor="social_upload" className="inline-block text-sm text-admin-dark-primary bg-admin-dark-primary/20 hover:bg-admin-dark-primary/40 px-4 py-2 rounded-lg cursor-pointer transition-colors">Add Social Icon</label>
                  <input type="file" id="social_upload" accept="image/png, image/jpeg, image/svg+xml" onChange={handleAddSocialLink} className="hidden" />
             </div>
         </section>
@@ -358,29 +359,29 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                   <label htmlFor="bankName" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Bank Name </label>
-                  <input type="text" id="bankName" value={localBankName} onChange={(e) => setLocalBankName(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+                  <input type="text" id="bankName" value={localBankName} onChange={(e) => setLocalBankName(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
               </div>
                <div>
                   <label htmlFor="accountType" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Account Type </label>
-                  <input type="text" id="accountType" value={localAccountType} onChange={(e) => setLocalAccountType(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+                  <input type="text" id="accountType" value={localAccountType} onChange={(e) => setLocalAccountType(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
               </div>
               <div>
                   <label htmlFor="accountNumber" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Account Number </label>
-                  <input type="text" id="accountNumber" value={localAccountNumber} onChange={(e) => setLocalAccountNumber(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+                  <input type="text" id="accountNumber" value={localAccountNumber} onChange={(e) => setLocalAccountNumber(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
               </div>
               <div>
                   <label htmlFor="branchCode" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Branch Code </label>
-                  <input type="text" id="branchCode" value={localBranchCode} onChange={(e) => setLocalBranchCode(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+                  <input type="text" id="branchCode" value={localBranchCode} onChange={(e) => setLocalBranchCode(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
               </div>
               <div className="md:col-span-2">
                   <label htmlFor="vatNumber" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> VAT Number (Optional) </label>
-                  <input type="text" id="vatNumber" value={localVatNumber} onChange={(e) => setLocalVatNumber(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+                  <input type="text" id="vatNumber" value={localVatNumber} onChange={(e) => setLocalVatNumber(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
               </div>
           </div>
         </section>
 
         <div className="flex items-center gap-4 pt-4 border-t border-admin-dark-border">
-            <button type="submit" className="bg-admin-dark-primary text-white px-8 py-3 rounded-md font-bold hover:opacity-90 transition-opacity"> Save Changes </button>
+            <button type="submit" className="bg-admin-dark-primary text-white px-8 py-3 rounded-lg font-bold hover:opacity-90 transition-opacity"> Save Changes </button>
             {savedMessage && <span className="text-green-400 text-sm" role="status">{savedMessage}</span>}
         </div>
       </form>
@@ -393,13 +394,13 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
               <button 
                   type="button" 
                   onClick={handleBackup}
-                  className="bg-blue-500/20 border border-blue-500/50 text-blue-300 px-6 py-2 rounded-md font-bold text-sm hover:bg-blue-500/40 hover:text-white transition-colors"
+                  className="bg-blue-500/20 border border-blue-500/50 text-blue-300 px-6 py-2 rounded-lg font-bold text-sm hover:bg-blue-500/40 hover:text-white transition-colors"
               >
                   Backup All Data
               </button>
               <label 
                   htmlFor="restore-backup" 
-                  className="bg-green-500/20 border border-green-500/50 text-green-300 px-6 py-2 rounded-md font-bold text-sm hover:bg-green-500/40 hover:text-white transition-colors cursor-pointer text-center"
+                  className="bg-green-500/20 border border-green-500/50 text-green-300 px-6 py-2 rounded-lg font-bold text-sm hover:bg-green-500/40 hover:text-white transition-colors cursor-pointer text-center"
               >
                   Restore from Backup
               </label>
@@ -420,7 +421,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
           <button 
             type="button" 
             onClick={handleClearDataClick}
-            className="bg-red-500/20 border border-red-500/50 text-red-400 px-6 py-2 rounded-md font-bold text-sm hover:bg-red-500/40 hover:text-white transition-colors"
+            className="bg-red-500/20 border border-red-500/50 text-red-400 px-6 py-2 rounded-lg font-bold text-sm hover:bg-red-500/40 hover:text-white transition-colors"
           >
             Clear All Mock Data
           </button>

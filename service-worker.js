@@ -1,79 +1,94 @@
 // service-worker.js
+// A robust, offline-first service worker.
 
-// Import Workbox from Google's CDN - Upgraded to latest version for performance and features.
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.1.0/workbox-sw.js');
+const CACHE_NAME = 'beautively-inked-cache-v1';
 
-// Precache the main application shell files and the offline page.
-// This makes subsequent loads much faster and ensures the offline fallback is always available.
-workbox.precaching.precacheAndRoute([
-    { url: '/', revision: null },
-    { url: '/index.html', revision: null },
-    { url: '/index.tsx', revision: null },
-    { url: '/favicon.svg', revision: null },
-    { url: '/offline.html', revision: null },
-    { url: 'https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png', revision: null }, // Main Logo, used on offline page
-]);
+// Files to cache on install. These form the "app shell".
+const FILES_TO_CACHE = [
+  '/',
+  '/index.html',
+  '/index.tsx', // The main JS module
+  '/manifest.json',
+  '/offline.html', // The offline fallback page
+  'https://i.ibb.co/fVzq56Ng/31e985d7-135f-4a54-98f9-f110bd155497-2.png', // Main logo
+];
 
-// Ensure the new service worker activates immediately to provide updates faster.
-self.addEventListener('install', () => {
-    self.skipWaiting();
+// Install event: cache the app shell.
+self.addEventListener('install', event => {
+  console.log('[Service Worker] Installing...');
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('[Service Worker] Caching app shell');
+      return cache.addAll(FILES_TO_CACHE);
+    }).then(() => {
+      // Activate the new service worker immediately.
+      return self.skipWaiting();
+    })
+  );
 });
 
-// Take control of all open clients and clean up old caches as soon as the service worker activates.
+// Activate event: clean up old caches.
 self.addEventListener('activate', event => {
-    // The 'activate' event is the perfect place to clean up old caches.
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    // Delete old caches created by the previous service worker.
-                    if (cacheName.startsWith('pwabuilder-')) {
-                        console.log('Deleting old cache:', cacheName);
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        }).then(() => self.clients.claim())
-    );
+  console.log('[Service Worker] Activating...');
+  event.waitUntil(
+    caches.keys().then(cacheNames =>
+      Promise.all(
+        cacheNames.map(name => {
+          if (name !== CACHE_NAME) {
+            console.log('[Service Worker] Removing old cache:', name);
+            return caches.delete(name);
+          }
+        })
+      )
+    ).then(() => {
+        // Take control of all open clients.
+        return self.clients.claim();
+    })
+  );
 });
 
-// Caching strategy for pages (HTML).
-// Network first ensures users get the latest content, falling back to cache if offline.
-// If both fail, the precached offline page is served for a great offline experience.
-workbox.routing.registerRoute(
-    ({ request }) => request.mode === 'navigate',
-    new workbox.strategies.NetworkFirst({
-        cacheName: 'pages-cache',
-        plugins: [
-            {
-                // This custom plugin catches errors (e.g., offline) and serves the fallback page.
-                handlerDidError: async () => await caches.match('/offline.html'),
-            },
-        ],
-    })
-);
+// Fetch event: handle requests with different strategies.
+self.addEventListener('fetch', event => {
+  // For navigation requests (e.g., loading a page), use a Network-First strategy.
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          // If the network request is successful, cache it and return it.
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+          return response;
+        })
+        .catch(() => {
+          // If the network fails, try to serve the page from the cache.
+          // If it's not in the cache, serve the offline fallback page.
+          return caches.match(event.request)
+            .then(response => response || caches.match('/offline.html'));
+        })
+    );
+    return;
+  }
 
-// Caching strategy for assets (CSS, JS, images, fonts).
-// Stale-While-Revalidate provides a balance of speed (serving from cache) and freshness (updating in the background).
-workbox.routing.registerRoute(
-    ({ request }) =>
-        request.destination === 'style' ||
-        request.destination === 'script' ||
-        request.destination === 'worker' ||
-        request.destination === 'image' ||
-        request.destination === 'font',
-    new workbox.strategies.StaleWhileRevalidate({
-        cacheName: 'assets-cache',
-        plugins: [
-            // Ensure that only successful responses are cached and handle opaque responses from CDNs.
-            new workbox.cacheableResponse.CacheableResponsePlugin({
-                statuses: [0, 200],
-            }),
-            // Keep the cache from growing indefinitely.
-            new workbox.expiration.ExpirationPlugin({
-                maxEntries: 100, // Max 100 assets
-                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
-            }),
-        ],
+  // For other requests (assets like images, scripts), use a Cache-First, then network strategy.
+  // This is fast and efficient for static assets.
+  event.respondWith(
+    caches.match(event.request).then(cachedResponse => {
+      // If we have a cached response, return it.
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      
+      // Otherwise, fetch from the network.
+      return fetch(event.request).then(networkResponse => {
+        // Cache the new response for future use and return it.
+        const responseToCache = networkResponse.clone();
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, responseToCache);
+        });
+        return networkResponse;
+      });
     })
-);
+  );
+});

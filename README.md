@@ -31,7 +31,7 @@ Android Studio will now create and build the basic project structure. This might
 
 Before replacing the configuration files, let's set your company logo as the app icon.
 
-1.  **Download Your Logo**: Save your company logo to your computer. You can use the one from your website: [https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png](https://i.ibb.co/d4dC0B4g/31e985d7-135f-4a54-98f9-f110bd155497-1.png)
+1.  **Download Your Logo**: Save your company logo to your computer. You can use the one from your website: [https://i.ibb.co/fVzq56Ng/31e985d7-135f-4a54-98f9-f110bd155497-2.png](https://i.ibb.co/fVzq56Ng/31e985d7-135f-4a54-98f9-f110bd155497-2.png)
 
 2.  **Open Image Asset Studio**:
     *   In the Project view of Android Studio, right-click on the `app` folder.

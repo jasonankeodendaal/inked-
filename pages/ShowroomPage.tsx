@@ -52,10 +52,10 @@ const ShowroomGridItem: React.FC<{ item: PortfolioItem, onClick: () => void }> =
         onClick={onClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="block w-full p-2 bg-white rounded-md shadow-lg hover:shadow-2xl transition-shadow duration-300 relative aspect-square"
+        className="block w-full p-2 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 relative aspect-square"
         aria-label={`View details for ${item.title}`}
       >
-        <div className="absolute inset-2 rounded-sm overflow-hidden">
+        <div className="absolute inset-2 rounded-lg overflow-hidden">
           <img
             src={item.primaryImage}
             alt={item.title}

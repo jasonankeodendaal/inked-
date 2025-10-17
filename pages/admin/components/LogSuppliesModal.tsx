@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Booking, InventoryItem, Expense } from '../../../App';
 
@@ -36,25 +37,25 @@ const InkEstimator: React.FC = () => {
             <summary className="font-semibold text-white cursor-pointer">Ink Usage Estimator</summary>
             <div className="mt-4 pt-4 border-t border-admin-dark-border">
                 <div className="flex gap-2 mb-4">
-                    <button onClick={() => setMode('quick')} className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${mode === 'quick' ? 'bg-admin-dark-primary text-white' : 'bg-white/10 text-admin-dark-text-secondary'}`}>Quick Estimate</button>
-                    <button onClick={() => setMode('area')} className={`px-3 py-1 text-xs font-bold rounded-md transition-colors ${mode === 'area' ? 'bg-admin-dark-primary text-white' : 'bg-white/10 text-admin-dark-text-secondary'}`}>By Area</button>
+                    <button onClick={() => setMode('quick')} className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${mode === 'quick' ? 'bg-admin-dark-primary text-white' : 'bg-white/10 text-admin-dark-text-secondary'}`}>Quick Estimate</button>
+                    <button onClick={() => setMode('area')} className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${mode === 'area' ? 'bg-admin-dark-primary text-white' : 'bg-white/10 text-admin-dark-text-secondary'}`}>By Area</button>
                 </div>
                 {mode === 'quick' && (
                     <div className="grid grid-cols-3 gap-2">
-                        <button onClick={() => handleQuickEstimate('small')} className="bg-white/5 p-2 rounded-md text-sm hover:bg-white/10">Small</button>
-                        <button onClick={() => handleQuickEstimate('medium')} className="bg-white/5 p-2 rounded-md text-sm hover:bg-white/10">Medium</button>
-                        <button onClick={() => handleQuickEstimate('large')} className="bg-white/5 p-2 rounded-md text-sm hover:bg-white/10">Large</button>
+                        <button onClick={() => handleQuickEstimate('small')} className="bg-white/5 p-2 rounded-lg text-sm hover:bg-white/10">Small</button>
+                        <button onClick={() => handleQuickEstimate('medium')} className="bg-white/5 p-2 rounded-lg text-sm hover:bg-white/10">Medium</button>
+                        <button onClick={() => handleQuickEstimate('large')} className="bg-white/5 p-2 rounded-lg text-sm hover:bg-white/10">Large</button>
                     </div>
                 )}
                 {mode === 'area' && (
                     <div className="flex items-center gap-2">
-                        <input type="number" placeholder="Width (cm)" value={width} onChange={(e) => handleAreaChange(e.target.value, height)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text text-sm"/>
+                        <input type="number" placeholder="Width (cm)" value={width} onChange={(e) => handleAreaChange(e.target.value, height)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text text-sm"/>
                         <span className="text-admin-dark-text-secondary">×</span>
-                        <input type="number" placeholder="Height (cm)" value={height} onChange={(e) => handleAreaChange(width, e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text text-sm"/>
+                        <input type="number" placeholder="Height (cm)" value={height} onChange={(e) => handleAreaChange(width, e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text text-sm"/>
                     </div>
                 )}
                 {result && (
-                    <div className="mt-4 p-3 bg-admin-dark-bg rounded-md text-center">
+                    <div className="mt-4 p-3 bg-admin-dark-bg rounded-lg text-center">
                         <p className="text-admin-dark-text-secondary text-sm">Estimated Ink:</p>
                         <p className="font-bold text-lg text-white">{result}</p>
                     </div>
@@ -145,7 +146,7 @@ const LogSuppliesModal: React.FC<LogSuppliesModalProps> = ({
     onClose();
   };
   
-  const inputClasses = "w-20 bg-admin-dark-bg border border-admin-dark-border rounded-md p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none transition text-center";
+  const inputClasses = "w-20 bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none transition text-center";
 
   return (
     <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
@@ -186,8 +187,8 @@ const LogSuppliesModal: React.FC<LogSuppliesModalProps> = ({
         </div>
         
         <footer className="flex justify-end gap-4 p-6 border-t border-admin-dark-border flex-shrink-0">
-            <button type="button" onClick={onClose} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-md font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
-            <button type="button" onClick={handleSubmit} className="bg-admin-dark-primary text-white px-6 py-2 rounded-md font-bold text-sm hover:opacity-90 transition-opacity">Log Usage &amp; Finalize</button>
+            <button type="button" onClick={onClose} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-lg font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
+            <button type="button" onClick={handleSubmit} className="bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">Log Usage &amp; Finalize</button>
         </footer>
       </div>
     </div>
