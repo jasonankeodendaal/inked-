@@ -32,9 +32,14 @@
   "scope": "/",
   "id": "/",
   "display": "standalone",
+  "display_override": [
+    "standalone"
+  ],
   "theme_color": "#0a0a0a",
   "background_color": "#0a0a0a",
   "orientation": "portrait-primary",
+  "lang": "en-US",
+  "iarc_rating_id": "",
   "categories": [
     "lifestyle",
     "personalization"

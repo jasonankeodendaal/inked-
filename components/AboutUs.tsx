@@ -1,5 +1,6 @@
 // FIX: Add missing React import
 import React, { MouseEvent } from 'react';
+import WelcomeBackground from './WelcomeBackground';
 
 interface AboutUsProps {
   aboutUsImageUrl: string;
@@ -22,12 +23,8 @@ const AboutUs: React.FC<AboutUsProps> = ({ aboutUsImageUrl }) => {
         </div>
       </div>
       <section id="about-us" className="relative bg-brand-dark py-24 sm:py-32 overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-repeat bg-center opacity-20" 
-          style={{ backgroundImage: "url('https://www.toptal.com/designers/subtlepatterns/uploads/dark-chalk-board.png')" }}
-          aria-hidden="true"
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/80 via-brand-dark/50 to-brand-dark/80" aria-hidden="true"></div>
+        
+        <WelcomeBackground />
         
         <div className="relative z-10 container mx-auto px-4">
           <div className="grid lg:grid-cols-5 gap-12 lg:gap-16 items-center">
