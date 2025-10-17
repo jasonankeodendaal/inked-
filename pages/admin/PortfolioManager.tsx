@@ -129,7 +129,7 @@ const PortfolioItemEditForm = ({
                   <textarea value={formData.story} onChange={(e) => setFormData({...formData, story: e.target.value})} rows={5} className={inputClasses} required />
               </div>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-2">
               <label className="block text-sm font-semibold text-admin-dark-text-secondary">Video (Optional)</label>
               {videoUrl ? (
                   <div className="relative">
@@ -139,7 +139,10 @@ const PortfolioItemEditForm = ({
                       </button>
                   </div>
               ) : (
-                  <input type="file" accept="video/*" onChange={handleVideoUpload} className={fileInputClasses} />
+                  <>
+                    <input type="file" accept="video/*" onChange={handleVideoUpload} className={fileInputClasses} />
+                    <p className="text-xs text-admin-dark-text-secondary mt-2">For best performance, upload videos optimized for web streaming (e.g., 360p resolution).</p>
+                  </>
               )}
           </div>
       </div>

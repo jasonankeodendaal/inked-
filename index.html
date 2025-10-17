@@ -52,6 +52,7 @@
               'text-scroll': 'infinite-scroll 120s linear infinite',
               'fade-in-up': 'fade-in-up 1s ease-out .5s forwards',
               'fade-in': 'fade-in 0.5s ease-out forwards',
+              'fade-in-delayed': 'fade-in 0.5s ease-out 1s forwards',
               'vibrate-subtle': 'vibrate-subtle 0.1s linear infinite',
               'stroke-draw': 'stroke-draw 4s ease-in-out forwards',
               'subtle-glow': 'subtle-glow 3s ease-in-out infinite',
@@ -59,6 +60,8 @@
               'bounce-horizontal-reverse': 'bounce-horizontal-reverse 1.5s ease-in-out infinite',
               'subtle-float': 'subtle-float 20s ease-in-out infinite',
               'subtle-pan': 'subtle-pan 40s ease-in-out infinite',
+              'curtain-down': 'curtain-down 1s cubic-bezier(0.8, 0, 0.2, 1) forwards',
+              'curtain-up': 'curtain-up 1s cubic-bezier(0.8, 0, 0.2, 1) forwards',
             },
             keyframes: {
               'infinite-scroll': {
@@ -114,6 +117,14 @@
               'subtle-pan': {
                 '0%, 100%': { transform: 'translateX(-5%) translateY(-5%)' },
                 '50%': { transform: 'translateX(5%) translateY(5%)' },
+              },
+              'curtain-down': {
+                'from': { transform: 'translateY(-100%)' },
+                'to': { transform: 'translateY(0)' }
+              },
+              'curtain-up': {
+                'from': { transform: 'translateY(100%)' },
+                'to': { transform: 'translateY(0)' }
               },
             },
             gridTemplateColumns: {

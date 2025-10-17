@@ -36,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, logoUrl, companyName }) => 
           </a>
           
           {/* Scrolling Ticker */}
-          <div className="flex-1 mx-4 sm:mx-8 overflow-hidden hidden md:block">
+          <div className="flex-1 mx-4 sm:mx-8 overflow-hidden">
             <div className="w-max flex animate-text-scroll transform-gpu">
                 <p className="font-script text-white/70 whitespace-nowrap tracking-widest">
                     {scrollingTextContent} {scrollingTextContent}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { SocialLink } from '../App';
 import CreatorModal from './CreatorModal'; // Import the new modal component
 import PowderSplashBackground from './PowderSplashBackground';
+import AndroidIcon from './icons/AndroidIcon';
 
 interface FooterProps {
   companyName: string;
@@ -9,9 +10,10 @@ interface FooterProps {
   phone: string;
   email: string;
   socialLinks: SocialLink[];
+  apkUrl: string;
 }
 
-const Footer: React.FC<FooterProps> = ({ companyName, address, phone, email, socialLinks }) => {
+const Footer: React.FC<FooterProps> = ({ companyName, address, phone, email, socialLinks, apkUrl }) => {
   const [isCreatorModalOpen, setIsCreatorModalOpen] = useState(false);
 
   return (
@@ -19,7 +21,7 @@ const Footer: React.FC<FooterProps> = ({ companyName, address, phone, email, soc
       <footer className="relative bg-brand-off-white text-brand-dark border-t border-gray-200 py-10 sm:py-12 overflow-hidden">
         <PowderSplashBackground />
         <div className="relative z-10 container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-center md:text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8 text-center md:text-left">
             <div>
               <h3 className="font-bold text-lg tracking-wider uppercase mb-4">{companyName.replace(' Tattoo Studio', '')}</h3>
               <p className="text-gray-600 text-sm">&copy; {new Date().getFullYear()} {companyName}. All Rights Reserved.</p>
@@ -46,6 +48,19 @@ const Footer: React.FC<FooterProps> = ({ companyName, address, phone, email, soc
                   <p className="text-sm text-gray-500">Social links not set.</p>
               )}
             </div>
+            {apkUrl && (
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-3">Get The App</h4>
+                <a 
+                  href={apkUrl} 
+                  download 
+                  className="inline-flex items-center gap-2 bg-gray-200/80 border border-gray-300/80 text-gray-700 px-4 py-2 rounded-full text-sm font-semibold hover:bg-gray-300 transition-colors"
+                >
+                  <AndroidIcon className="w-5 h-5" />
+                  Download for Android
+                </a>
+              </div>
+            )}
           </div>
            <div className="text-center text-xs text-gray-500 pt-8 mt-8 border-t border-gray-200">
             <p>

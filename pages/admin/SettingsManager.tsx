@@ -25,6 +25,8 @@ interface SettingsManagerProps {
   showroomTitle: string;
   showroomDescription: string;
   heroTattooGunImageUrl: string;
+  isMaintenanceMode: boolean;
+  apkUrl: string;
 
   // Data for backup
   portfolioData: PortfolioItem[];
@@ -50,12 +52,14 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
         branchCode: props.branchCode,
         accountType: props.accountType,
         vatNumber: props.vatNumber,
+        isMaintenanceMode: props.isMaintenanceMode,
     });
     // State for image URLs and new files
     const [logo, setLogo] = useState<string | File>(props.logoUrl);
     const [aboutUsImage, setAboutUsImage] = useState<string | File>(props.aboutUsImageUrl);
     const [heroImage, setHeroImage] = useState<string | File>(props.heroTattooGunImageUrl);
     const [socialLinks, setSocialLinks] = useState<(SocialLink & { file?: File })[]>(props.socialLinks);
+    const [apkFile, setApkFile] = useState<File | null>(null);
 
     const [isLoading, setIsLoading] = useState(false);
     const [savedMessage, setSavedMessage] = useState('');
@@ -69,6 +73,17 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
         if (e.target.files && e.target.files[0]) {
             setter(e.target.files[0]);
         }
+    };
+
+    const handleApkFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+          if (e.target.files[0].name.endsWith('.apk')) {
+              setApkFile(e.target.files[0]);
+          } else {
+              alert('Please select a valid .apk file.');
+              e.target.value = '';
+          }
+      }
     };
     
     const uploadFile = async (file: File, path: string): Promise<string> => {
@@ -88,6 +103,11 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
                 uploadFile(heroImage as File, 'settings'),
             ]);
 
+            let finalApkUrl = props.apkUrl;
+            if (apkFile) {
+                finalApkUrl = await uploadFile(apkFile, 'mobile-app');
+            }
+
             const finalSocialLinks = await Promise.all(
                 socialLinks.map(async (link) => {
                     const iconUrl = link.file ? await uploadFile(link.file, 'social-icons') : link.icon;
@@ -101,6 +121,7 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
                 aboutUsImageUrl,
                 heroTattooGunImageUrl,
                 socialLinks: finalSocialLinks,
+                apkUrl: finalApkUrl,
             });
             setSavedMessage('Settings saved successfully!');
         } catch (error) {
@@ -132,7 +153,6 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
         return (media instanceof File) ? URL.createObjectURL(media) : media;
     };
     
-    // Backup and Restore remain unchanged as they operate on the full dataset passed via props.
     const handleBackup = () => {
     try {
         const backupData = {
@@ -143,6 +163,8 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
                 branchCode: props.branchCode, accountType: props.accountType, vatNumber: props.vatNumber,
                 showroomTitle: props.showroomTitle, showroomDescription: props.showroomDescription,
                 heroTattooGunImageUrl: props.heroTattooGunImageUrl,
+                isMaintenanceMode: props.isMaintenanceMode,
+                apkUrl: props.apkUrl,
             },
             portfolioData: props.portfolioData, specialsData: props.specialsData, showroomData: props.showroomData,
             bookings: props.bookings, expenses: props.expenses, inventory: props.inventory,
@@ -228,6 +250,25 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
           </div>
         </section>
 
+        <section>
+          <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">📱 Mobile App (APK)</h3>
+          <div className="space-y-4">
+            <div>
+                <label className="block text-sm font-semibold text-admin-dark-text-secondary mb-2">Current APK</label>
+                {props.apkUrl ? (
+                    <a href={props.apkUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-admin-dark-primary hover:underline break-all">{props.apkUrl.split('%2F').pop()?.split('?')[0] || 'APK file'}</a>
+                ) : (
+                    <p className="text-sm text-admin-dark-text-secondary">No APK uploaded yet.</p>
+                )}
+            </div>
+            <div>
+                <label className="block text-sm font-semibold text-admin-dark-text-secondary mb-2">{props.apkUrl ? 'Upload New APK' : 'Upload APK'}</label>
+                <input type="file" id="apkFile" accept=".apk" onChange={handleApkFileChange} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40" />
+                {apkFile && <p className="text-sm text-admin-dark-text-secondary mt-2">New file selected: {apkFile.name}</p>}
+            </div>
+          </div>
+        </section>
+
         <section data-tour-id="settings-contact-info">
           <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">📞 Contact Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -285,9 +326,27 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
       </section>
 
       <section data-tour-id="settings-danger-zone" className="mt-12 pt-6 border-t-2 border-red-500/30">
-          <h3 className="text-lg font-semibold text-red-400 mb-2">🚨 Danger Zone</h3>
-          <p className="text-sm text-admin-dark-text-secondary mb-4">These actions are irreversible. Please be certain before proceeding.</p>
-          <button type="button" onClick={props.onClearAllData} className="bg-red-500/20 border border-red-500/50 text-red-400 px-6 py-2 rounded-lg font-bold text-sm hover:bg-red-500/40 hover:text-white transition-colors"> Clear All Live Data</button>
+        <h3 className="text-lg font-semibold text-red-400 mb-2">🚨 Danger Zone</h3>
+        <div className="space-y-6">
+            <div>
+                <p className="text-sm text-admin-dark-text-secondary mb-2">Activate maintenance mode to show a temporary "Under Maintenance" page to all public visitors. You will still be able to access this admin panel. Remember to click "Save Changes" at the top of the page to apply.</p>
+                <div className="flex items-center gap-4 p-4 bg-admin-dark-bg/50 rounded-lg">
+                    <button 
+                        type="button"
+                        onClick={() => setSettings(prev => ({...prev, isMaintenanceMode: !prev.isMaintenanceMode}))} 
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.isMaintenanceMode ? 'bg-red-500' : 'bg-gray-600'}`}>
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.isMaintenanceMode ? 'translate-x-6' : 'translate-x-1'}`}/>
+                    </button>
+                    <span className={`font-semibold ${settings.isMaintenanceMode ? 'text-red-400' : 'text-admin-dark-text'}`}>
+                        {settings.isMaintenanceMode ? 'Maintenance Mode will be ON' : 'Maintenance Mode will be OFF'}
+                    </span>
+                </div>
+            </div>
+            <div>
+                <p className="text-sm text-admin-dark-text-secondary mb-2">This action is irreversible. Please be certain before proceeding.</p>
+                <button type="button" onClick={props.onClearAllData} className="bg-red-500/20 border border-red-500/50 text-red-400 px-6 py-2 rounded-lg font-bold text-sm hover:bg-red-500/40 hover:text-white transition-colors"> Clear All Live Data</button>
+            </div>
+        </div>
       </section>
     </div>
   );

@@ -12,6 +12,7 @@ import AdminPage from './pages/AdminPage';
 import Showroom from './pages/ShowroomPage';
 import AboutUs from './components/AboutUs';
 import WelcomeIntro from './components/WelcomeIntro';
+import MaintenancePage from './components/MaintenancePage';
 
 // --- INTERFACES (Unchanged) ---
 export interface PortfolioItem {
@@ -114,6 +115,8 @@ const App: React.FC = () => {
   const [branchCode, setBranchCode] = useState('250655');
   const [accountType, setAccountType] = useState('Cheque');
   const [vatNumber, setVatNumber] = useState('');
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
+  const [apkUrl, setApkUrl] = useState('');
 
   const [currentView, setCurrentView] = useState('home');
   const [isIntroVisible, setIsIntroVisible] = useState(true);
@@ -153,6 +156,8 @@ const App: React.FC = () => {
           setBranchCode(settings.branchCode);
           setAccountType(settings.accountType);
           setVatNumber(settings.vatNumber);
+          setIsMaintenanceMode(settings.isMaintenanceMode ?? false);
+          setApkUrl(settings.apkUrl ?? '');
         }
       }, (error) => {
         console.error("Error listening to settings:", error);
@@ -379,10 +384,6 @@ const App: React.FC = () => {
     );
   }
 
-  if (isIntroVisible) {
-    return <WelcomeIntro isVisible={isIntroVisible} onEnter={handleEnter} logoUrl={logoUrl} />;
-  }
-
   if (currentView === 'admin') {
     return (
       <AdminPage
@@ -431,32 +432,45 @@ const App: React.FC = () => {
         branchCode={branchCode}
         accountType={accountType}
         vatNumber={vatNumber}
+        isMaintenanceMode={isMaintenanceMode}
+        apkUrl={apkUrl}
       />
     );
   }
 
+  if (isIntroVisible) {
+    return <WelcomeIntro isVisible={isIntroVisible} onEnter={handleEnter} logoUrl={logoUrl} />;
+  }
+  
+  const showMaintenance = isMaintenanceMode && !user;
+
   return (
-    <>
-      <Header onNavigate={navigate} logoUrl={logoUrl} companyName={companyName} />
-      <main>
-        <Hero portfolioData={portfolioData} onNavigate={navigate} heroTattooGunImageUrl={heroTattooGunImageUrl} />
-        <SpecialsCollage specials={specialsData} whatsAppNumber={whatsAppNumber} />
-        <AboutUs aboutUsImageUrl={aboutUsImageUrl} />
-        <Showroom 
-          showroomData={showroomData} 
-          showroomTitle={showroomTitle} 
-          showroomDescription={showroomDescription} 
+    <div className="relative">
+      <div className={showMaintenance ? 'blur-sm brightness-50 pointer-events-none' : ''}>
+        <Header onNavigate={navigate} logoUrl={logoUrl} companyName={companyName} />
+        <main>
+          <Hero portfolioData={portfolioData} onNavigate={navigate} heroTattooGunImageUrl={heroTattooGunImageUrl} />
+          <SpecialsCollage specials={specialsData} whatsAppNumber={whatsAppNumber} />
+          <AboutUs aboutUsImageUrl={aboutUsImageUrl} />
+          <Showroom 
+            showroomData={showroomData} 
+            showroomTitle={showroomTitle} 
+            showroomDescription={showroomDescription} 
+          />
+          <ContactForm onAddBooking={handleAddBooking} />
+        </main>
+        <Footer
+          companyName={companyName}
+          address={address}
+          phone={phone}
+          email={email}
+          socialLinks={socialLinks}
+          apkUrl={apkUrl}
         />
-        <ContactForm onAddBooking={handleAddBooking} />
-      </main>
-      <Footer
-        companyName={companyName}
-        address={address}
-        phone={phone}
-        email={email}
-        socialLinks={socialLinks}
-      />
-    </>
+      </div>
+
+      {showMaintenance && <MaintenancePage onNavigate={navigate} logoUrl={logoUrl} />}
+    </div>
   );
 };
 

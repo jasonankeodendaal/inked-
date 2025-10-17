@@ -66,6 +66,8 @@ export interface AdminPageProps {
   branchCode: string;
   accountType: string;
   vatNumber: string;
+  isMaintenanceMode: boolean;
+  apkUrl: string;
 }
 
 const AdminPage: React.FC<AdminPageProps> = (props) => {
