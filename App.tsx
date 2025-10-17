@@ -202,63 +202,51 @@ const App: React.FC = () => {
 
   // --- CRUD (Create, Read, Update, Delete) FUNCTIONS ---
   
-  // Generic update state and DB doc
-  const updateItem = async <T extends {id: string}>(
-    collectionName: string, 
-    item: T, 
-    stateSetter: React.Dispatch<React.SetStateAction<T[]>>
-  ) => {
+  // Generic update DB doc
+  const updateItem = async <T extends {id: string}>(collectionName: string, item: T) => {
     try {
       const { id, ...data } = item;
       await updateDoc(doc(db, collectionName, id), data);
-      // State updates are now handled by the onSnapshot listener, so we don't need to call stateSetter here.
     } catch (error) {
       console.error(`Error updating ${collectionName}:`, error);
+      alert(`Failed to update item in ${collectionName}. Please check the console for details and verify your Firestore security rules.`);
     }
   };
 
-  // Generic add state and DB doc
-  const addItem = async <T extends {}>(
-    collectionName: string, 
-    item: T, 
-    stateSetter: React.Dispatch<React.SetStateAction<(T & {id: string})[]>>
-  ) => {
+  // Generic add DB doc
+  const addItem = async <T extends {}>(collectionName: string, item: T) => {
     try {
       await addDoc(collection(db, collectionName), item);
-      // State updates are now handled by the onSnapshot listener.
     } catch (error) {
       console.error(`Error adding ${collectionName}:`, error);
+      alert(`Failed to add item to ${collectionName}. Please check the console for details and verify your Firestore security rules.`);
     }
   };
 
-  // Generic delete state and DB doc
-  const deleteItem = async <T extends {id: string}>(
-    collectionName: string, 
-    itemId: string, 
-    stateSetter: React.Dispatch<React.SetStateAction<T[]>>
-  ) => {
+  // Generic delete DB doc
+  const deleteItem = async (collectionName: string, itemId: string) => {
     try {
       await deleteDoc(doc(db, collectionName, itemId));
-      // State updates are now handled by the onSnapshot listener.
     } catch (error) {
       console.error(`Error deleting ${collectionName}:`, error);
+      alert(`Failed to delete item from ${collectionName}. Please check the console for details and verify your Firestore security rules.`);
     }
   };
 
   // Portfolio
-  const handleUpdatePortfolioItem = (item: PortfolioItem) => updateItem('portfolio', item, setPortfolioData);
-  const handleAddPortfolioItem = (item: Omit<PortfolioItem, 'id'>) => addItem('portfolio', item, setPortfolioData);
-  const handleDeletePortfolioItem = (itemId: string) => deleteItem('portfolio', itemId, setPortfolioData);
+  const handleUpdatePortfolioItem = (item: PortfolioItem) => updateItem('portfolio', item);
+  const handleAddPortfolioItem = (item: Omit<PortfolioItem, 'id'>) => addItem('portfolio', item);
+  const handleDeletePortfolioItem = (itemId: string) => deleteItem('portfolio', itemId);
 
   // Specials
-  const handleUpdateSpecialItem = (item: SpecialItem) => updateItem('specials', item, setSpecialsData);
-  const handleAddSpecialItem = (item: Omit<SpecialItem, 'id'>) => addItem('specials', item, setSpecialsData);
-  const handleDeleteSpecialItem = (itemId: string) => deleteItem('specials', itemId, setSpecialsData);
+  const handleUpdateSpecialItem = (item: SpecialItem) => updateItem('specials', item);
+  const handleAddSpecialItem = (item: Omit<SpecialItem, 'id'>) => addItem('specials', item);
+  const handleDeleteSpecialItem = (itemId: string) => deleteItem('specials', itemId);
 
   // Showroom
-  const handleUpdateShowroomGenre = (item: Genre) => updateItem('showroom', item, setShowroomData);
-  const handleAddShowroomGenre = (item: Omit<Genre, 'id'>) => addItem('showroom', item, setShowroomData);
-  const handleDeleteShowroomGenre = (itemId: string) => deleteItem('showroom', itemId, setShowroomData);
+  const handleUpdateShowroomGenre = (item: Genre) => updateItem('showroom', item);
+  const handleAddShowroomGenre = (item: Omit<Genre, 'id'>) => addItem('showroom', item);
+  const handleDeleteShowroomGenre = (itemId: string) => deleteItem('showroom', itemId);
   
   // Bookings
   const handleAddBooking = async (newBookingData: Omit<Booking, 'id' | 'status' | 'bookingType'>) => {
@@ -267,34 +255,34 @@ const App: React.FC = () => {
       status: 'pending',
       bookingType: 'online',
     };
-    await addItem('bookings', newBooking, setBookings);
+    await addItem('bookings', newBooking);
   };
   const handleManualAddBooking = (newBookingData: Omit<Booking, 'id' | 'bookingType'>) => {
     const newBooking: Omit<Booking, 'id'> = {
       ...newBookingData,
       bookingType: 'manual',
     };
-    addItem('bookings', newBooking, setBookings);
+    addItem('bookings', newBooking);
   };
-  const handleUpdateBooking = (item: Booking) => updateItem('bookings', item, setBookings);
+  const handleUpdateBooking = (item: Booking) => updateItem('bookings', item);
 
   // Expenses
-  const handleAddExpense = (newExpense: Omit<Expense, 'id'>) => addItem('expenses', newExpense, setExpenses);
-  const handleUpdateExpense = (updatedExpense: Expense) => updateItem('expenses', updatedExpense, setExpenses);
-  const handleDeleteExpense = (expenseId: string) => deleteItem('expenses', expenseId, setExpenses);
+  const handleAddExpense = (newExpense: Omit<Expense, 'id'>) => addItem('expenses', newExpense);
+  const handleUpdateExpense = (updatedExpense: Expense) => updateItem('expenses', updatedExpense);
+  const handleDeleteExpense = (expenseId: string) => deleteItem('expenses', expenseId);
 
   // Inventory
-  const handleAddInventoryItem = (newItem: Omit<InventoryItem, 'id'>) => addItem('inventory', newItem, setInventory);
-  const handleUpdateInventoryItem = (updatedItem: InventoryItem) => updateItem('inventory', updatedItem, setInventory);
-  const handleDeleteInventoryItem = (itemId: string) => deleteItem('inventory', itemId, setInventory);
+  const handleAddInventoryItem = (newItem: Omit<InventoryItem, 'id'>) => addItem('inventory', newItem);
+  const handleUpdateInventoryItem = (updatedItem: InventoryItem) => updateItem('inventory', updatedItem);
+  const handleDeleteInventoryItem = (itemId: string) => deleteItem('inventory', itemId);
 
   // Settings
   const handleSaveAllSettings = async (settings: any) => {
     try {
         await setDoc(doc(db, "settings", "main"), settings, { merge: true });
-        // State updates will be handled by the onSnapshot listener for settings.
     } catch (error) {
         console.error("Error saving settings:", error);
+        alert("Failed to save settings. Please check the console for details and verify your Firestore security rules.");
     }
   };
 
