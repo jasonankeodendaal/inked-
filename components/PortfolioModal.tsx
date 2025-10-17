@@ -1,5 +1,4 @@
-// FIX: Add missing React import
-import React, { useState, useEffect, useCallback, MouseEvent } from 'react';
+import React, { useState, useEffect, useCallback, MouseEvent, useRef } from 'react';
 import { PortfolioItem } from '../App';
 import FullScreenImageViewer from './FullScreenImageViewer';
 
@@ -14,13 +13,19 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
   const [isClosing, setIsClosing] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+  const [isMediaLoading, setIsMediaLoading] = useState(true);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]); // Ref for video elements
 
   const isVideo = (url: string) => /\.(mp4|webm|ogg)$/i.test(url.split('?')[0]) || url.startsWith('data:video/');
 
   const allMedia = [item.primaryImage, ...item.galleryImages, item.videoData].filter(
     (media): media is string => !!media
   );
-
+  
+  // Reset refs when media items change
+  useEffect(() => {
+    videoRefs.current = videoRefs.current.slice(0, allMedia.length);
+  }, [allMedia]);
 
   const handleClose = useCallback(() => {
     setIsClosing(true);
@@ -40,26 +45,49 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
     }
     handleClose();
   };
+  
+  // Central navigation handler to pause videos before switching
+  const handleNavigation = useCallback((newIndex: number) => {
+    const oldVideoEl = videoRefs.current[currentIndex];
+    if (oldVideoEl) {
+        oldVideoEl.pause();
+    }
+    setCurrentIndex(newIndex);
+  }, [currentIndex]);
 
   const nextImage = useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % allMedia.length);
-  }, [allMedia.length]);
+    handleNavigation((currentIndex + 1) % allMedia.length);
+  }, [allMedia.length, currentIndex, handleNavigation]);
 
   const prevImage = useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + allMedia.length) % allMedia.length);
-  }, [allMedia.length]);
+    handleNavigation((currentIndex - 1 + allMedia.length) % allMedia.length);
+  }, [allMedia.length, currentIndex, handleNavigation]);
   
   const goToImage = (index: number) => {
-    setCurrentIndex(index);
+    handleNavigation(index);
   };
   
+  // Autoplay for image carousel
   useEffect(() => {
     if (isOpen && !isPaused && allMedia.length > 1 && !isVideo(allMedia[currentIndex])) {
       const autoplayTimer = setInterval(nextImage, 5000);
       return () => clearInterval(autoplayTimer);
     }
   }, [isOpen, currentIndex, isPaused, allMedia, nextImage]);
+  
+  // Programmatic autoplay for videos
+  useEffect(() => {
+    const videoEl = videoRefs.current[currentIndex];
+    if (isOpen && videoEl) {
+        videoEl.play().catch(error => {
+            console.warn("Autoplay was prevented:", error);
+            // The browser prevented autoplay. The user will need to press play manually.
+            // The `controls` attribute ensures the play button is visible.
+        });
+    }
+  }, [currentIndex, isOpen]);
 
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -77,10 +105,16 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleClose, nextImage, prevImage, allMedia.length, fullScreenImage]);
-
+  
+  // Reset index when item changes
   useEffect(() => {
     setCurrentIndex(0);
   }, [item]);
+
+  // Reset loading state when item or index changes
+  useEffect(() => {
+      setIsMediaLoading(true);
+  }, [currentIndex, item]);
 
   if (!isOpen && !isClosing) return null;
 
@@ -112,6 +146,11 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
+            {isMediaLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/70 z-10">
+                <div className="w-10 h-10 border-4 border-white/50 border-t-white rounded-full animate-spin"></div>
+              </div>
+            )}
             <div className="relative w-full h-full">
               {allMedia.map((src, index) => (
                 <div
@@ -120,14 +159,19 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
                 >
                   {isVideo(src) ? (
                      <video
+                        ref={el => videoRefs.current[index] = el}
                         src={src}
-                        className="w-full h-full object-contain"
+                        poster={item.primaryImage}
+                        className={`w-full h-full object-contain transition-opacity duration-500 ease-in-out ${isMediaLoading ? 'opacity-0' : 'opacity-100'}`}
                         controls
-                        autoPlay
+                        muted
                         playsInline
+                        preload="metadata"
                         onPlay={() => setIsPaused(true)}
-                        onPause={() => setIsPaused(false)}
+                        onPause={() => setIsPaused(true)}
                         onEnded={allMedia.length > 1 ? nextImage : undefined}
+                        onCanPlayThrough={() => setIsMediaLoading(false)}
+                        onWaiting={() => setIsMediaLoading(true)}
                       />
                   ) : (
                     <button
@@ -139,6 +183,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ isOpen, onClose, item }
                           src={src} 
                           alt={`${item.title} - media ${index + 1}`} 
                           className="w-full h-full object-contain"
+                          onLoad={() => { if (index === currentIndex) setIsMediaLoading(false); }}
                       />
                     </button>
                   )}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import { Genre, ShowroomItem, PortfolioItem } from '../App';
 import PortfolioModal from '../components/PortfolioModal';
 
@@ -24,36 +25,76 @@ interface ShowroomProps {
 
 const ShowroomGridItem: React.FC<{ item: ShowroomItem, onClick: () => void }> = ({ item, onClick }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMediaLoading, setIsMediaLoading] = useState(true);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Only run the carousel if there is no video and more than one image.
-    if (!item.videoUrl && item.images && item.images.length > 1) {
-      const interval = setInterval(() => {
-        setCurrentIndex(prevIndex => (prevIndex + 1) % item.images.length);
-      }, 3000); // Change image every 3 seconds
-
-      return () => clearInterval(interval);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoad(true);
+          if (containerRef.current) {
+            observer.unobserve(containerRef.current);
+          }
+        }
+      },
+      {
+        rootMargin: '0px 0px 300px 0px', // Load when 300px away from viewport bottom
+      }
+    );
+    
+    const currentRef = containerRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
     }
-  }, [item.videoUrl, item.images]);
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    // Start carousel only when visible and if it's an image gallery
+    if (!shouldLoad || !item.images || item.images.length <= 1 || item.videoUrl) {
+      return;
+    }
+    const interval = setInterval(() => {
+      setCurrentIndex(prevIndex => (prevIndex + 1) % item.images.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [shouldLoad, item.videoUrl, item.images]);
+  
+  const hasVideo = !!item.videoUrl;
 
   return (
-    <div className="transform transition-transform duration-300 hover:scale-105 group">
+    <div ref={containerRef} className="transform transition-transform duration-300 hover:scale-105 group">
       <button
         onClick={onClick}
-        className="block w-full p-2 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 relative aspect-square"
+        className="block w-full p-0.5 bg-white rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300 relative aspect-square"
         aria-label={`View details for ${item.title}`}
       >
-        <div className="absolute inset-2 rounded-lg overflow-hidden bg-black">
-          {item.videoUrl ? (
+        <div className="absolute inset-0.5 rounded-md overflow-hidden bg-black">
+          {hasVideo && shouldLoad && isMediaLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+              <div className="w-6 h-6 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>
+            </div>
+          )}
+          {hasVideo ? (
             <video
-              className="w-full h-full object-cover"
+              poster={item.images && item.images.length > 0 ? item.images[0] : ''}
+              className={`w-full h-full object-cover transition-opacity duration-300 ${isMediaLoading && shouldLoad ? 'opacity-0' : 'opacity-100'}`}
               autoPlay
               muted
               loop
               playsInline
               preload="metadata"
+              onCanPlayThrough={() => setIsMediaLoading(false)}
+              onWaiting={() => setIsMediaLoading(true)}
             >
-              <source src={item.videoUrl} type={getMimeType(item.videoUrl)} />
+              {shouldLoad && <source src={item.videoUrl} type={getMimeType(item.videoUrl)} />}
             </video>
           ) : (
             <div className="relative w-full h-full">
@@ -107,9 +148,9 @@ const Showroom: React.FC<ShowroomProps> = ({ showroomData, showroomTitle, showro
 
   return (
     <>
-      <section id="showroom" className="bg-stone-100 py-16 sm:py-20">
+      <section id="showroom" className="bg-stone-100 py-12 sm:py-16">
         <div className="container mx-auto px-4 text-brand-dark">
-          <div className="max-w-4xl mb-12 text-center mx-auto">
+          <div className="max-w-4xl mb-8 text-center mx-auto">
             <h2 className="font-script text-4xl sm:text-6xl mb-4">
               {showroomTitle}
             </h2>
@@ -118,7 +159,7 @@ const Showroom: React.FC<ShowroomProps> = ({ showroomData, showroomTitle, showro
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-15 gap-1 sm:gap-2">
               {allItems.map((item) => (
                  <ShowroomGridItem 
                     key={item.id} 

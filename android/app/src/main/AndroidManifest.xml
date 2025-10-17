@@ -33,6 +33,11 @@
                 android:name="android.support.customtabs.trusted.DEFAULT_URL"
                 android:value="https://REPLACE_WITH_YOUR_LIVE_WEBSITE_URL_HERE" />
 
+            <!-- This meta-data tag makes the TWA fullscreen, hiding the Chrome UI bar. -->
+            <meta-data
+                android:name="android.support.customtabs.trusted.DISPLAY_MODE"
+                android:value="immersive" />
+
             <!--
                  This meta-data tag is used to specify a list of additional trusted origins.
                  (e.g., for OAuth providers).

@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Genre, ShowroomItem } from '../../App';
 import TrashIcon from '../../components/icons/TrashIcon';
 import PlusIcon from '../../components/icons/PlusIcon';
+import { storage } from '../../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-const fileToDataUrl = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
+const uploadShowroomFile = async (file: File, type: 'image' | 'video'): Promise<string> => {
+    const storageRef = ref(storage, `showroom/${type}s/${Date.now()}-${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    return await getDownloadURL(snapshot.ref);
 };
+
+const getPreviewUrl = (media: string | File): string => {
+    if (typeof media === 'string') return media;
+    return URL.createObjectURL(media);
+};
+
 
 const ShowroomItemForm = ({
   initialItem,
@@ -18,49 +23,52 @@ const ShowroomItemForm = ({
   onCancel,
 }: {
   initialItem: Partial<ShowroomItem>;
-  onSave: (itemData: ShowroomItem) => Promise<void>;
+  onSave: (itemData: {
+      id: string;
+      title: string;
+      images: (string | File)[];
+      videoUrl?: string | File;
+  }) => Promise<void>;
   onCancel: () => void;
 }) => {
-  const [formData, setFormData] = useState<Partial<ShowroomItem>>(initialItem);
+  const [title, setTitle] = useState(initialItem.title || '');
+  const [images, setImages] = useState<(string | File)[]>(initialItem.images || []);
+  const [video, setVideo] = useState<string | File | undefined>(initialItem.videoUrl);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-        const currentImageCount = formData.images?.length || 0;
+        const currentImageCount = images.length;
         if (currentImageCount + e.target.files.length > 5) {
             alert("You can only upload a maximum of 5 images per piece.");
             return;
         }
-        try {
-            const dataUrls = await Promise.all(Array.from(e.target.files).map(fileToDataUrl));
-            setFormData(prev => ({...prev, images: [...(prev.images || []), ...dataUrls]}));
-        } catch (error) {
-            console.error("Error processing images:", error);
-        }
+        setImages(prev => [...prev, ...Array.from(e.target.files)]);
     }
   };
 
-  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files[0]) {
-          const dataUrl = await fileToDataUrl(e.target.files[0]);
-          setFormData(prev => ({...prev, videoUrl: dataUrl}));
+          setVideo(e.target.files[0]);
       }
   };
 
   const removeImage = (index: number) => {
-      setFormData(prev => ({...prev, images: prev.images?.filter((_, i) => i !== index)}));
+      setImages(prev => prev.filter((_, i) => i !== index));
   };
+
+  const removeVideo = () => setVideo(undefined);
 
   const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!formData.title || !formData.images || formData.images.length === 0) {
+      if (!title || images.length === 0) {
           alert("A title and at least one image are required.");
           return;
       }
       await onSave({
-        id: formData.id || Date.now().toString(),
-        title: formData.title,
-        images: formData.images,
-        videoUrl: formData.videoUrl
+        id: initialItem.id || Date.now().toString(),
+        title: title,
+        images: images,
+        videoUrl: video
       });
   };
   
@@ -71,32 +79,32 @@ const ShowroomItemForm = ({
         <h3 className="text-xl font-bold text-white">{initialItem.id ? 'Edit' : 'Add New'} Showroom Piece</h3>
         <div>
             <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Title</label>
-            <input type="text" value={formData.title || ''} onChange={(e) => setFormData(prev => ({...prev, title: e.target.value}))} className={inputClasses} required />
+            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClasses} required />
         </div>
         <div>
-            <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Images ({formData.images?.length || 0}/5)</label>
+            <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Images ({images.length}/5)</label>
             <div className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4">
                 <div className="grid grid-cols-5 gap-3 mb-4">
-                    {formData.images?.map((src, index) => (
+                    {images.map((img, index) => (
                         <div key={index} className="relative group aspect-square">
-                            <img src={src} alt="preview" className="w-full h-full object-cover rounded-lg"/>
+                            <img src={getPreviewUrl(img)} alt="preview" className="w-full h-full object-cover rounded-lg"/>
                             <button type="button" onClick={() => removeImage(index)} className="absolute -top-1 -right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                         </div>
                     ))}
                 </div>
-                {(formData.images?.length || 0) < 5 && (
+                {images.length < 5 && (
                     <input type="file" multiple accept="image/*" onChange={handleImageUpload} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40"/>
                 )}
             </div>
         </div>
         <div>
             <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Video (Optional, 1 only)</label>
-            {formData.videoUrl ? (
+            {video ? (
                 <div className="relative">
-                    <video src={formData.videoUrl} controls className="w-full max-w-xs rounded-lg bg-black"/>
-                    <button type="button" onClick={() => setFormData(prev => ({...prev, videoUrl: undefined}))} className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full hover:bg-red-500/80 transition-colors">
+                    <video src={getPreviewUrl(video)} controls className="w-full max-w-xs rounded-lg bg-black"/>
+                    <button type="button" onClick={removeVideo} className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full hover:bg-red-500/80 transition-colors">
                         <TrashIcon className="w-4 h-4" />
                     </button>
                 </div>
@@ -142,21 +150,47 @@ const ShowroomManager: React.FC<ShowroomManagerProps> = ({
         }
     };
 
-    const handleSaveItem = async (itemData: ShowroomItem) => {
+    const handleSaveItem = async (itemData: {
+        id: string;
+        title: string;
+        images: (string | File)[];
+        videoUrl?: string | File;
+    }) => {
         if (!editingItem) return;
         const { genreId } = editingItem;
         const genreToUpdate = showroomData.find(g => g.id === genreId);
         if (!genreToUpdate) return;
         
-        const itemExists = genreToUpdate.items.some(i => i.id === itemData.id);
-        let updatedItems;
-        if (itemExists) {
-            updatedItems = genreToUpdate.items.map(i => i.id === itemData.id ? itemData : i);
-        } else {
-            updatedItems = [...genreToUpdate.items, itemData];
+        try {
+            const imageUrls = await Promise.all(
+                itemData.images.map(img => img instanceof File ? uploadShowroomFile(img, 'image') : Promise.resolve(img))
+            );
+    
+            let finalVideoUrl: string | undefined;
+            if (itemData.videoUrl) {
+                finalVideoUrl = itemData.videoUrl instanceof File
+                    ? await uploadShowroomFile(itemData.videoUrl, 'video')
+                    : itemData.videoUrl;
+            }
+    
+            const finalItemData: ShowroomItem = {
+                id: itemData.id,
+                title: itemData.title,
+                images: imageUrls,
+                videoUrl: finalVideoUrl,
+            };
+    
+            const itemExists = genreToUpdate.items.some(i => i.id === finalItemData.id);
+            const updatedItems = itemExists
+                ? genreToUpdate.items.map(i => i.id === finalItemData.id ? finalItemData : i)
+                : [...genreToUpdate.items, finalItemData];
+            
+            await onUpdateShowroomGenre({ ...genreToUpdate, items: updatedItems });
+            setEditingItem(null);
+        } catch (error) {
+            console.error("Error saving showroom item:", error);
+            alert("An error occurred while saving. Check console.");
         }
-        await onUpdateShowroomGenre({ ...genreToUpdate, items: updatedItems });
-        setEditingItem(null);
     };
 
     const handleDeleteItem = async (genreId: string, itemId: string) => {
