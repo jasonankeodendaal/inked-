@@ -32,6 +32,10 @@
   "scope": "/",
   "id": "/",
   "display": "standalone",
+  "display_override": [
+    "tabbed",
+    "window-controls-overlay"
+  ],
   "theme_color": "#0a0a0a",
   "background_color": "#0a0a0a",
   "orientation": "portrait-primary",
@@ -158,5 +162,9 @@
       "id": "com.beautively.inked",
       "url": "https://play.google.com/store/apps/details?id=com.beautively.inked"
     }
-  ]
+  ],
+  "scope_extensions": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 }

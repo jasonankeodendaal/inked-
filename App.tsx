@@ -254,6 +254,11 @@ const App: React.FC = () => {
 
   const navigate = (view: 'home' | 'admin') => setCurrentView(view);
 
+  const handleLogoutSuccess = () => {
+    setUser(null); // Explicitly clear the user state for an immediate UI update
+    navigate('home');
+  };
+
   // --- CRUD (Create, Read, Update, Delete) FUNCTIONS ---
   
   // Generic update DB doc
@@ -414,7 +419,7 @@ const App: React.FC = () => {
         onDeleteInventoryItem={handleDeleteInventoryItem}
         onSaveAllSettings={handleSaveAllSettings}
         onClearAllData={handleClearAllData}
-        onSuccessfulLogout={() => navigate('home')}
+        onSuccessfulLogout={handleLogoutSuccess}
         // Pass all settings as props
         companyName={companyName}
         logoUrl={logoUrl}

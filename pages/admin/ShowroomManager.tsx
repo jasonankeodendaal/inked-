@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Genre, ShowroomItem } from '../../App';
 import TrashIcon from '../../components/icons/TrashIcon';
 import PlusIcon from '../../components/icons/PlusIcon';
 import { storage } from '../../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { compressVideo } from '../../utils/mediaOptimizer';
 
 const uploadShowroomFile = async (file: File, type: 'image' | 'video'): Promise<string> => {
     const storageRef = ref(storage, `showroom/${type}s/${Date.now()}-${file.name}`);
@@ -34,6 +35,43 @@ const ShowroomItemForm = ({
   const [title, setTitle] = useState(initialItem.title || '');
   const [images, setImages] = useState<(string | File)[]>(initialItem.images || []);
   const [video, setVideo] = useState<string | File | undefined>(initialItem.videoUrl);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState('');
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState(0);
+
+  useEffect(() => {
+    const objectUrls: string[] = [];
+    const previews = images.map(img => {
+        if (typeof img === 'string') return img;
+        const url = URL.createObjectURL(img);
+        objectUrls.push(url);
+        return url;
+    });
+    setImagePreviews(previews);
+    return () => {
+        objectUrls.forEach(URL.revokeObjectURL);
+    };
+  }, [images]);
+
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    if (video) {
+        if (typeof video === 'string') {
+            setVideoPreviewUrl(video);
+        } else {
+            objectUrl = URL.createObjectURL(video);
+            setVideoPreviewUrl(objectUrl);
+        }
+    } else {
+        setVideoPreviewUrl('');
+    }
+    return () => {
+        if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+        }
+    };
+  }, [video]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -46,10 +84,24 @@ const ShowroomItemForm = ({
     }
   };
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) {
-          setVideo(e.target.files[0]);
-      }
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+        const originalFile = e.target.files[0];
+        setIsCompressing(true);
+        setCompressionProgress(0);
+        try {
+            const compressedFile = await compressVideo(originalFile, (progress) => {
+                setCompressionProgress(progress * 100);
+            });
+            setVideo(compressedFile);
+        } catch (error) {
+            console.error("Video compression failed:", error);
+            alert("Video compression failed. Uploading the original file instead.");
+            setVideo(originalFile);
+        } finally {
+            setIsCompressing(false);
+        }
+    }
   };
 
   const removeImage = (index: number) => {
@@ -85,9 +137,9 @@ const ShowroomItemForm = ({
             <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Images ({images.length}/5)</label>
             <div className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4">
                 <div className="grid grid-cols-5 gap-3 mb-4">
-                    {images.map((img, index) => (
+                    {imagePreviews.map((src, index) => (
                         <div key={index} className="relative group aspect-square">
-                            <img src={getPreviewUrl(img)} alt="preview" className="w-full h-full object-cover rounded-lg"/>
+                            <img src={src} alt="preview" className="w-full h-full object-cover rounded-lg"/>
                             <button type="button" onClick={() => removeImage(index)} className="absolute -top-1 -right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
@@ -101,9 +153,16 @@ const ShowroomItemForm = ({
         </div>
         <div>
             <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Video (Optional, 1 only)</label>
-            {video ? (
+            {isCompressing ? (
+                <div className="w-full bg-admin-dark-bg p-4 rounded-lg text-center">
+                    <p className="text-sm text-admin-dark-text-secondary mb-2">Compressing video... Please wait.</p>
+                    <div className="w-full bg-admin-dark-border rounded-full h-2.5">
+                        <div className="bg-admin-dark-primary h-2.5 rounded-full" style={{ width: `${compressionProgress}%` }}></div>
+                    </div>
+                </div>
+            ) : videoPreviewUrl ? (
                 <div className="relative">
-                    <video src={getPreviewUrl(video)} controls className="w-full max-w-xs rounded-lg bg-black"/>
+                    <video src={videoPreviewUrl} controls className="w-full max-w-xs rounded-lg bg-black"/>
                     <button type="button" onClick={removeVideo} className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full hover:bg-red-500/80 transition-colors">
                         <TrashIcon className="w-4 h-4" />
                     </button>
@@ -113,7 +172,7 @@ const ShowroomItemForm = ({
             )}
         </div>
         <div className="flex items-center gap-4 pt-4 border-t border-admin-dark-border">
-            <button type="submit" className="bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90">Save Piece</button>
+            <button type="submit" disabled={isCompressing} className="bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 disabled:opacity-50">Save Piece</button>
             <button type="button" onClick={onCancel} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-lg font-bold text-sm text-admin-dark-text-secondary">Cancel</button>
         </div>
     </form>

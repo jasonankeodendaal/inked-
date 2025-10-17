@@ -5,6 +5,7 @@ import TrashIcon from '../../components/icons/TrashIcon';
 import PlusIcon from '../../components/icons/PlusIcon';
 import { storage } from '../../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { compressVideo } from '../../utils/mediaOptimizer';
 
 const getMimeType = (fileOrUrl: File | string): string => {
     if (typeof fileOrUrl !== 'string') return fileOrUrl.type; // It's a File object
@@ -47,6 +48,8 @@ const PortfolioItemEditForm = ({
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(initialItem.videoData || null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState(0);
   
   useEffect(() => {
     const allImages = [initialItem.primaryImage, ...(initialItem.galleryImages || [])].filter(Boolean) as (string | File)[];
@@ -67,10 +70,26 @@ const PortfolioItemEditForm = ({
     e.target.value = '';
   };
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setVideoFile(e.target.files[0]);
-      setVideoUrl(URL.createObjectURL(e.target.files[0]));
+        const originalFile = e.target.files[0];
+        setIsCompressing(true);
+        setCompressionProgress(0);
+        try {
+            const compressedFile = await compressVideo(originalFile, (progress) => {
+                setCompressionProgress(progress * 100);
+            });
+            setVideoFile(compressedFile);
+            setVideoUrl(URL.createObjectURL(compressedFile));
+        } catch (error) {
+            console.error("Video compression failed:", error);
+            alert("Video compression failed. Uploading the original file instead.");
+            // Fallback to original file
+            setVideoFile(originalFile);
+            setVideoUrl(URL.createObjectURL(originalFile));
+        } finally {
+            setIsCompressing(false);
+        }
     }
     e.target.value = '';
   };
@@ -131,7 +150,14 @@ const PortfolioItemEditForm = ({
           </div>
           <div className="space-y-2">
               <label className="block text-sm font-semibold text-admin-dark-text-secondary">Video (Optional)</label>
-              {videoUrl ? (
+              {isCompressing ? (
+                <div className="w-full bg-admin-dark-bg p-4 rounded-lg text-center">
+                    <p className="text-sm text-admin-dark-text-secondary mb-2">Compressing video... Please wait.</p>
+                    <div className="w-full bg-admin-dark-border rounded-full h-2.5">
+                        <div className="bg-admin-dark-primary h-2.5 rounded-full" style={{ width: `${compressionProgress}%` }}></div>
+                    </div>
+                </div>
+              ) : videoUrl ? (
                   <div className="relative">
                       <video className="w-full rounded-lg bg-black" controls src={videoUrl}></video>
                       <button type="button" onClick={removeVideo} className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full hover:bg-red-500/80 transition-colors" aria-label="Remove video">
@@ -179,7 +205,7 @@ const PortfolioItemEditForm = ({
       </div>
 
       <div className="flex items-center gap-4 pt-4 border-t border-admin-dark-border">
-          <button type="submit" disabled={isLoading} className="flex items-center gap-2 bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
+          <button type="submit" disabled={isLoading || isCompressing} className="flex items-center gap-2 bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
               {isLoading ? 'Uploading...' : 'Save'}
           </button>
           <button type="button" onClick={onCancel} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-lg font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
