@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 // --- PASTE YOUR FIREBASE CONFIGURATION HERE ---
 // Follow the guide to get this from your Firebase project settings.
@@ -17,3 +18,5 @@ const app = initializeApp(firebaseConfig);
 
 // Get a Firestore database instance
 export const db = getFirestore(app);
+// Get a Firebase Auth instance
+export const auth = getAuth(app);

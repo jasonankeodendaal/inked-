@@ -471,7 +471,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
       case 'financials':
         return <FinancialsManager {...props} startTour={setActiveTour} />;
       case 'settings':
-        return <SettingsManager {...props} />;
+        return <SettingsManager {...props} startTour={setActiveTour} />;
       case 'pwa':
         return <PWACapabilities startTour={setActiveTour} />;
       default:

@@ -1,5 +1,8 @@
 // FIX: Add missing React import
 import React, { useState, FormEvent, MouseEvent } from 'react';
+import { auth } from '../../firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+
 
 interface AdminLoginPageProps {
   onLoginSuccess: () => void;
@@ -8,9 +11,10 @@ interface AdminLoginPageProps {
 }
 
 const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, onNavigate, logoUrl }) => {
-  const [username, setUsername] = useState('');
-  const [pin, setPin] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -19,13 +23,27 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, onNavig
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    
-    if (username.toLowerCase() === 'santa' && pin === '1900') {
-      setError('');
-      onLoginSuccess();
-    } else {
-      setError('Invalid username or PIN. Please try again.');
-    }
+    setLoading(true);
+    setError('');
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in successfully
+        setLoading(false);
+        onLoginSuccess();
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        let friendlyMessage = 'An unknown error occurred.';
+        if (errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password' || errorCode === 'auth/invalid-credential') {
+          friendlyMessage = 'Invalid email or password. Please try again.';
+        } else if (errorCode === 'auth/invalid-email') {
+          friendlyMessage = 'Please enter a valid email address.';
+        }
+        console.error("Firebase Login Error:", error);
+        setError(friendlyMessage);
+        setLoading(false);
+      });
   };
 
   return (
@@ -42,30 +60,30 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, onNavig
         <div className="bg-black/20 border border-white/10 rounded-2xl p-8 shadow-2xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-400 mb-2">
-                Username
+              <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">
+                Email
               </label>
               <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Santa"
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@email.com"
                 className="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 focus:ring-brand-light/50 focus:border-brand-light/50 transition"
                 required
                 aria-required="true"
               />
             </div>
             <div>
-              <label htmlFor="pin" className="block text-sm font-medium text-gray-400 mb-2">
-                PIN
+              <label htmlFor="password" className="block text-sm font-medium text-gray-400 mb-2">
+                Password
               </label>
               <input
                 type="password"
-                id="pin"
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
-                placeholder="••••"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
                 className="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 focus:ring-brand-light/50 focus:border-brand-light/50 transition"
                 required
                 aria-required="true"
@@ -77,9 +95,10 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, onNavig
             <div>
               <button
                 type="submit"
-                className="w-full bg-brand-light text-brand-dark py-3 rounded-lg font-bold text-lg hover:bg-white/90 transition-transform transform hover:scale-105"
+                disabled={loading}
+                className="w-full bg-brand-light text-brand-dark py-3 rounded-lg font-bold text-lg hover:bg-white/90 transition-transform transform hover:scale-105 disabled:opacity-50 disabled:scale-100"
               >
-                Login
+                {loading ? 'Logging in...' : 'Login'}
               </button>
             </div>
           </form>

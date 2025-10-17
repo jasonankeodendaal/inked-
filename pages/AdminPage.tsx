@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebase';
 import AdminLoginPage from './AdminLoginPage';
 import AdminDashboard from './admin/AdminDashboard';
 import { PortfolioItem, SpecialItem, Genre, Booking, SocialLink, Expense, InventoryItem } from '../App';
@@ -66,22 +68,30 @@ export interface AdminPageProps {
 }
 
 const AdminPage: React.FC<AdminPageProps> = (props) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!auth.currentUser);
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    props.onNavigate('home');
+    signOut(auth)
+      .then(() => {
+        setIsAuthenticated(false);
+        props.onLogout(); // This navigates to 'home' as defined in App.tsx
+      })
+      .catch((error) => {
+        console.error("Sign out error", error);
+        // Still log out on the client-side even if Firebase signout fails
+        setIsAuthenticated(false);
+        props.onLogout();
+      });
   };
 
   if (isAuthenticated) {
     return <AdminDashboard onLogout={handleLogout} {...props} />;
   }
-
-  // A simplified login that doesn't rely on Firestore yet.
+  
   return <AdminLoginPage onLoginSuccess={handleLoginSuccess} onNavigate={props.onNavigate} logoUrl={props.logoUrl} />;
 };
 
