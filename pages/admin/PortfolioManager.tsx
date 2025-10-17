@@ -185,13 +185,17 @@ const PortfolioItemEditForm = ({
 
 interface PortfolioManagerProps {
   portfolioData: PortfolioItem[];
-  onPortfolioUpdate: (data: PortfolioItem[]) => void;
+  onAddPortfolioItem: (item: Omit<PortfolioItem, 'id'>) => void;
+  onUpdatePortfolioItem: (item: PortfolioItem) => void;
+  onDeletePortfolioItem: (id: string) => void;
   startTour: (tourKey: 'art') => void;
 }
 
 const PortfolioManager: React.FC<PortfolioManagerProps> = ({
   portfolioData,
-  onPortfolioUpdate,
+  onAddPortfolioItem,
+  onUpdatePortfolioItem,
+  onDeletePortfolioItem,
   startTour,
 }) => {
     const [editingItem, setEditingItem] = useState<Partial<PortfolioItem> | null>(null);
@@ -213,10 +217,8 @@ const PortfolioManager: React.FC<PortfolioManagerProps> = ({
     };
     
     const handleSaveItem = (itemData: Partial<PortfolioItem>) => {
-        let updatedData;
         if (isAddingNew) {
-            const newItem: PortfolioItem = {
-                id: Date.now().toString(),
+            const newItem: Omit<PortfolioItem, 'id'> = {
                 title: itemData.title || 'New Piece',
                 story: itemData.story || '',
                 primaryImage: itemData.primaryImage || '',
@@ -224,25 +226,21 @@ const PortfolioManager: React.FC<PortfolioManagerProps> = ({
                 videoData: itemData.videoData,
                 featured: false,
             };
-            updatedData = [...portfolioData, newItem];
+            onAddPortfolioItem(newItem);
         } else {
-            updatedData = portfolioData.map(item => item.id === itemData.id ? { ...item, ...itemData } as PortfolioItem : item);
+            onUpdatePortfolioItem(itemData as PortfolioItem);
         }
-        onPortfolioUpdate(updatedData);
         handleCancelEdit();
     };
 
     const handleDeleteItem = (id: string) => {
-        if (window.confirm('Are you sure you want to delete this art piece? It will also be removed from any showroom genres if it was added there.')) {
-            onPortfolioUpdate(portfolioData.filter(item => item.id !== id));
-            // Note: The logic to remove from showroom genres if it was a reference
-            // would need to be handled in the parent component or via a callback if that functionality is restored.
-            // For now, since they are decoupled, this is sufficient.
+        if (window.confirm('Are you sure you want to delete this art piece? This will remove it from the database permanently.')) {
+            onDeletePortfolioItem(id);
         }
     }
 
-    const handleToggleFeature = (id: string) => {
-        onPortfolioUpdate(portfolioData.map(item => item.id === id ? { ...item, featured: !item.featured } : item));
+    const handleToggleFeature = (item: PortfolioItem) => {
+        onUpdatePortfolioItem({ ...item, featured: !item.featured });
     };
 
     return (
@@ -286,7 +284,7 @@ const PortfolioManager: React.FC<PortfolioManagerProps> = ({
                                     </div>
                                     <div className="flex justify-between items-center border-t border-admin-dark-border pt-3">
                                         <div data-tour-id="feature-toggle" className="flex items-center gap-2">
-                                            <button onClick={() => handleToggleFeature(item.id)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${item.featured ? 'bg-admin-dark-primary' : 'bg-gray-600'}`}>
+                                            <button onClick={() => handleToggleFeature(item)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${item.featured ? 'bg-admin-dark-primary' : 'bg-gray-600'}`}>
                                                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${item.featured ? 'translate-x-6' : 'translate-x-1'}`}/>
                                             </button>
                                             <span className="text-sm text-admin-dark-text-secondary">Feature in Hero</span>

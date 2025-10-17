@@ -16,7 +16,6 @@ const EditForm = ({item, onSave, onCancel, onChange}: {item: Partial<SpecialItem
         if (e.target.files && e.target.files[0]) {
             try {
                 const dataUrl = await fileToDataUrl(e.target.files[0]);
-                // Synthesize an event-like object for the main handler
                 const syntheticEvent = { target: { name: 'imageUrl', value: dataUrl } } as React.ChangeEvent<HTMLInputElement>;
                 onChange(syntheticEvent);
             } catch (error) {
@@ -79,11 +78,19 @@ const EditForm = ({item, onSave, onCancel, onChange}: {item: Partial<SpecialItem
     </form>
 )};
 
-
-const SpecialsManager: React.FC<{
+interface SpecialsManagerProps {
   specialsData: SpecialItem[];
-  onSpecialsUpdate: (data: SpecialItem[]) => void;
-}> = ({ specialsData, onSpecialsUpdate }) => {
+  onAddSpecialItem: (item: Omit<SpecialItem, 'id'>) => void;
+  onUpdateSpecialItem: (item: SpecialItem) => void;
+  onDeleteSpecialItem: (id: string) => void;
+}
+
+const SpecialsManager: React.FC<SpecialsManagerProps> = ({ 
+  specialsData, 
+  onAddSpecialItem,
+  onUpdateSpecialItem,
+  onDeleteSpecialItem
+}) => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [currentItem, setCurrentItem] = useState<Partial<SpecialItem>>({
         priceType: 'none',
@@ -101,13 +108,8 @@ const SpecialsManager: React.FC<{
         setIsAddingNew(true);
         setEditingId('__new__');
         setCurrentItem({
-            title: '',
-            description: '',
-            imageUrl: '',
-            priceType: 'none',
-            priceValue: 0,
-            details: [],
-            voucherCode: '',
+            title: '', description: '', imageUrl: '', priceType: 'none',
+            priceValue: 0, details: [], voucherCode: '',
         });
     };
 
@@ -120,8 +122,6 @@ const SpecialsManager: React.FC<{
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
         
-        // FIX: Cast currentItem.details to 'any' to resolve the 'never' type issue
-        // caused by the form input being a string while the model type is string[].
         const processedItem: Partial<SpecialItem> = {
             ...currentItem,
             priceValue: currentItem.priceValue ? parseFloat(String(currentItem.priceValue)) : undefined,
@@ -134,29 +134,17 @@ const SpecialsManager: React.FC<{
             processedItem.voucherCode = undefined;
         }
 
-        let updatedData;
         if (isAddingNew) {
-            const newItem: SpecialItem = {
-                id: Date.now().toString(),
-                title: processedItem.title || 'New Special',
-                description: processedItem.description || '',
-                imageUrl: processedItem.imageUrl || '',
-                priceType: processedItem.priceType || 'none',
-                priceValue: processedItem.priceValue,
-                details: processedItem.details || [],
-                voucherCode: processedItem.voucherCode,
-            };
-            updatedData = [...specialsData, newItem];
+            onAddSpecialItem(processedItem as Omit<SpecialItem, 'id'>);
         } else {
-            updatedData = specialsData.map(item => item.id === editingId ? { ...item, ...processedItem } as SpecialItem : item);
+            onUpdateSpecialItem({ ...processedItem, id: editingId } as SpecialItem);
         }
-        onSpecialsUpdate(updatedData);
         handleCancel();
     };
     
     const handleDelete = (id: string) => {
         if(window.confirm('Are you sure you want to delete this special?')) {
-            onSpecialsUpdate(specialsData.filter(item => item.id !== id));
+            onDeleteSpecialItem(id);
         }
     }
 

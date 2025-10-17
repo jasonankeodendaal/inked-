@@ -1,65 +1,68 @@
-
-
 import React, { useState } from 'react';
 import AdminLoginPage from './AdminLoginPage';
 import AdminDashboard from './admin/AdminDashboard';
-import { PortfolioItem, SpecialItem, Genre, Booking, SocialLink, Expense, InventoryItem, ShowroomItem } from '../App';
+import { PortfolioItem, SpecialItem, Genre, Booking, SocialLink, Expense, InventoryItem } from '../App';
 
 export interface AdminPageProps {
   onNavigate: (view: 'home' | 'admin') => void;
+  onLogout: () => void;
+
+  // Portfolio
   portfolioData: PortfolioItem[];
-  onPortfolioUpdate: (data: PortfolioItem[]) => void;
+  onAddPortfolioItem: (item: Omit<PortfolioItem, 'id'>) => void;
+  onUpdatePortfolioItem: (item: PortfolioItem) => void;
+  onDeletePortfolioItem: (id: string) => void;
+
+  // Specials
   specialsData: SpecialItem[];
-  onSpecialsUpdate: (data: SpecialItem[]) => void;
+  onAddSpecialItem: (item: Omit<SpecialItem, 'id'>) => void;
+  onUpdateSpecialItem: (item: SpecialItem) => void;
+  onDeleteSpecialItem: (id: string) => void;
+
+  // Showroom
   showroomData: Genre[];
-  onShowroomUpdate: (data: Genre[]) => void;
+  onAddShowroomGenre: (item: Omit<Genre, 'id'>) => void;
+  onUpdateShowroomGenre: (item: Genre) => void;
+  onDeleteShowroomGenre: (id: string) => void;
+
+  // Bookings
   bookings: Booking[];
-  onBookingsUpdate: (data: Booking[]) => void;
+  onUpdateBooking: (booking: Booking) => void;
   onManualAddBooking: (booking: Omit<Booking, 'id' | 'bookingType'>) => void;
+
+  // Expenses
   expenses: Expense[];
-  onExpensesUpdate: (data: Expense[]) => void;
   onAddExpense: (newExpense: Omit<Expense, 'id'>) => void;
   onUpdateExpense: (updatedExpense: Expense) => void;
   onDeleteExpense: (expenseId: string) => void;
+
+  // Inventory
   inventory: InventoryItem[];
-  onInventoryUpdate: (data: InventoryItem[]) => void;
   onAddInventoryItem: (newItem: Omit<InventoryItem, 'id'>) => void;
   onUpdateInventoryItem: (updatedItem: InventoryItem) => void;
   onDeleteInventoryItem: (itemId: string) => void;
-  whatsAppNumber: string;
-  onWhatsAppNumberUpdate: (phone: string) => void;
-  companyName: string;
-  onCompanyNameUpdate: (name: string) => void;
-  logoUrl: string;
-  onLogoUrlUpdate: (url: string) => void;
-  aboutUsImageUrl: string;
-  onAboutUsImageUrlUpdate: (url: string) => void;
-  address: string;
-  onAddressUpdate: (address: string) => void;
-  phone: string;
-  onPhoneUpdate: (phone: string) => void;
-  email: string;
-  onEmailUpdate: (email: string) => void;
-  socialLinks: SocialLink[];
-  onSocialLinksUpdate: (links: SocialLink[]) => void;
+  
+  // Settings
+  onSaveAllSettings: (settings: any) => void;
   onClearAllData: () => void;
-  bankName: string;
-  onBankNameUpdate: (name: string) => void;
-  accountNumber: string;
-  onAccountNumberUpdate: (num: string) => void;
-  branchCode: string;
-  onBranchCodeUpdate: (code: string) => void;
-  accountType: string;
-  onAccountTypeUpdate: (type: string) => void;
-  vatNumber: string;
-  onVatNumberUpdate: (num: string) => void;
-  onLogout: () => void;
+
+  // Pass-through settings properties
+  companyName: string;
+  logoUrl: string;
+  aboutUsImageUrl: string;
+  whatsAppNumber: string;
+  address: string;
+  phone: string;
+  email: string;
+  socialLinks: SocialLink[];
   showroomTitle: string;
-  onShowroomTitleUpdate: (title: string) => void;
   showroomDescription: string;
-  onShowroomDescriptionUpdate: (description: string) => void;
   heroTattooGunImageUrl: string;
-  onHeroTattooGunImageUrlUpdate: (url: string) => void;
+  bankName: string;
+  accountNumber: string;
+  branchCode: string;
+  accountType: string;
+  vatNumber: string;
 }
 
 const AdminPage: React.FC<AdminPageProps> = (props) => {
@@ -78,6 +81,7 @@ const AdminPage: React.FC<AdminPageProps> = (props) => {
     return <AdminDashboard onLogout={handleLogout} {...props} />;
   }
 
+  // A simplified login that doesn't rely on Firestore yet.
   return <AdminLoginPage onLoginSuccess={handleLoginSuccess} onNavigate={props.onNavigate} logoUrl={props.logoUrl} />;
 };
 

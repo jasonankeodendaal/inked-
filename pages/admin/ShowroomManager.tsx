@@ -12,14 +12,6 @@ const fileToDataUrl = (file: File): Promise<string> => {
     });
 };
 
-const getMimeType = (url: string): string => {
-    if (url.startsWith('data:')) {
-        return url.substring(5, url.indexOf(';')) || 'video/mp4';
-    }
-    const extension = url.split(/[#?]/)[0].split('.').pop()?.trim().toLowerCase();
-    return `video/${extension}` || 'video/mp4';
-};
-
 const ShowroomItemForm = ({
   initialItem,
   onSave,
@@ -122,54 +114,58 @@ const ShowroomItemForm = ({
 
 interface ShowroomManagerProps {
   showroomData: Genre[];
-  onShowroomUpdate: (data: Genre[]) => void;
+  onAddShowroomGenre: (genre: Omit<Genre, 'id'>) => void;
+  onUpdateShowroomGenre: (genre: Genre) => void;
+  onDeleteShowroomGenre: (id: string) => void;
   startTour: (tourKey: 'art') => void;
 }
 
-const ShowroomManager: React.FC<ShowroomManagerProps> = ({ showroomData, onShowroomUpdate, startTour }) => {
+const ShowroomManager: React.FC<ShowroomManagerProps> = ({ 
+  showroomData, 
+  onAddShowroomGenre,
+  onUpdateShowroomGenre,
+  onDeleteShowroomGenre,
+  startTour 
+}) => {
     const [editingItem, setEditingItem] = useState<{item: Partial<ShowroomItem>, genreId: string} | null>(null);
 
     const handleAddGenre = () => {
         const name = prompt("Enter new genre name:");
         if (name) {
-            onShowroomUpdate([...showroomData, { id: Date.now().toString(), name, items: [] }]);
+            onAddShowroomGenre({ name, items: [] });
         }
     };
     
     const handleDeleteGenre = (genreId: string) => {
-        if (window.confirm("Are you sure you want to delete this genre? The pieces inside will also be deleted.")) {
-            onShowroomUpdate(showroomData.filter(g => g.id !== genreId));
+        if (window.confirm("Are you sure you want to delete this genre? The pieces inside will also be deleted from the showroom.")) {
+            onDeleteShowroomGenre(genreId);
         }
     };
 
     const handleSaveItem = (itemData: ShowroomItem) => {
         if (!editingItem) return;
         const { genreId } = editingItem;
+        const genreToUpdate = showroomData.find(g => g.id === genreId);
+        if (!genreToUpdate) return;
         
-        const updatedGenres = showroomData.map(genre => {
-            if (genre.id === genreId) {
-                const itemExists = genre.items.some(i => i.id === itemData.id);
-                if (itemExists) {
-                    return {...genre, items: genre.items.map(i => i.id === itemData.id ? itemData : i)};
-                } else {
-                    return {...genre, items: [...genre.items, itemData]};
-                }
-            }
-            return genre;
-        });
-        onShowroomUpdate(updatedGenres);
+        const itemExists = genreToUpdate.items.some(i => i.id === itemData.id);
+        let updatedItems;
+        if (itemExists) {
+            updatedItems = genreToUpdate.items.map(i => i.id === itemData.id ? itemData : i);
+        } else {
+            updatedItems = [...genreToUpdate.items, itemData];
+        }
+        onUpdateShowroomGenre({ ...genreToUpdate, items: updatedItems });
         setEditingItem(null);
     };
 
     const handleDeleteItem = (genreId: string, itemId: string) => {
         if (window.confirm("Delete this showroom piece?")) {
-            const updatedGenres = showroomData.map(genre => {
-                if (genre.id === genreId) {
-                    return {...genre, items: genre.items.filter(i => i.id !== itemId)};
-                }
-                return genre;
-            });
-            onShowroomUpdate(updatedGenres);
+            const genreToUpdate = showroomData.find(g => g.id === genreId);
+            if(genreToUpdate) {
+              const updatedItems = genreToUpdate.items.filter(i => i.id !== itemId);
+              onUpdateShowroomGenre({ ...genreToUpdate, items: updatedItems });
+            }
         }
     };
 

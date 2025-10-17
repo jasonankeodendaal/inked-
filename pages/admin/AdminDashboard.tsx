@@ -146,14 +146,14 @@ const BookingModal: React.FC<{
 // --- BOOKINGS MANAGER ---
 const BookingsManager: React.FC<{ 
     bookings: Booking[], 
-    onBookingsUpdate: (data: Booking[]) => void, 
+    onUpdateBooking: (booking: Booking) => void, 
     selectedDate: string | null, 
     onClearDateFilter: () => void, 
     onAddManualBooking: () => void,
     onEditBooking: (booking: Booking) => void,
     onLogSupplies: (booking: Booking) => void,
     startTour: (tourKey: 'dashboard') => void,
-}> = ({ bookings, onBookingsUpdate, selectedDate, onClearDateFilter, onAddManualBooking, onEditBooking, onLogSupplies, startTour }) => {
+}> = ({ bookings, onUpdateBooking, selectedDate, onClearDateFilter, onAddManualBooking, onEditBooking, onLogSupplies, startTour }) => {
     type StatusFilter = Booking['status'] | 'all';
     const [filter, setFilter] = useState<StatusFilter>('pending');
     
@@ -164,11 +164,8 @@ const BookingsManager: React.FC<{
     const filteredBookings = (filter === 'all' ? filteredByDate : filteredByDate.filter(b => b.status === filter))
       .sort((a, b) => new Date(a.bookingDate).getTime() - new Date(b.bookingDate).getTime());
 
-    const handleStatusChange = (bookingId: string, newStatus: Booking['status']) => {
-        const updatedBookings = bookings.map(b => 
-            b.id === bookingId ? { ...b, status: newStatus } : b
-        );
-        onBookingsUpdate(updatedBookings);
+    const handleStatusChange = (booking: Booking, newStatus: Booking['status']) => {
+        onUpdateBooking({ ...booking, status: newStatus });
     };
 
     const statusStyles: Record<Booking['status'], string> = {
@@ -250,7 +247,7 @@ const BookingsManager: React.FC<{
                             <div className="mt-auto pt-3 border-t border-admin-dark-border">
                                 <div className="flex flex-wrap items-center gap-2">
                                     {availableStatuses.filter(s => s !== booking.status).map(status => (
-                                        <button key={status} onClick={() => handleStatusChange(booking.id, status)} className="text-xs font-semibold px-2 py-1 rounded-lg capitalize bg-white/5 hover:bg-white/10 transition-colors">
+                                        <button key={status} onClick={() => handleStatusChange(booking, status)} className="text-xs font-semibold px-2 py-1 rounded-lg capitalize bg-white/5 hover:bg-white/10 transition-colors">
                                             {status}
                                         </button>
                                     ))}
@@ -404,7 +401,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
 
   const handleSaveBooking = (bookingData: Booking) => {
     if (bookingToEdit) { // Update existing booking
-        props.onBookingsUpdate(props.bookings.map(b => b.id === bookingData.id ? bookingData : b));
+        props.onUpdateBooking(bookingData);
     } else { // Create new manual booking
         const { id, bookingType, ...newBookingData } = bookingData;
         props.onManualAddBooking(newBookingData);
@@ -416,7 +413,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
         <div className="lg:col-span-2">
             <BookingsManager 
                 bookings={props.bookings} 
-                onBookingsUpdate={props.onBookingsUpdate} 
+                onUpdateBooking={props.onUpdateBooking} 
                 selectedDate={selectedDate} 
                 onClearDateFilter={() => setSelectedDate(null)}
                 onAddManualBooking={handleOpenCreateModal}
@@ -427,7 +424,14 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
         </div>
         <div className="space-y-6">
             <BookingCalendarWidget bookings={props.bookings} selectedDate={selectedDate} onDateSelect={setSelectedDate} />
-            <SpecialsManager specialsData={props.specialsData} onSpecialsUpdate={props.onSpecialsUpdate} />
+            <div data-tour-id="dashboard-specials-manager">
+              <SpecialsManager 
+                specialsData={props.specialsData} 
+                onAddSpecialItem={props.onAddSpecialItem}
+                onUpdateSpecialItem={props.onUpdateSpecialItem}
+                onDeleteSpecialItem={props.onDeleteSpecialItem}
+              />
+            </div>
         </div>
       </div>
   );
@@ -439,9 +443,21 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
             <button data-tour-id="art-showroom-tab" onClick={() => setArtSubTab('showroom')} className={`w-full px-4 py-1.5 text-sm font-bold rounded-lg transition-colors capitalize ${artSubTab === 'showroom' ? 'bg-admin-dark-primary text-white' : 'text-admin-dark-text-secondary hover:bg-white/10'}`}>Showroom</button>
         </div>
         {artSubTab === 'portfolio' ? (
-            <PortfolioManager portfolioData={props.portfolioData} onPortfolioUpdate={props.onPortfolioUpdate} startTour={setActiveTour} />
+            <PortfolioManager 
+              portfolioData={props.portfolioData} 
+              onAddPortfolioItem={props.onAddPortfolioItem}
+              onUpdatePortfolioItem={props.onUpdatePortfolioItem}
+              onDeletePortfolioItem={props.onDeletePortfolioItem}
+              startTour={setActiveTour} 
+            />
         ) : (
-            <ShowroomManager showroomData={props.showroomData} onShowroomUpdate={props.onShowroomUpdate} startTour={setActiveTour} />
+            <ShowroomManager 
+              showroomData={props.showroomData} 
+              onAddShowroomGenre={props.onAddShowroomGenre}
+              onUpdateShowroomGenre={props.onUpdateShowroomGenre}
+              onDeleteShowroomGenre={props.onDeleteShowroomGenre}
+              startTour={setActiveTour} 
+            />
         )}
     </div>
   );
@@ -455,7 +471,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
       case 'financials':
         return <FinancialsManager {...props} startTour={setActiveTour} />;
       case 'settings':
-        return <SettingsManager {...props} startTour={setActiveTour} />;
+        return <SettingsManager {...props} />;
       case 'pwa':
         return <PWACapabilities startTour={setActiveTour} />;
       default:

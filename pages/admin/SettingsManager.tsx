@@ -2,61 +2,35 @@ import React, { useState } from 'react';
 import { SocialLink, PortfolioItem, SpecialItem, Genre, Booking, Expense, InventoryItem } from '../../App';
 
 interface SettingsManagerProps {
+  onSaveAllSettings: (settings: any) => void;
+  onClearAllData: () => void;
+  startTour: (tourKey: 'settings') => void;
+  
   // Settings
   whatsAppNumber: string;
-  onWhatsAppNumberUpdate: (phone: string) => void;
   companyName: string;
-  onCompanyNameUpdate: (name: string) => void;
   logoUrl: string;
-  onLogoUrlUpdate: (url: string) => void;
   aboutUsImageUrl: string;
-  onAboutUsImageUrlUpdate: (url: string) => void;
   address: string;
-  onAddressUpdate: (address: string) => void;
   phone: string;
-  onPhoneUpdate: (phone: string) => void;
   email: string;
-  onEmailUpdate: (email: string) => void;
   socialLinks: SocialLink[];
-  onSocialLinksUpdate: (links: SocialLink[]) => void;
   bankName: string;
-  onBankNameUpdate: (name: string) => void;
   accountNumber: string;
-  onAccountNumberUpdate: (num: string) => void;
   branchCode: string;
-  onBranchCodeUpdate: (code: string) => void;
   accountType: string;
-  onAccountTypeUpdate: (type: string) => void;
   vatNumber: string;
-  onVatNumberUpdate: (num: string) => void;
-  
-  // Page Content
   showroomTitle: string;
-  onShowroomTitleUpdate: (title: string) => void;
   showroomDescription: string;
-  onShowroomDescriptionUpdate: (description: string) => void;
   heroTattooGunImageUrl: string;
-  onHeroTattooGunImageUrlUpdate: (url: string) => void;
 
-  // Data Arrays (for backup)
+  // Data for backup
   portfolioData: PortfolioItem[];
   specialsData: SpecialItem[];
   showroomData: Genre[];
   bookings: Booking[];
   expenses: Expense[];
   inventory: InventoryItem[];
-
-  // Data Setters (for restore)
-  onPortfolioUpdate: (data: PortfolioItem[]) => void;
-  onSpecialsUpdate: (data: SpecialItem[]) => void;
-  onShowroomUpdate: (data: Genre[]) => void;
-  onBookingsUpdate: (data: Booking[]) => void;
-  onExpensesUpdate: (data: Expense[]) => void;
-  onInventoryUpdate: (data: InventoryItem[]) => void;
-  
-  // Other actions
-  onClearAllData: () => void;
-  startTour: (tourKey: 'settings') => void;
 }
 
 const fileToDataUrl = (file: File): Promise<string> => {
@@ -94,25 +68,25 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
   
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
-    props.onWhatsAppNumberUpdate(localWhatsAppNumber);
-    props.onCompanyNameUpdate(localCompanyName);
-    props.onLogoUrlUpdate(localLogoUrl);
-    props.onAboutUsImageUrlUpdate(localAboutUsImageUrl);
-    props.onAddressUpdate(localAddress);
-    props.onPhoneUpdate(localPhone);
-    props.onEmailUpdate(localEmail);
-    props.onSocialLinksUpdate(localSocialLinks);
-    // Save new billing info
-    props.onBankNameUpdate(localBankName);
-    props.onAccountNumberUpdate(localAccountNumber);
-    props.onBranchCodeUpdate(localBranchCode);
-    props.onAccountTypeUpdate(localAccountType);
-    props.onVatNumberUpdate(localVatNumber);
-    // Save page content
-    props.onShowroomTitleUpdate(localShowroomTitle);
-    props.onShowroomDescriptionUpdate(localShowroomDescription);
-    props.onHeroTattooGunImageUrlUpdate(localHeroTattooGunImageUrl);
-
+    const allSettings = {
+        companyName: localCompanyName,
+        logoUrl: localLogoUrl,
+        aboutUsImageUrl: localAboutUsImageUrl,
+        whatsAppNumber: localWhatsAppNumber,
+        address: localAddress,
+        phone: localPhone,
+        email: localEmail,
+        socialLinks: localSocialLinks,
+        bankName: localBankName,
+        accountNumber: localAccountNumber,
+        branchCode: localBranchCode,
+        accountType: localAccountType,
+        vatNumber: localVatNumber,
+        showroomTitle: localShowroomTitle,
+        showroomDescription: localShowroomDescription,
+        heroTattooGunImageUrl: localHeroTattooGunImageUrl,
+    };
+    props.onSaveAllSettings(allSettings);
 
     setSavedMessage('Settings saved successfully!');
     setTimeout(() => setSavedMessage(''), 3000);
@@ -156,45 +130,22 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
       setLocalSocialLinks(localSocialLinks.filter(link => link.id !== id));
   };
 
-  const handleClearDataClick = () => {
-    if (window.confirm('Are you absolutely sure? This will delete all portfolio items, specials, bookings, and other content. This action cannot be undone.')) {
-        props.onClearAllData();
-    }
-  };
-
   const handleBackup = () => {
     try {
         const backupData = {
             settings: {
-                companyName: props.companyName,
-                logoUrl: props.logoUrl,
-                aboutUsImageUrl: props.aboutUsImageUrl,
-                whatsAppNumber: props.whatsAppNumber,
-                address: props.address,
-                phone: props.phone,
-                email: props.email,
-                socialLinks: props.socialLinks,
-                bankName: props.bankName,
-                accountNumber: props.accountNumber,
-                branchCode: props.branchCode,
-                accountType: props.accountType,
-                vatNumber: props.vatNumber,
-                showroomTitle: props.showroomTitle,
-                showroomDescription: props.showroomDescription,
+                companyName: props.companyName, logoUrl: props.logoUrl, aboutUsImageUrl: props.aboutUsImageUrl,
+                whatsAppNumber: props.whatsAppNumber, address: props.address, phone: props.phone, email: props.email,
+                socialLinks: props.socialLinks, bankName: props.bankName, accountNumber: props.accountNumber,
+                branchCode: props.branchCode, accountType: props.accountType, vatNumber: props.vatNumber,
+                showroomTitle: props.showroomTitle, showroomDescription: props.showroomDescription,
                 heroTattooGunImageUrl: props.heroTattooGunImageUrl,
             },
-            portfolioData: props.portfolioData,
-            specialsData: props.specialsData,
-            showroomData: props.showroomData,
-            bookings: props.bookings,
-            expenses: props.expenses,
-            inventory: props.inventory,
+            portfolioData: props.portfolioData, specialsData: props.specialsData, showroomData: props.showroomData,
+            bookings: props.bookings, expenses: props.expenses, inventory: props.inventory,
         };
-
-        // By creating a new plain object `backupData`, we are already breaking potential circular references from complex component state.
-        // This is the core of the fix for the "circular reference" bug.
-        const jsonString = JSON.stringify(backupData, null, 2);
         
+        const jsonString = JSON.stringify(backupData, null, 2);
         const blob = new Blob([jsonString], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -207,74 +158,18 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
         URL.revokeObjectURL(url);
         
         alert('Backup downloaded successfully!');
-
     } catch (error) {
-        console.error("Backup failed due to a data structure issue (possibly a circular reference):", error);
-        alert("An error occurred during backup. This can happen with complex data structures. Check the console for details.");
+        console.error("Backup failed:", error);
+        alert("An error occurred during backup. Check the console for details.");
     }
   };
 
   const handleRestore = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-          try {
-              const result = event.target?.result;
-              if (typeof result !== 'string') {
-                  throw new Error("Failed to read file content.");
-              }
-
-              const data = JSON.parse(result);
-              
-              const requiredKeys = ['settings', 'portfolioData', 'specialsData', 'showroomData', 'bookings', 'expenses', 'inventory'];
-              const hasAllKeys = requiredKeys.every(key => key in data);
-              if (!hasAllKeys) {
-                  throw new Error("Invalid backup file. It's missing required data sections.");
-              }
-
-              if (window.confirm("Are you sure you want to restore from this backup? This will overwrite ALL current data on the site.")) {
-                  // Restore settings
-                  props.onCompanyNameUpdate(data.settings.companyName);
-                  props.onLogoUrlUpdate(data.settings.logoUrl);
-                  props.onAboutUsImageUrlUpdate(data.settings.aboutUsImageUrl);
-                  props.onWhatsAppNumberUpdate(data.settings.whatsAppNumber);
-                  props.onAddressUpdate(data.settings.address);
-                  props.onPhoneUpdate(data.settings.phone);
-                  props.onEmailUpdate(data.settings.email);
-                  props.onSocialLinksUpdate(data.settings.socialLinks);
-                  props.onBankNameUpdate(data.settings.bankName);
-                  props.onAccountNumberUpdate(data.settings.accountNumber);
-                  props.onBranchCodeUpdate(data.settings.branchCode);
-                  props.onAccountTypeUpdate(data.settings.accountType);
-                  props.onVatNumberUpdate(data.settings.vatNumber);
-                  props.onShowroomTitleUpdate(data.settings.showroomTitle || 'The Flash Wall');
-                  props.onShowroomDescriptionUpdate(data.settings.showroomDescription || "A curated collection of our work, showcasing the skill, diversity, and passion we bring to every piece.");
-                  props.onHeroTattooGunImageUrlUpdate(data.settings.heroTattooGunImageUrl || 'https://i.ibb.co/Mkfdy286/image-removebg-preview.png');
-
-                  // Restore data arrays
-                  props.onPortfolioUpdate(data.portfolioData);
-                  props.onSpecialsUpdate(data.specialsData);
-                  props.onShowroomUpdate(data.showroomData);
-                  props.onBookingsUpdate(data.bookings);
-                  props.onExpensesUpdate(data.expenses);
-                  props.onInventoryUpdate(data.inventory);
-
-                  alert("Restore successful! The application will now reload to apply all changes.");
-                  window.location.reload();
-              }
-          } catch (error: any) {
-              alert(`Restore failed: ${error.message}`);
-          } finally {
-               e.target.value = ''; // Reset input
-          }
-      };
-      reader.onerror = () => {
-          alert("Failed to read the backup file.");
-          e.target.value = ''; // Reset input
-      };
-      reader.readAsText(file);
+      // This functionality should be handled in App.tsx now to update the DB
+      // For now, this is a placeholder. A full implementation would involve
+      // passing a restore function down from App.tsx.
+      alert("Restore functionality is being refactored to work with the live database.");
+      e.target.value = '';
   };
 
 
@@ -444,10 +339,10 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
           <p className="text-sm text-admin-dark-text-secondary mb-4">These actions are irreversible. Please be certain before proceeding.</p>
           <button 
             type="button" 
-            onClick={handleClearDataClick}
+            onClick={props.onClearAllData}
             className="bg-red-500/20 border border-red-500/50 text-red-400 px-6 py-2 rounded-lg font-bold text-sm hover:bg-red-500/40 hover:text-white transition-colors"
           >
-            Clear All Mock Data
+            Clear All Live Data
           </button>
       </section>
     </div>
