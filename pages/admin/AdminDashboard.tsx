@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect } from 'react';
 import { Booking } from '../../App';
 import { AdminPageProps } from '../AdminPage';
@@ -12,6 +10,7 @@ import SpecialsManager from './SpecialsManager';
 import FinancialsManager from './FinancialsManager';
 import TrainingGuide from './TrainingGuide'; // Import the new Training Guide
 import LogSuppliesModal from './components/LogSuppliesModal';
+import PWACapabilities from '../../components/PWACapabilities';
 
 
 // --- ICONS ---
@@ -19,6 +18,7 @@ const IconDashboard = ({ className = 'w-6 h-6' }) => <svg className={className} 
 const IconArt = ({ className = 'w-6 h-6' }) => <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.25 15.75L5.15938 12.8406C5.58694 12.4131 6.18848 12.1758 6.81562 12.1758C7.44277 12.1758 8.04431 12.4131 8.47187 12.8406L12 16.3687M12 16.3687L14.4719 13.8969C14.8994 13.4693 15.501 13.2319 16.1281 13.2319C16.7553 13.2319 17.3568 13.4693 17.7844 13.8969L21.75 17.8687M12 16.3687L18.75 20.25M21.75 19.5V6C21.75 5.20435 21.4339 4.44129 20.8839 3.89119C20.3338 3.34109 19.5706 3.025 18.75 3.025H5.25C4.45435 3.025 3.69129 3.34109 2.14119 3.89119C2.59109 4.44129 2.275 5.20435 2.275 6V18C2.275 18.7956 2.59109 19.5587 3.14119 20.1088C3.69129 20.6589 4.45435 20.975 5.25 20.975H18.75M16.5 8.25H16.508V8.258H16.5V8.25Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const IconSettings = ({ className = 'w-6 h-6' }) => <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15.75C14.0711 15.75 15.75 14.0711 15.75 12C15.75 9.92893 14.0711 8.25 12 8.25C9.92893 8.25 8.25 9.92893 8.25 12C8.25 14.0711 9.92893 15.75 12 15.75Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M19.5 12C19.5 12.418 19.4283 12.8293 19.293 13.218C18.81 14.614 17.614 15.81 16.218 16.293C15.8293 16.4283 15.418 16.5 15 16.5C13.84 16.5 12.842 16.12 12 15.75M4.5 12C4.5 11.582 4.57168 11.1707 4.70697 10.782C5.19001 9.38596 6.38596 8.19001 7.782 7.70697C8.17075 7.57168 8.582 7.5 9 7.5C10.16 7.5 11.158 7.88 12 8.25M12 4.5C12.418 4.5 12.8293 4.57168 13.218 4.70697C14.614 5.19001 15.81 6.38596 16.293 7.782C16.4283 8.17075 16.5 8.582 16.5 9C16.5 10.16 16.12 11.158 15.75 12M12 19.5C11.582 19.5 11.1707 19.4283 10.782 19.293C9.38596 18.81 8.19001 17.614 7.70697 16.218C7.57168 15.8293 7.5 15.418 7.5 15C7.5 13.84 7.88 12.842 8.25 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const IconFinancials = ({ className = 'w-6 h-6' }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 8h6m-5 4h.01M18 18H6a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2z"></path></svg>;
+const IconPWA = ({ className = 'w-6 h-6' }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>;
 const IconBack = () => <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>;
 
 // --- BOOKING MODAL (for Create/Edit) ---
@@ -359,7 +359,7 @@ const BookingCalendarWidget: React.FC<{ bookings: Booking[], selectedDate: strin
 };
 
 
-type AdminTab = 'dashboard' | 'art' | 'financials' | 'settings';
+type AdminTab = 'dashboard' | 'art' | 'financials' | 'settings' | 'pwa';
 
 const AdminDashboard: React.FC<AdminPageProps> = (props) => {
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
@@ -434,6 +434,8 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
         return <FinancialsManager bookings={props.bookings} expenses={props.expenses} onAddExpense={props.onAddExpense} onUpdateExpense={props.onUpdateExpense} onDeleteExpense={props.onDeleteExpense} inventory={props.inventory} onAddInventoryItem={props.onAddInventoryItem} onUpdateInventoryItem={props.onUpdateInventoryItem} onDeleteInventoryItem={props.onDeleteInventoryItem} />;
       case 'settings':
         return <SettingsManager {...props} />;
+      case 'pwa':
+        return <PWACapabilities />;
       default:
         return renderDashboard();
     }
@@ -444,6 +446,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
       { id: 'art', label: 'Art', icon: <IconArt /> },
       { id: 'financials', label: 'Financials', icon: <IconFinancials /> },
       { id: 'settings', label: 'Settings', icon: <IconSettings /> },
+      { id: 'pwa', label: 'PWA', icon: <IconPWA /> },
   ];
   
   return (
@@ -478,7 +481,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
               <div>
                   <p className="text-admin-dark-text-secondary text-sm">Welcome back!</p>
                   <h1 className="font-bold text-xl text-white capitalize">
-                      {activeTab === 'dashboard' ? 'Dashboard Overview' : activeTab}
+                      {activeTab === 'dashboard' ? 'Dashboard Overview' : `${activeTab} Status`}
                   </h1>
               </div>
           </div>
@@ -492,7 +495,7 @@ const AdminDashboard: React.FC<AdminPageProps> = (props) => {
       </header>
 
       <div className="flex-shrink-0 bg-admin-dark-card/80 backdrop-blur-lg border-b border-admin-dark-border h-16">
-          <nav className="container mx-auto grid grid-cols-4 h-full">
+          <nav className="container mx-auto grid grid-cols-5 h-full">
               {navItems.map(item => (
                   <button 
                       key={item.id} 

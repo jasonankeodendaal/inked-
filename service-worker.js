@@ -1,94 +1,152 @@
-// service-worker.js
-// A robust, offline-first service worker.
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
 
-const CACHE_NAME = 'beautively-inked-cache-v1';
+if (workbox) {
+  console.log(`Yay! Workbox is loaded 🎉`);
 
-// Files to cache on install. These form the "app shell".
-const FILES_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/index.tsx', // The main JS module
-  '/manifest.json',
-  '/offline.html', // The offline fallback page
-  'https://i.ibb.co/fVzq56Ng/31e985d7-135f-4a54-98f9-f110bd155497-2.png', // Main logo
-];
+  const { precacheAndRoute } = workbox.precaching;
+  const { registerRoute, setCatchHandler } = workbox.routing;
+  const { NetworkFirst, StaleWhileRevalidate, CacheFirst } = workbox.strategies;
+  const { ExpirationPlugin } = workbox.expiration;
+  const { CacheableResponsePlugin } = workbox.cacheableResponse;
 
-// Install event: cache the app shell.
-self.addEventListener('install', event => {
-  console.log('[Service Worker] Installing...');
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('[Service Worker] Caching app shell');
-      return cache.addAll(FILES_TO_CACHE);
-    }).then(() => {
-      // Activate the new service worker immediately.
-      return self.skipWaiting();
+  // Precache the essential app shell files for an instant offline experience.
+  precacheAndRoute([
+    { url: '/index.html', revision: null },
+    { url: '/offline.html', revision: null },
+    { url: '/manifest.json', revision: null },
+  ]);
+
+  // Use a NetworkFirst strategy for navigation requests.
+  // This ensures users always get the latest content if they are online.
+  registerRoute(
+    ({ request }) => request.mode === 'navigate',
+    new NetworkFirst({
+      cacheName: 'pages',
+      plugins: [
+        new CacheableResponsePlugin({
+          statuses: [200],
+        }),
+      ],
     })
   );
-});
+  
+  // Set a global catch handler to provide the offline fallback page for failed navigations.
+  setCatchHandler(({ event }) => {
+    if (event.request.destination === 'document') {
+      return caches.match('/offline.html');
+    }
+    return Response.error();
+  });
 
-// Activate event: clean up old caches.
-self.addEventListener('activate', event => {
-  console.log('[Service Worker] Activating...');
-  event.waitUntil(
-    caches.keys().then(cacheNames =>
-      Promise.all(
-        cacheNames.map(name => {
-          if (name !== CACHE_NAME) {
-            console.log('[Service Worker] Removing old cache:', name);
-            return caches.delete(name);
-          }
-        })
-      )
-    ).then(() => {
-        // Take control of all open clients.
-        return self.clients.claim();
+  // Cache JavaScript and CSS files with a Stale-While-Revalidate strategy.
+  // This provides assets quickly from the cache while updating them in the background.
+  registerRoute(
+    ({ request }) =>
+      request.destination === 'script' || request.destination === 'style',
+    new StaleWhileRevalidate({
+      cacheName: 'static-resources',
     })
   );
-});
 
-// Fetch event: handle requests with different strategies.
-self.addEventListener('fetch', event => {
-  // For navigation requests (e.g., loading a page), use a Network-First strategy.
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          // If the network request is successful, cache it and return it.
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
+  // Cache images with a CacheFirst strategy and an expiration policy.
+  // This is ideal for images that don't change often.
+  registerRoute(
+    ({ request }) => request.destination === 'image',
+    new CacheFirst({
+      cacheName: 'images',
+      plugins: [
+        new ExpirationPlugin({
+          maxEntries: 100, // Max number of images to cache
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
+          purgeOnQuotaError: true, // Automatically clean up if storage is full
+        }),
+        new CacheableResponsePlugin({
+          statuses: [0, 200], // Cache opaque responses (for CORS images)
+        }),
+      ],
+    })
+  );
+  
+  // Cache Google Fonts stylesheets with Stale-While-Revalidate.
+  registerRoute(
+    ({url}) => url.origin === 'https://fonts.googleapis.com',
+    new StaleWhileRevalidate({
+      cacheName: 'google-fonts-stylesheets',
+    })
+  );
+
+  // Cache Google Fonts webfont files with CacheFirst for a year.
+  registerRoute(
+    ({url}) => url.origin === 'https://fonts.gstatic.com',
+    new CacheFirst({
+      cacheName: 'google-fonts-webfonts',
+      plugins: [
+        new CacheableResponsePlugin({
+          statuses: [0, 200],
+        }),
+        new ExpirationPlugin({
+          maxAgeSeconds: 60 * 60 * 24 * 365, // 1 Year
+          maxEntries: 30,
+        }),
+      ],
+    })
+  );
+
+  // This message listener allows the new service worker to take control immediately.
+  self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+      self.skipWaiting();
+    }
+  });
+
+  // --- PWA Feature Listeners ---
+
+  // Background Sync: Listens for the 'sync' event.
+  self.addEventListener('sync', (event) => {
+    if (event.tag === 'sync-booking-request') {
+      console.log('Service Worker: Background sync event for booking request received.');
+      event.waitUntil(
+        new Promise((resolve, reject) => {
+            console.log("Background Sync: Pretending to sync data...");
+            setTimeout(resolve, 2000);
         })
-        .catch(() => {
-          // If the network fails, try to serve the page from the cache.
-          // If it's not in the cache, serve the offline fallback page.
-          return caches.match(event.request)
-            .then(response => response || caches.match('/offline.html'));
+      );
+    }
+  });
+
+  // Periodic Sync: Listens for the 'periodicsync' event.
+  self.addEventListener('periodicsync', (event) => {
+    if (event.tag === 'get-latest-specials') {
+      console.log('Service Worker: Periodic sync event for specials received.');
+      event.waitUntil(
+        new Promise((resolve, reject) => {
+            console.log("Periodic Sync: Pretending to fetch latest specials...");
+            setTimeout(resolve, 2000);
         })
+      );
+    }
+  });
+
+  // Push Notifications: Handles incoming push messages.
+  self.addEventListener('push', (event) => {
+    const data = event.data ? event.data.json() : { title: 'Beautively Inked', body: 'You have a new message!' };
+    const title = data.title;
+    const options = {
+      body: data.body,
+      icon: 'https://i.ibb.co/RksbjvVJ/android-launchericon-192-192.png',
+      badge: 'https://i.ibb.co/RksbjvVJ/android-launchericon-192-192.png'
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
+  });
+
+  // Push Notifications: Handles clicks on notifications.
+  self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    event.waitUntil(
+      clients.openWindow('/')
     );
-    return;
-  }
+  });
 
-  // For other requests (assets like images, scripts), use a Cache-First, then network strategy.
-  // This is fast and efficient for static assets.
-  event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      // If we have a cached response, return it.
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      
-      // Otherwise, fetch from the network.
-      return fetch(event.request).then(networkResponse => {
-        // Cache the new response for future use and return it.
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
-        return networkResponse;
-      });
-    })
-  );
-});
+} else {
+  console.log(`Boo! Workbox didn't load 😬`);
+}
