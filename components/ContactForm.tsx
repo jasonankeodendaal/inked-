@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
 import { Booking } from '../App';
-
-const fileToDataUrl = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-};
+import { storage } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface ContactFormProps {
     onAddBooking: (booking: Omit<Booking, 'id' | 'status' | 'bookingType'>) => void;
@@ -23,25 +16,26 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAddBooking }) => {
   const [bookingDate, setBookingDate] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [referenceImages, setReferenceImages] = useState<File[]>([]);
   const [referenceImagePreviews, setReferenceImagePreviews] = useState<string[]>([]);
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Clean up old object URLs to prevent memory leaks
+    referenceImagePreviews.forEach(URL.revokeObjectURL);
+
     if (e.target.files && e.target.files.length > 0) {
-        const files = Array.from(e.target.files);
+        // FIX: Explicitly type `files` as `File[]` to fix type inference issue.
+        const files: File[] = Array.from(e.target.files);
         if (files.length > 5) {
             setErrorMessage("You can only upload a maximum of 5 images.");
-            e.target.value = ''; // Clear the input
+            e.target.value = '';
+            setReferenceImages([]);
+            setReferenceImagePreviews([]);
             return;
         }
         setReferenceImages(files);
-        try {
-            const dataUrls = await Promise.all(files.map(fileToDataUrl));
-            setReferenceImagePreviews(dataUrls);
-        } catch (error) {
-            console.error("Error creating image previews:", error);
-            setReferenceImagePreviews([]);
-        }
+        setReferenceImagePreviews(files.map(file => URL.createObjectURL(file)));
     } else {
         setReferenceImages([]);
         setReferenceImagePreviews([]);
@@ -58,19 +52,27 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAddBooking }) => {
       setErrorMessage('Please provide your WhatsApp number if you prefer to be contacted that way.');
       return;
     }
+
+    setIsLoading(true);
+    setErrorMessage('');
     
-    let referenceImageDataUrls: string[] = [];
+    let referenceImageUrls: string[] = [];
     if (referenceImages.length > 0) {
         try {
-            referenceImageDataUrls = await Promise.all(referenceImages.map(fileToDataUrl));
+            const uploadPromises = referenceImages.map(file => {
+                const storageRef = ref(storage, `booking-references/${Date.now()}-${file.name}`);
+                return uploadBytes(storageRef, file).then(snapshot => getDownloadURL(snapshot.ref));
+            });
+            referenceImageUrls = await Promise.all(uploadPromises);
         } catch (error) {
-            console.error("Error processing images:", error);
-            setErrorMessage('There was an error processing your images. Please try again.');
+            console.error("Error uploading reference images:", error);
+            setErrorMessage('There was an error uploading your images. Please try again.');
+            setIsLoading(false);
             return;
         }
     }
 
-    onAddBooking({ name, email, message, bookingDate, whatsappNumber, contactMethod, referenceImages: referenceImageDataUrls });
+    onAddBooking({ name, email, message, bookingDate, whatsappNumber, contactMethod, referenceImages: referenceImageUrls });
     
     // Reset form and show success message
     setName('');
@@ -79,9 +81,11 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAddBooking }) => {
     setContactMethod('email');
     setMessage('');
     setBookingDate('');
+    referenceImagePreviews.forEach(URL.revokeObjectURL);
     setReferenceImages([]);
     setReferenceImagePreviews([]);
     setErrorMessage('');
+    setIsLoading(false);
     setSuccessMessage('Your booking request has been sent! We will contact you shortly to confirm.');
     setTimeout(() => setSuccessMessage(''), 5000);
   };
@@ -211,8 +215,8 @@ const ContactForm: React.FC<ContactFormProps> = ({ onAddBooking }) => {
                                 {successMessage && <p className="text-center text-yellow-400 text-sm">{successMessage}</p>}
 
                                 <div>
-                                <button type="submit" className="w-full bg-brand-gold text-white py-3 rounded-full font-bold text-lg hover:bg-opacity-80 transition-all duration-300 mt-2 transform hover:-translate-y-1 [filter:drop-shadow(0_4px_8px_rgba(234,179,8,0.3))]">
-                                    Send Request
+                                <button type="submit" disabled={isLoading} className="w-full bg-brand-gold text-white py-3 rounded-full font-bold text-lg hover:bg-opacity-80 transition-all duration-300 mt-2 transform hover:-translate-y-1 [filter:drop-shadow(0_4px_8px_rgba(234,179,8,0.3))] disabled:opacity-50 disabled:cursor-not-allowed">
+                                    {isLoading ? 'Sending...' : 'Send Request'}
                                 </button>
                                 </div>
                             </form>

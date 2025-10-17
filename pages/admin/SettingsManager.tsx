@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { SocialLink, PortfolioItem, SpecialItem, Genre, Booking, Expense, InventoryItem } from '../../App';
+import { storage } from '../../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface SettingsManagerProps {
   onSaveAllSettings: (settings: any) => Promise<void>;
@@ -33,104 +35,105 @@ interface SettingsManagerProps {
   inventory: InventoryItem[];
 }
 
-const fileToDataUrl = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-};
-
 const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
-  const [localCompanyName, setLocalCompanyName] = useState(props.companyName);
-  const [localLogoUrl, setLocalLogoUrl] = useState(props.logoUrl);
-  const [localAboutUsImageUrl, setLocalAboutUsImageUrl] = useState(props.aboutUsImageUrl);
-  const [localWhatsAppNumber, setLocalWhatsAppNumber] = useState(props.whatsAppNumber);
-  const [localAddress, setLocalAddress] = useState(props.address);
-  const [localPhone, setLocalPhone] = useState(props.phone);
-  const [localEmail, setLocalEmail] = useState(props.email);
-  const [localSocialLinks, setLocalSocialLinks] = useState<SocialLink[]>(props.socialLinks);
-  
-  // Page Content state
-  const [localShowroomTitle, setLocalShowroomTitle] = useState(props.showroomTitle);
-  const [localShowroomDescription, setLocalShowroomDescription] = useState(props.showroomDescription);
-  const [localHeroTattooGunImageUrl, setLocalHeroTattooGunImageUrl] = useState(props.heroTattooGunImageUrl);
+    // Local state for form fields
+    const [settings, setSettings] = useState({
+        companyName: props.companyName,
+        whatsAppNumber: props.whatsAppNumber,
+        address: props.address,
+        phone: props.phone,
+        email: props.email,
+        showroomTitle: props.showroomTitle,
+        showroomDescription: props.showroomDescription,
+        bankName: props.bankName,
+        accountNumber: props.accountNumber,
+        branchCode: props.branchCode,
+        accountType: props.accountType,
+        vatNumber: props.vatNumber,
+    });
+    // State for image URLs and new files
+    const [logo, setLogo] = useState<string | File>(props.logoUrl);
+    const [aboutUsImage, setAboutUsImage] = useState<string | File>(props.aboutUsImageUrl);
+    const [heroImage, setHeroImage] = useState<string | File>(props.heroTattooGunImageUrl);
+    const [socialLinks, setSocialLinks] = useState<(SocialLink & { file?: File })[]>(props.socialLinks);
 
-  // New billing state
-  const [localBankName, setLocalBankName] = useState(props.bankName);
-  const [localAccountNumber, setLocalAccountNumber] = useState(props.accountNumber);
-  const [localBranchCode, setLocalBranchCode] = useState(props.branchCode);
-  const [localAccountType, setLocalAccountType] = useState(props.accountType);
-  const [localVatNumber, setLocalVatNumber] = useState(props.vatNumber);
+    const [isLoading, setIsLoading] = useState(false);
+    const [savedMessage, setSavedMessage] = useState('');
 
-  const [savedMessage, setSavedMessage] = useState('');
-  
-  const handleSaveSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const allSettings = {
-        companyName: localCompanyName,
-        logoUrl: localLogoUrl,
-        aboutUsImageUrl: localAboutUsImageUrl,
-        whatsAppNumber: localWhatsAppNumber,
-        address: localAddress,
-        phone: localPhone,
-        email: localEmail,
-        socialLinks: localSocialLinks,
-        bankName: localBankName,
-        accountNumber: localAccountNumber,
-        branchCode: localBranchCode,
-        accountType: localAccountType,
-        vatNumber: localVatNumber,
-        showroomTitle: localShowroomTitle,
-        showroomDescription: localShowroomDescription,
-        heroTattooGunImageUrl: localHeroTattooGunImageUrl,
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { id, value } = e.target;
+        setSettings(prev => ({...prev, [id]: value}));
     };
-    await props.onSaveAllSettings(allSettings);
 
-    setSavedMessage('Settings saved successfully!');
-    setTimeout(() => setSavedMessage(''), 3000);
-  };
-  
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) {
-          const dataUrl = await fileToDataUrl(e.target.files[0]);
-          setLocalLogoUrl(dataUrl);
-      }
-  };
-  
-  const handleAboutUsImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) {
-          const dataUrl = await fileToDataUrl(e.target.files[0]);
-          setLocalAboutUsImageUrl(dataUrl);
-      }
-  };
+    const handleFileChange = (setter: React.Dispatch<React.SetStateAction<string | File>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setter(e.target.files[0]);
+        }
+    };
+    
+    const uploadFile = async (file: File, path: string): Promise<string> => {
+        if (!(file instanceof File)) return file; // It's already a URL string
+        const storageRef = ref(storage, `${path}/${Date.now()}-${file.name}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        return await getDownloadURL(snapshot.ref);
+    };
 
-  const handleHeroTattooGunImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) {
-          const dataUrl = await fileToDataUrl(e.target.files[0]);
-          setLocalHeroTattooGunImageUrl(dataUrl);
-      }
-  };
+    const handleSaveSettings = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            const [logoUrl, aboutUsImageUrl, heroTattooGunImageUrl] = await Promise.all([
+                uploadFile(logo as File, 'settings'),
+                uploadFile(aboutUsImage as File, 'settings'),
+                uploadFile(heroImage as File, 'settings'),
+            ]);
 
-  const handleAddSocialLink = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) {
-          const icon = await fileToDataUrl(e.target.files[0]);
-          const newLink: SocialLink = { id: Date.now().toString(), url: '', icon };
-          setLocalSocialLinks([...localSocialLinks, newLink]);
-          e.target.value = ''; // Reset file input
-      }
-  };
-  
-  const handleUpdateSocialLink = (id: string, url: string) => {
-      setLocalSocialLinks(localSocialLinks.map(link => link.id === id ? { ...link, url } : link));
-  };
-  
-  const handleRemoveSocialLink = (id: string) => {
-      setLocalSocialLinks(localSocialLinks.filter(link => link.id !== id));
-  };
+            const finalSocialLinks = await Promise.all(
+                socialLinks.map(async (link) => {
+                    const iconUrl = link.file ? await uploadFile(link.file, 'social-icons') : link.icon;
+                    return { id: link.id, url: link.url, icon: iconUrl };
+                })
+            );
 
-  const handleBackup = () => {
+            await props.onSaveAllSettings({
+                ...settings,
+                logoUrl,
+                aboutUsImageUrl,
+                heroTattooGunImageUrl,
+                socialLinks: finalSocialLinks,
+            });
+            setSavedMessage('Settings saved successfully!');
+        } catch (error) {
+            console.error("Error saving settings:", error);
+            alert("Failed to save settings. Please check the console.");
+        } finally {
+            setIsLoading(false);
+            setTimeout(() => setSavedMessage(''), 3000);
+        }
+    };
+
+    const handleAddSocialLink = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            const newLink = { id: Date.now().toString(), url: '', icon: URL.createObjectURL(file), file };
+            setSocialLinks([...socialLinks, newLink]);
+        }
+    };
+    
+    const handleUpdateSocialLinkUrl = (id: string, url: string) => {
+        setSocialLinks(socialLinks.map(link => link.id === id ? { ...link, url } : link));
+    };
+    
+    const handleRemoveSocialLink = (id: string) => {
+        setSocialLinks(socialLinks.filter(link => link.id !== id));
+    };
+    
+    const getPreviewUrl = (media: string | File): string => {
+        return (media instanceof File) ? URL.createObjectURL(media) : media;
+    };
+    
+    // Backup and Restore remain unchanged as they operate on the full dataset passed via props.
+    const handleBackup = () => {
     try {
         const backupData = {
             settings: {
@@ -165,9 +168,6 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
   };
 
   const handleRestore = (e: React.ChangeEvent<HTMLInputElement>) => {
-      // This functionality should be handled in App.tsx now to update the DB
-      // For now, this is a placeholder. A full implementation would involve
-      // passing a restore function down from App.tsx.
       alert("Restore functionality is being refactored to work with the live database.");
       e.target.value = '';
   };
@@ -183,167 +183,111 @@ const SettingsManager: React.FC<SettingsManagerProps> = (props) => {
         </header>
       <form onSubmit={handleSaveSettings} className="space-y-10">
         
-        {/* Company Details Section */}
         <section data-tour-id="settings-company-details">
           <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">🏢 Company Details</h3>
           <div className="space-y-6">
             <div>
               <label htmlFor="companyName" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Company Name </label>
-              <input type="text" id="companyName" value={localCompanyName} onChange={(e) => setLocalCompanyName(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+              <input type="text" id="companyName" value={settings.companyName} onChange={handleInputChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
             </div>
             <div>
-              <label htmlFor="logo" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Logo </label>
+              <label className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Logo </label>
               <div className="flex items-center gap-4">
-                {localLogoUrl && <img src={localLogoUrl} alt="Logo preview" className="w-16 h-16 rounded-lg bg-white/10 p-1 object-contain"/>}
-                <input type="file" id="logo" accept="image/png, image/jpeg" onChange={handleLogoUpload} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40" />
+                {logo && <img src={getPreviewUrl(logo)} alt="Logo preview" className="w-16 h-16 rounded-lg bg-white/10 p-1 object-contain"/>}
+                <input type="file" id="logo" accept="image/*" onChange={handleFileChange(setLogo)} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40" />
               </div>
             </div>
             <div>
-              <label htmlFor="aboutUsImage" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Artist Portrait (About Us Section) </label>
+              <label className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Artist Portrait (About Us Section) </label>
               <div className="flex items-center gap-4">
-                {localAboutUsImageUrl && <img src={localAboutUsImageUrl} alt="Artist portrait preview" className="w-16 h-16 rounded-full bg-white/10 p-1 object-cover"/>}
-                <input type="file" id="aboutUsImage" accept="image/png, image/jpeg" onChange={handleAboutUsImageUpload} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40" />
+                {aboutUsImage && <img src={getPreviewUrl(aboutUsImage)} alt="Artist portrait preview" className="w-16 h-16 rounded-full bg-white/10 p-1 object-cover"/>}
+                <input type="file" id="aboutUsImage" accept="image/*" onChange={handleFileChange(setAboutUsImage)} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40" />
               </div>
             </div>
           </div>
         </section>
 
-        {/* Page Content Section */}
         <section data-tour-id="settings-page-content">
           <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">🎨 Homepage Content</h3>
           <div className="space-y-6">
             <div>
-              <label htmlFor="heroTattooGunImage" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Hero Section Tattoo Gun Image </label>
+              <label className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Hero Section Tattoo Gun Image </label>
               <div className="flex items-center gap-4">
-                {localHeroTattooGunImageUrl && <img src={localHeroTattooGunImageUrl} alt="Tattoo gun preview" className="w-16 h-16 rounded-lg bg-white/10 p-1 object-contain"/>}
-                <input type="file" id="heroTattooGunImage" accept="image/png, image/jpeg, image/webp" onChange={handleHeroTattooGunImageUpload} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40" />
+                {heroImage && <img src={getPreviewUrl(heroImage)} alt="Tattoo gun preview" className="w-16 h-16 rounded-lg bg-white/10 p-1 object-contain"/>}
+                <input type="file" id="heroTattooGunImage" accept="image/*" onChange={handleFileChange(setHeroImage)} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40" />
               </div>
             </div>
             <div>
               <label htmlFor="showroomTitle" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Showroom Title </label>
-              <input type="text" id="showroomTitle" value={localShowroomTitle} onChange={(e) => setLocalShowroomTitle(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+              <input type="text" id="showroomTitle" value={settings.showroomTitle} onChange={handleInputChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
             </div>
             <div>
               <label htmlFor="showroomDescription" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Showroom Description </label>
-              <textarea id="showroomDescription" value={localShowroomDescription} onChange={(e) => setLocalShowroomDescription(e.target.value)} rows={3} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+              <textarea id="showroomDescription" value={settings.showroomDescription} onChange={handleInputChange} rows={3} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
             </div>
           </div>
         </section>
 
-        {/* Contact Information Section */}
         <section data-tour-id="settings-contact-info">
           <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">📞 Contact Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                  <label htmlFor="address" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Address </label>
-                  <input type="text" id="address" value={localAddress} onChange={(e) => setLocalAddress(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
-              </div>
-              <div>
-                  <label htmlFor="phone" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Phone Number </label>
-                  <input type="text" id="phone" value={localPhone} onChange={(e) => setLocalPhone(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
-              </div>
-              <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Contact Email </label>
-                  <input type="email" id="email" value={localEmail} onChange={(e) => setLocalEmail(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
-              </div>
-              <div>
-                  <label htmlFor="whatsAppNumber" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> WhatsApp Number </label>
-                  <input type="text" id="whatsAppNumber" value={localWhatsAppNumber} onChange={(e) => setLocalWhatsAppNumber(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
-                  <p className="text-xs text-admin-dark-text-secondary mt-2">No symbols (e.g., 27795904162)</p>
-              </div>
+              <input type="text" id="address" value={settings.address} onChange={handleInputChange} placeholder="Address" className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+              <input type="text" id="phone" value={settings.phone} onChange={handleInputChange} placeholder="Phone Number" className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+              <input type="email" id="email" value={settings.email} onChange={handleInputChange} placeholder="Contact Email" className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+              <input type="text" id="whatsAppNumber" value={settings.whatsAppNumber} onChange={handleInputChange} placeholder="WhatsApp Number" className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
           </div>
         </section>
-
-        {/* Social Media Section */}
+        
         <section>
           <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">🌐 Social Media</h3>
             <div className="space-y-3">
-                {localSocialLinks.map(link => (
+                {socialLinks.map(link => (
                     <div key={link.id} className="flex items-center gap-3">
                         <img src={link.icon} alt="Social Icon" className="w-8 h-8 rounded-lg bg-white/10 p-1 object-contain"/>
-                        <input type="text" value={link.url} onChange={(e) => handleUpdateSocialLink(link.id, e.target.value)} placeholder="https://..." className="flex-grow bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition"/>
+                        <input type="text" value={link.url} onChange={(e) => handleUpdateSocialLinkUrl(link.id, e.target.value)} placeholder="https://..." className="flex-grow bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition"/>
                         <button type="button" onClick={() => handleRemoveSocialLink(link.id)} className="p-2 text-red-500 hover:bg-red-500/20 rounded-full transition-colors">&times;</button>
                     </div>
                 ))}
             </div>
             <div className="mt-4">
                  <label htmlFor="social_upload" className="inline-block text-sm text-admin-dark-primary bg-admin-dark-primary/20 hover:bg-admin-dark-primary/40 px-4 py-2 rounded-lg cursor-pointer transition-colors">Add Social Icon</label>
-                 <input type="file" id="social_upload" accept="image/png, image/jpeg, image/svg+xml" onChange={handleAddSocialLink} className="hidden" />
+                 <input type="file" id="social_upload" accept="image/*" onChange={handleAddSocialLink} className="hidden" />
             </div>
         </section>
 
-        {/* Billing Information Section */}
         <section data-tour-id="settings-billing-info">
           <h3 className="text-lg font-semibold text-white border-b border-admin-dark-border pb-3 mb-4">💰 Billing & Invoicing</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                  <label htmlFor="bankName" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Bank Name </label>
-                  <input type="text" id="bankName" value={localBankName} onChange={(e) => setLocalBankName(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
-              </div>
-               <div>
-                  <label htmlFor="accountType" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Account Type </label>
-                  <input type="text" id="accountType" value={localAccountType} onChange={(e) => setLocalAccountType(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
-              </div>
-              <div>
-                  <label htmlFor="accountNumber" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Account Number </label>
-                  <input type="text" id="accountNumber" value={localAccountNumber} onChange={(e) => setLocalAccountNumber(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
-              </div>
-              <div>
-                  <label htmlFor="branchCode" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> Branch Code </label>
-                  <input type="text" id="branchCode" value={localBranchCode} onChange={(e) => setLocalBranchCode(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
-              </div>
+              <input type="text" id="bankName" value={settings.bankName} onChange={handleInputChange} placeholder="Bank Name" className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+              <input type="text" id="accountType" value={settings.accountType} onChange={handleInputChange} placeholder="Account Type" className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+              <input type="text" id="accountNumber" value={settings.accountNumber} onChange={handleInputChange} placeholder="Account Number" className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+              <input type="text" id="branchCode" value={settings.branchCode} onChange={handleInputChange} placeholder="Branch Code" className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
               <div className="md:col-span-2">
-                  <label htmlFor="vatNumber" className="block text-sm font-semibold text-admin-dark-text-secondary mb-2"> VAT Number (Optional) </label>
-                  <input type="text" id="vatNumber" value={localVatNumber} onChange={(e) => setLocalVatNumber(e.target.value)} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
+                 <input type="text" id="vatNumber" value={settings.vatNumber} onChange={handleInputChange} placeholder="VAT Number (Optional)" className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-3 text-admin-dark-text outline-none focus:ring-2 focus:ring-admin-dark-primary transition" />
               </div>
           </div>
         </section>
 
         <div className="flex items-center gap-4 pt-4 border-t border-admin-dark-border">
-            <button type="submit" className="bg-admin-dark-primary text-white px-8 py-3 rounded-lg font-bold hover:opacity-90 transition-opacity"> Save Changes </button>
+            <button type="submit" disabled={isLoading} className="bg-admin-dark-primary text-white px-8 py-3 rounded-lg font-bold hover:opacity-90 transition-opacity disabled:opacity-50"> {isLoading ? 'Saving...' : 'Save Changes'} </button>
             {savedMessage && <span className="text-green-400 text-sm" role="status">{savedMessage}</span>}
         </div>
       </form>
       
-      {/* Data Management Section */}
       <section data-tour-id="settings-data-management" className="mt-12 pt-6 border-t border-admin-dark-border">
           <h3 className="text-lg font-semibold text-white mb-2">💾 Data Management</h3>
           <p className="text-sm text-admin-dark-text-secondary mb-4">Download a single JSON file containing all your site data, or restore your site from a backup file.</p>
           <div className="flex flex-col sm:flex-row gap-4">
-              <button 
-                  type="button" 
-                  onClick={handleBackup}
-                  className="bg-blue-500/20 border border-blue-500/50 text-blue-300 px-6 py-2 rounded-lg font-bold text-sm hover:bg-blue-500/40 hover:text-white transition-colors"
-              >
-                  Backup All Data
-              </button>
-              <label 
-                  htmlFor="restore-backup" 
-                  className="bg-green-500/20 border border-green-500/50 text-green-300 px-6 py-2 rounded-lg font-bold text-sm hover:bg-green-500/40 hover:text-white transition-colors cursor-pointer text-center"
-              >
-                  Restore from Backup
-              </label>
-              <input 
-                  type="file" 
-                  id="restore-backup" 
-                  accept=".json" 
-                  onChange={handleRestore} 
-                  className="hidden" 
-              />
+              <button type="button" onClick={handleBackup} className="bg-blue-500/20 border border-blue-500/50 text-blue-300 px-6 py-2 rounded-lg font-bold text-sm hover:bg-blue-500/40 hover:text-white transition-colors">Backup All Data</button>
+              <label htmlFor="restore-backup" className="bg-green-500/20 border border-green-500/50 text-green-300 px-6 py-2 rounded-lg font-bold text-sm hover:bg-green-500/40 hover:text-white transition-colors cursor-pointer text-center">Restore from Backup</label>
+              <input type="file" id="restore-backup" accept=".json" onChange={handleRestore} className="hidden" />
           </div>
       </section>
 
-      {/* Danger Zone Section */}
       <section data-tour-id="settings-danger-zone" className="mt-12 pt-6 border-t-2 border-red-500/30">
           <h3 className="text-lg font-semibold text-red-400 mb-2">🚨 Danger Zone</h3>
           <p className="text-sm text-admin-dark-text-secondary mb-4">These actions are irreversible. Please be certain before proceeding.</p>
-          <button 
-            type="button" 
-            onClick={props.onClearAllData}
-            className="bg-red-500/20 border border-red-500/50 text-red-400 px-6 py-2 rounded-lg font-bold text-sm hover:bg-red-500/40 hover:text-white transition-colors"
-          >
-            Clear All Live Data
-          </button>
+          <button type="button" onClick={props.onClearAllData} className="bg-red-500/20 border border-red-500/50 text-red-400 px-6 py-2 rounded-lg font-bold text-sm hover:bg-red-500/40 hover:text-white transition-colors"> Clear All Live Data</button>
       </section>
     </div>
   );

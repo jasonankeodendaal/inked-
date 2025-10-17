@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { db } from './firebase';
+import { db, auth } from './firebase';
 import { collection, doc, setDoc, addDoc, updateDoc, deleteDoc, writeBatch, onSnapshot } from 'firebase/firestore';
+import { onAuthStateChanged, User } from 'firebase/auth';
 
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -84,7 +85,11 @@ export interface InventoryItem {
 // --- MAIN APP COMPONENT ---
 const App: React.FC = () => {
   // --- STATE ---
+  const [user, setUser] = useState<User | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [dataError, setDataError] = useState<string | null>(null);
+
   const [portfolioData, setPortfolioData] = useState<PortfolioItem[]>([]);
   const [specialsData, setSpecialsData] = useState<SpecialItem[]>([]);
   const [showroomData, setShowroomData] = useState<Genre[]>([]);
@@ -112,8 +117,17 @@ const App: React.FC = () => {
 
   const [currentView, setCurrentView] = useState('home');
   const [isIntroVisible, setIsIntroVisible] = useState(true);
-
-  // --- DATA FETCHING on App Load ---
+  
+  // --- AUTH STATE LISTENER ---
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthChecked(true);
+    });
+    return () => unsubscribe();
+  }, []);
+  
+  // --- PUBLIC DATA FETCHING ---
   useEffect(() => {
     const unsubscribers: (() => void)[] = [];
     let isMounted = true;
@@ -121,70 +135,105 @@ const App: React.FC = () => {
     try {
       // Subscribe to settings document
       const settingsUnsub = onSnapshot(doc(db, "settings", "main"), (doc) => {
-        if (doc.exists()) {
+        if (doc.exists() && isMounted) {
           const settings = doc.data();
-          if (isMounted) {
-            setCompanyName(settings.companyName);
-            setLogoUrl(settings.logoUrl);
-            setAboutUsImageUrl(settings.aboutUsImageUrl);
-            setWhatsAppNumber(settings.whatsAppNumber);
-            setAddress(settings.address);
-            setPhone(settings.phone);
-            setEmail(settings.email);
-            setSocialLinks(settings.socialLinks);
-            setShowroomTitle(settings.showroomTitle);
-            setShowroomDescription(settings.showroomDescription);
-            setHeroTattooGunImageUrl(settings.heroTattooGunImageUrl);
-            setBankName(settings.bankName);
-            setAccountNumber(settings.accountNumber);
-            setBranchCode(settings.branchCode);
-            setAccountType(settings.accountType);
-            setVatNumber(settings.vatNumber);
-          }
+          setCompanyName(settings.companyName);
+          setLogoUrl(settings.logoUrl);
+          setAboutUsImageUrl(settings.aboutUsImageUrl);
+          setWhatsAppNumber(settings.whatsAppNumber);
+          setAddress(settings.address);
+          setPhone(settings.phone);
+          setEmail(settings.email);
+          setSocialLinks(settings.socialLinks);
+          setShowroomTitle(settings.showroomTitle);
+          setShowroomDescription(settings.showroomDescription);
+          setHeroTattooGunImageUrl(settings.heroTattooGunImageUrl);
+          setBankName(settings.bankName);
+          setAccountNumber(settings.accountNumber);
+          setBranchCode(settings.branchCode);
+          setAccountType(settings.accountType);
+          setVatNumber(settings.vatNumber);
         }
       }, (error) => {
         console.error("Error listening to settings:", error);
-        alert("Could not connect to the settings database. Please check your connection and Firebase setup.");
+        if(isMounted) setDataError("Failed to load critical site settings. This is likely a Firestore security rule issue. Please ensure the 'settings' collection is publicly readable.");
       });
       unsubscribers.push(settingsUnsub);
 
-      // Subscribe to all collections
-      const collectionsToSubscribe: { name: string, setter: React.Dispatch<React.SetStateAction<any[]>> }[] = [
+      // Subscribe to public collections
+      const publicCollections: { name: string, setter: React.Dispatch<React.SetStateAction<any[]>> }[] = [
         { name: 'portfolio', setter: setPortfolioData },
         { name: 'specials', setter: setSpecialsData },
         { name: 'showroom', setter: setShowroomData },
-        { name: 'bookings', setter: setBookings },
-        { name: 'expenses', setter: setExpenses },
-        { name: 'inventory', setter: setInventory },
       ];
 
-      collectionsToSubscribe.forEach(({ name, setter }) => {
-        const collectionUnsub = onSnapshot(collection(db, name), (snapshot) => {
-          const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-          if (isMounted) {
-            setter(data);
-          }
+      publicCollections.forEach(({ name, setter }) => {
+        const unsub = onSnapshot(collection(db, name), (snapshot) => {
+          if (isMounted) setter(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
         }, (error) => {
-          console.error(`Error listening to ${name} collection:`, error);
+          console.error(`Error listening to public collection ${name}:`, error);
+          if (isMounted) setDataError(`Failed to load data for '${name}'. This is likely due to a Firestore security rule misconfiguration. Please ensure the '${name}' collection is publicly readable.`);
         });
-        unsubscribers.push(collectionUnsub);
+        unsubscribers.push(unsub);
       });
       
     } catch (error) {
-      console.error("Error setting up Firestore listeners:", error);
-      alert("Could not connect to the database. Please check your connection and Firebase setup.");
-    } finally {
-        if (isMounted) {
-            setLoading(false);
-        }
+      console.error("Error setting up public Firestore listeners:", error);
+      if (isMounted) setDataError("A critical error occurred while trying to connect to the database.");
     }
 
-    // Cleanup function
     return () => {
       isMounted = false;
       unsubscribers.forEach(unsub => unsub());
     };
   }, []);
+
+  // --- PRIVATE (ADMIN) DATA FETCHING ---
+  useEffect(() => {
+    if (!user) {
+      setBookings([]);
+      setExpenses([]);
+      setInventory([]);
+      return;
+    }
+
+    // User is authenticated, fetch private data.
+    const unsubscribers: (() => void)[] = [];
+    let isMounted = true;
+    try {
+      const privateCollections: { name: string, setter: React.Dispatch<React.SetStateAction<any[]>> }[] = [
+        { name: 'bookings', setter: setBookings },
+        { name: 'expenses', setter: setExpenses },
+        { name: 'inventory', setter: setInventory },
+      ];
+
+      privateCollections.forEach(({ name, setter }) => {
+        const unsub = onSnapshot(collection(db, name), (snapshot) => {
+          if (isMounted) setter(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+        }, (error) => {
+            console.error(`Error listening to private collection ${name}:`, error);
+            if (isMounted) setDataError(`Failed to load private data for '${name}'. Your account may not have the correct permissions.`);
+        });
+        unsubscribers.push(unsub);
+      });
+    } catch (error) {
+      console.error("Error setting up private Firestore listeners:", error);
+      if (isMounted) setDataError("A critical error occurred while trying to load administrator data.");
+    }
+    
+    return () => {
+      isMounted = false;
+      unsubscribers.forEach(unsub => unsub());
+    };
+  }, [user]); // This effect depends on the user's auth state.
+
+  // --- LOADING STATE ---
+  useEffect(() => {
+    if (authChecked) {
+      setLoading(false);
+    }
+  }, [authChecked]);
+
 
   // --- INTRO & NAVIGATION ---
   useEffect(() => {
@@ -316,6 +365,19 @@ const App: React.FC = () => {
       </div>
     );
   }
+  
+  if (dataError) {
+    return (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-brand-dark text-white p-8 text-center">
+            <div className="max-w-2xl">
+                <h1 className="text-2xl font-bold text-red-500 mb-4">🚨 Application Error</h1>
+                <p className="mb-4">A critical error occurred while fetching data from the database:</p>
+                <p className="font-mono bg-black/50 p-4 rounded-lg text-red-400 text-left text-sm whitespace-pre-wrap">{dataError}</p>
+                <p className="mt-6 text-gray-400 text-sm">This usually means the database security rules in your Firebase project are not configured correctly. Please update your rules in the Firebase Console and then refresh this page.</p>
+            </div>
+        </div>
+    );
+  }
 
   if (isIntroVisible) {
     return <WelcomeIntro isVisible={isIntroVisible} onEnter={handleEnter} logoUrl={logoUrl} />;
@@ -324,6 +386,7 @@ const App: React.FC = () => {
   if (currentView === 'admin') {
     return (
       <AdminPage
+        user={user}
         onNavigate={navigate}
         portfolioData={portfolioData}
         onAddPortfolioItem={handleAddPortfolioItem}

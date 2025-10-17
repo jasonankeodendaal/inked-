@@ -1,78 +1,85 @@
 import React, { useState } from 'react';
 import { SpecialItem } from '../../App';
+import { storage } from '../../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-const fileToDataUrl = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-};
+const EditForm = ({item, onSave, onCancel}: {item: Partial<SpecialItem>, onSave: (item: Partial<SpecialItem>, imageFile?: File) => Promise<void>, onCancel: () => void}) => {
+    const [formData, setFormData] = useState(item);
+    const [imageFile, setImageFile] = useState<File | undefined>();
+    const [imagePreview, setImagePreview] = useState(item.imageUrl || '');
+    const [isLoading, setIsLoading] = useState(false);
 
-const EditForm = ({item, onSave, onCancel, onChange}: {item: Partial<SpecialItem>, onSave: (e: React.FormEvent) => Promise<void>, onCancel: () => void, onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void}) => {
-    
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            try {
-                const dataUrl = await fileToDataUrl(e.target.files[0]);
-                const syntheticEvent = { target: { name: 'imageUrl', value: dataUrl } } as React.ChangeEvent<HTMLInputElement>;
-                onChange(syntheticEvent);
-            } catch (error) {
-                console.error("Failed to read image file:", error);
-            }
+            const file = e.target.files[0];
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
         }
+    };
+    
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        await onSave(formData, imageFile);
+        setIsLoading(false);
     };
 
     return (
-    <form onSubmit={onSave} className="bg-black/20 border border-admin-dark-border rounded-2xl p-6 my-4 space-y-4 animate-fade-in md:col-span-2">
+    <form onSubmit={handleSubmit} className="bg-black/20 border border-admin-dark-border rounded-2xl p-6 my-4 space-y-4 animate-fade-in md:col-span-2">
         <div>
             <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Title</label>
-            <input type="text" name="title" value={item.title || ''} onChange={onChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
+            <input type="text" name="title" value={formData.title || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
         </div>
         <div>
             <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Description</label>
-            <textarea name="description" value={item.description || ''} onChange={onChange} rows={3} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
+            <textarea name="description" value={formData.description || ''} onChange={handleChange} rows={3} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
         </div>
         <div>
             <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Image</label>
             <div className="flex items-center gap-4">
-                {item.imageUrl && <img src={item.imageUrl} alt="Special preview" className="w-20 h-20 object-cover rounded-lg bg-black/20"/>}
+                {imagePreview && <img src={imagePreview} alt="Special preview" className="w-20 h-20 object-cover rounded-lg bg-black/20"/>}
                 <input type="file" name="imageUrl" accept="image/png, image/jpeg" onChange={handleImageUpload} className="block w-full text-sm text-admin-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-admin-dark-primary/20 file:text-admin-dark-primary hover:file:bg-admin-dark-primary/40"/>
             </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Price Type</label>
-                <select name="priceType" value={item.priceType || 'none'} onChange={onChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none appearance-none bg-no-repeat bg-right pr-8" style={{backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundSize: '1.5em 1.5em'}}>
+                <select name="priceType" value={formData.priceType || 'none'} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none appearance-none bg-no-repeat bg-right pr-8" style={{backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundSize: '1.5em 1.5em'}}>
                     <option value="none">None</option>
                     <option value="fixed">Fixed Price</option>
                     <option value="hourly">Hourly Rate</option>
                     <option value="percentage">Percentage Discount</option>
                 </select>
             </div>
-            {item.priceType && item.priceType !== 'none' && (
+            {formData.priceType && formData.priceType !== 'none' && (
                 <div>
                     <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">
-                        {item.priceType === 'percentage' ? 'Percentage (%)' : 'Price (R)'}
+                        {formData.priceType === 'percentage' ? 'Percentage (%)' : 'Price (R)'}
                     </label>
-                    <input type="number" name="priceValue" value={item.priceValue || ''} onChange={onChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
+                    <input type="number" name="priceValue" value={formData.priceValue || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
                 </div>
             )}
         </div>
          <div>
             <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Details (one per line)</label>
-            <textarea name="details" value={Array.isArray(item.details) ? item.details.join('\n') : ''} onChange={onChange} rows={4} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" placeholder="e.g., Includes free consultation"/>
+            <textarea name="details" value={Array.isArray(formData.details) ? formData.details.join('\n') : ''} onChange={handleChange} rows={4} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none" placeholder="e.g., Includes free consultation"/>
         </div>
-        {item.priceType === 'percentage' && (
+        {formData.priceType === 'percentage' && (
              <div>
                 <label className="block text-sm font-semibold mb-2 text-admin-dark-text-secondary">Voucher Code (Optional)</label>
-                <input type="text" name="voucherCode" value={item.voucherCode || ''} onChange={onChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
+                <input type="text" name="voucherCode" value={formData.voucherCode || ''} onChange={handleChange} className="w-full bg-admin-dark-bg border border-admin-dark-border rounded-lg p-2 text-admin-dark-text focus:ring-2 focus:ring-admin-dark-primary outline-none"/>
             </div>
         )}
 
         <div className="flex gap-4 pt-2">
-            <button type="submit" className="bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">Save Special</button>
+            <button type="submit" disabled={isLoading} className="bg-admin-dark-primary text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50">
+                {isLoading ? 'Saving...' : 'Save Special'}
+            </button>
             <button type="button" onClick={onCancel} className="bg-admin-dark-card border border-admin-dark-border px-6 py-2 rounded-lg font-bold text-sm text-admin-dark-text-secondary hover:bg-opacity-70 transition-opacity">Cancel</button>
         </div>
     </form>
@@ -86,60 +93,53 @@ interface SpecialsManagerProps {
 }
 
 const SpecialsManager: React.FC<SpecialsManagerProps> = ({ 
-  specialsData, 
-  onAddSpecialItem,
-  onUpdateSpecialItem,
-  onDeleteSpecialItem
+  specialsData, onAddSpecialItem, onUpdateSpecialItem, onDeleteSpecialItem
 }) => {
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [currentItem, setCurrentItem] = useState<Partial<SpecialItem>>({
-        priceType: 'none',
-        details: []
-    });
+    const [editingItem, setEditingItem] = useState<SpecialItem | null>(null);
     const [isAddingNew, setIsAddingNew] = useState(false);
-
-    const handleEdit = (item: SpecialItem) => {
-        setEditingId(item.id);
-        setCurrentItem(item);
-        setIsAddingNew(false);
-    };
 
     const handleAddNew = () => {
         setIsAddingNew(true);
-        setEditingId('__new__');
-        setCurrentItem({
-            title: '', description: '', imageUrl: '', priceType: 'none',
-            priceValue: 0, details: [], voucherCode: '',
-        });
+        setEditingItem({} as SpecialItem);
     };
 
     const handleCancel = () => {
-        setEditingId(null);
-        setCurrentItem({});
+        setEditingItem(null);
         setIsAddingNew(false);
     };
 
-    const handleSave = async (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        const processedItem: Partial<SpecialItem> = {
-            ...currentItem,
-            priceValue: currentItem.priceValue ? parseFloat(String(currentItem.priceValue)) : undefined,
-            details: typeof (currentItem.details as any) === 'string'
-                ? (currentItem.details as any).split('\n').map((s: string) => s.trim()).filter(Boolean)
-                : currentItem.details,
-        };
-        
-        if (processedItem.priceType !== 'percentage') {
-            processedItem.voucherCode = undefined;
-        }
+    const handleSave = async (itemData: Partial<SpecialItem>, imageFile?: File) => {
+        try {
+            let imageUrl = itemData.imageUrl || '';
+            if (imageFile) {
+                const storageRef = ref(storage, `specials/${Date.now()}-${imageFile.name}`);
+                const snapshot = await uploadBytes(storageRef, imageFile);
+                imageUrl = await getDownloadURL(snapshot.ref);
+            }
 
-        if (isAddingNew) {
-            await onAddSpecialItem(processedItem as Omit<SpecialItem, 'id'>);
-        } else {
-            await onUpdateSpecialItem({ ...processedItem, id: editingId } as SpecialItem);
+            const processedItem = {
+                ...itemData,
+                imageUrl,
+                priceValue: itemData.priceValue ? parseFloat(String(itemData.priceValue)) : undefined,
+                details: typeof (itemData.details as any) === 'string'
+                    ? (itemData.details as any).split('\n').map((s: string) => s.trim()).filter(Boolean)
+                    : itemData.details,
+            };
+            if (processedItem.priceType !== 'percentage') {
+                processedItem.voucherCode = undefined;
+            }
+
+            if (isAddingNew) {
+                await onAddSpecialItem(processedItem as Omit<SpecialItem, 'id'>);
+            } else if (editingItem) {
+                await onUpdateSpecialItem({ ...processedItem, id: editingItem.id } as SpecialItem);
+            }
+        } catch (error) {
+            console.error("Failed to save special:", error);
+            alert("Error saving special offer. Please check console.");
+        } finally {
+            handleCancel();
         }
-        handleCancel();
     };
     
     const handleDelete = async (id: string) => {
@@ -148,10 +148,7 @@ const SpecialsManager: React.FC<SpecialsManagerProps> = ({
         }
     }
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setCurrentItem(prev => ({ ...prev, [name]: value }));
-    };
+    const showForm = isAddingNew || editingItem;
 
     return (
         <div className="bg-admin-dark-card border border-admin-dark-border rounded-xl shadow-lg p-6">
@@ -160,39 +157,41 @@ const SpecialsManager: React.FC<SpecialsManagerProps> = ({
                     <h2 className="text-xl font-bold text-white">Specials Manager</h2>
                     <p className="text-sm text-admin-dark-text-secondary mt-1">Manage current flash designs and special offers.</p>
                 </div>
-                <button onClick={handleAddNew} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
-                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                    Add New Special
-                </button>
+                {!showForm && (
+                    <button onClick={handleAddNew} className="flex items-center gap-2 bg-admin-dark-primary text-white px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
+                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        Add New Special
+                    </button>
+                )}
             </header>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {isAddingNew && editingId === '__new__' && <EditForm item={currentItem} onSave={handleSave} onCancel={handleCancel} onChange={handleInputChange}/>}
+                {showForm && (
+                    <EditForm 
+                        item={editingItem || {}} 
+                        onSave={handleSave} 
+                        onCancel={handleCancel}
+                    />
+                )}
 
-                {specialsData.map(item => (
-                    <React.Fragment key={item.id}>
-                        {editingId === item.id ? (
-                           <EditForm item={currentItem} onSave={handleSave} onCancel={handleCancel} onChange={handleInputChange}/>
-                        ) : (
-                            <div className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4 flex flex-col justify-between gap-4">
-                                <div className="flex items-start gap-4">
-                                    <img src={item.imageUrl} alt={item.title} className="w-16 h-16 object-cover rounded-lg flex-shrink-0"/>
-                                    <div>
-                                        <p className="font-semibold text-white">{item.title}</p>
-                                        <p className="text-sm text-admin-dark-text-secondary">{item.description}</p>
-                                    </div>
-                                </div>
-                                <div className="flex gap-2 text-admin-dark-text-secondary self-end">
-                                    <button onClick={() => handleEdit(item)} className="p-2 hover:bg-white/10 rounded-full hover:text-white transition-colors" aria-label={`Edit ${item.title}`}>
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
-                                    </button>
-                                    <button onClick={() => handleDelete(item.id)} className="p-2 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded-full transition-colors" aria-label={`Delete ${item.title}`}>
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                    </button>
-                                </div>
+                {!showForm && specialsData.map(item => (
+                    <div key={item.id} className="bg-admin-dark-bg/50 border border-admin-dark-border rounded-lg p-4 flex flex-col justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                            <img src={item.imageUrl} alt={item.title} className="w-16 h-16 object-cover rounded-lg flex-shrink-0"/>
+                            <div>
+                                <p className="font-semibold text-white">{item.title}</p>
+                                <p className="text-sm text-admin-dark-text-secondary">{item.description}</p>
                             </div>
-                        )}
-                    </React.Fragment>
+                        </div>
+                        <div className="flex gap-2 text-admin-dark-text-secondary self-end">
+                            <button onClick={() => { setIsAddingNew(false); setEditingItem(item); }} className="p-2 hover:bg-white/10 rounded-full hover:text-white transition-colors" aria-label={`Edit ${item.title}`}>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
+                            </button>
+                            <button onClick={() => handleDelete(item.id)} className="p-2 hover:bg-red-500/20 text-red-500 hover:text-red-400 rounded-full transition-colors" aria-label={`Delete ${item.title}`}>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </div>
                 ))}
             </div>
         </div>
